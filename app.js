@@ -1,5 +1,6 @@
 // File: public/app.js
 // Versi ini menerapkan HARGA DINAMIS berdasarkan level mie
+// (Sudah diperbaiki logikanya)
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -59,19 +60,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Ambil dan Tampilkan Produk ---
     function fetchProducts() {
         
-        // --- PERUBAHAN HARGA DASAR DI SINI ---
+        // --- PERUBAHAN HARGA DASAR & OPSI DI SINI ---
         products = [
             // Harga Mie Gacoan adalah harga level rendah (Lv 0-4)
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
-            // Harga Mie Hompimpa (dianggap Lv 0)
-            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: true},
+            
+            // Mie Hompimpa (asin) disamakan dengan Mie Suit (asin) -> tidak perlu opsi
+            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: false},
+            
             {id: 3, name: 'Mie Suit', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-suit.png', requiresOptions: false},
-            // Harga Dimsum
+            
+            // Harga Dimsum diubah ke 15.000
             {id: 4, name: 'Udang Keju', description: 'Dimsum Udang isi Keju (isi 3)', price: 15000, image_url: 'images/udang-keju.png', requiresOptions: false},
             {id: 5, name: 'Udang Rambutan', description: 'Dimsum Udang balut kulit pangsit (isi 3)', price: 15000, image_url: 'images/udang-rambutan.png', requiresOptions: false},
             {id: 6, name: 'Pangsit Goreng', description: 'Pangsit Goreng isi Ayam (isi 5)', price: 15000, image_url: 'images/pangsit-goreng.png', requiresOptions: false}
         ];
-        // --- AKHIR PERUBAHAN HARGA DASAR ---
+        // --- AKHIR PERUBAHAN ---
         
         renderProducts();
      }
@@ -80,7 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
         products.forEach(product => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            card.innerHTML = `<img src="${product.image_url}" alt="${product.name}"><div class="product-info"><h3>${product.name}</h3><div class="price">${formatRupiah(product.price)}</div><button data-id="${product.id}">Tambah ke Keranjang</button></div>`;
+            // Tampilkan harga dasar (harga Lv 0-4 untuk mie)
+            let displayPrice = product.price;
+            // Jika produk mie, tampilkan harga awal
+            if (product.requiresOptions) {
+                displayPrice = 15500; 
+            }
+            card.innerHTML = `<img src="${product.image_url}" alt="${product.name}"><div class="product-info"><h3>${product.name}</h3><div class="price">${formatRupiah(displayPrice)}</div><button data-id="${product.id}">Tambah ke Keranjang</button></div>`;
             card.querySelector('button').addEventListener('click', () => handleProductClick(product.id));
             productListEl.appendChild(card);
         });
@@ -103,8 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addToCartOptionsButton.dataset.id = productId;
             productOptionsModal.style.display = 'flex';
         } else {
-            // Untuk Dimsum & Mie Hompimpa, 'priceOverride' tidak diisi,
-            // jadi akan pakai harga dasar dari 'products' (15000 atau 15500)
             addToCart(productId, null, undefined); 
         }
      }
@@ -121,11 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Tentukan harga berdasarkan level
+        // Asumsi: Lv 5, 6, 7, 8 harga tinggi. Sisanya (0,1,2,3,4) harga rendah.
         const highLevels = ['Lv 5', 'Lv 6', 'Lv 7', 'Lv 8'];
-        let finalPrice = 15500; // Harga dasar untuk Lv 0-4
+        let finalPrice;
 
         if (highLevels.includes(level)) {
             finalPrice = 16500; // Harga untuk Lv 5-8
+        } else {
+            finalPrice = 15500; // Harga dasar untuk Lv 0-4
         }
         
         // Kirim harga yang sudah dihitung ke fungsi addToCart
@@ -154,16 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Logika Keranjang (Cart) ---
     
-    // --- FUNGSI INI DIMODIFIKASI ---
     function addToCart(productId, options, priceOverride) {
-        // 'priceOverride' adalah harga final yg dikirim (misal 16500)
-        // Jika 'priceOverride' tidak ada (undefined), ia akan pakai harga dari 'products'
-        
-        const product = { ...products.find(p => p.id === productId) }; // Clone product
+        const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
-
-        // Tentukan harga final untuk item ini
-        // Jika priceOverride ada, pakai itu. Jika tidak, pakai harga dasar produk.
         const finalPrice = priceOverride !== undefined ? priceOverride : product.price;
 
         // Cek item yang ada (HANYA untuk yg tidak butuh opsi)
@@ -189,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cartModal.style.display = 'flex';
         renderCart();
      }
-    // --- AKHIR PERUBAHAN ---
 
     function updateQuantity(uniqueCartId, newQuantity) {
         const item = cart.find(i => i.uniqueCartId === uniqueCartId);
@@ -220,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
             itemRow.innerHTML = `<img src="${item.image_url}" alt="${item.name}"><div class="cart-item-info"><b>${item.name}</b><span>${priceDisplay}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.uniqueCartId}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.uniqueCartId}"><button class="quantity-up" data-id="${item.uniqueCartId}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.uniqueCartId}">&times;</button>`;
             modalCartItemsEl.appendChild(itemRow);
             
-            // Kalkulasi total berdasarkan harga item di keranjang
             total += item.price * item.quantity;
         });
         
@@ -249,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- PERUBAHAN DETAIL PESANAN ---
         const itemsString = cart.map(item => { 
             let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; // Tampilkan harga per item
             if (item.options) { 
@@ -259,9 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return detail; 
         }).join('; \n');
         
-        // Total asli dihitung dari harga final di keranjang
         const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        // --- AKHIR PERUBAHAN ---
         
         const orderData = { nama: customerName, telepon: customerPhone, kelas: customerClass, itemsString: itemsString, totalAsli: totalAsli };
 
@@ -269,8 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
             checkoutButton.disabled = true;
             checkoutButton.textContent = 'Memproses...';
             if (GOOGLE_SCRIPT_URL === 'PASTE_WEB_APP_URL_BARU_ANDA_DI_SINI') { throw new Error('URL Google Script belum diisi di file app.js!'); }
-            const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(orderData), headers: { "Content-Type": "text-plain;charset=utf-8" }, });
-            if (!response.ok) throw new Error('Gagal menghubungi server.');
+            
+            // Tambahkan mode: 'cors' untuk jaga-jaga
+            const response = await fetch(GOOGLE_SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'cors', // Tambahkan ini
+                body: JSON.stringify(orderData), 
+                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            });
+
+            if (!response.ok) throw new Error('Gagal menghubungi server. Status: ' + response.status);
             const data = await response.json();
             if (data.status !== "success") throw new Error(data.message);
 
