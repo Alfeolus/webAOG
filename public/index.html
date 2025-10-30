@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jastip Gacoan AOG</title>
+    <!-- Versi CSS naik -->
+    <link rel="stylesheet" href="style.css?v=7"> 
+    <link rel="icon" href="images/logo.png" type="image/png"> 
+</head>
+<body>
+    
+    <div class="container">
+        
+        <div class="header-bar">
+            <!-- LOGO DITAMBAHKAN DI SINI -->
+            <img src="images/logo.png" alt="Logo Jastip Gacoan" class="header-logo">
+            
+            <h1>Jastip Gacoan AOG</h1>
+            
+            <button id="cart-icon-button">
+                🛒 Keranjang (<span id="cart-count">0</span>)
+            </button>
+        </div>
+        
+        <h2>List makanan</h2>
+        <div id="product-list">
+            <!-- Produk akan dimuat oleh JavaScript -->
+        </div>
+        
+    </div>
+    
+    <!-- ================================== -->
+    <!-- === SEMUA MODAL DI SINI === -->
+    <!-- (Kode Modal tidak berubah) -->
+    <!-- ================================== -->
+
+    <!-- Modal Keranjang Belanja -->
+    <div id="cart-modal" class="modal-overlay">
+         <div class="modal-content">
+            <button id="close-modal-button" class="close-modal-button">&times;</button>
+            <h2>Keranjang Belanja</h2>
+            <div id="modal-cart-items"></div>
+            <div class="modal-footer">
+                <h3>Total: <span id="modal-cart-total">Rp 0</span></h3>
+                <input type="text" id="customer-name" placeholder="Nama" required>
+                <input type="text" id="customer-phone" placeholder="No. Telepon / ID Line" required>
+                <select id="customer-class" required>
+                    <option value="" disabled selected>— Pilih Kelas —</option>
+                    <option value="PPTI 20">PPTI 20</option>
+                    <option value="PPTI 21">PPTI 21</option>
+                    <option value="PPTI 22">PPTI 22</option>
+                    <option value="PPTI 23">PPTI 23</option>
+                    <option value="PPTI 24">PPTI 24</option>
+                    <option value="PPTI 25">PPTI 25</option>
+                    <option value="PPBP 7">PPBP 7</option>
+                    <option value="PPBP 8">PPBP 8</option>
+                    <option value="PPBP 9">PPBP 9</option>
+                    <option value="PPBP 10">PPBP 10</option>
+                </select>
+                <button id="checkout-button">Proses Pesanan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Opsi Produk (Level Mie) -->
+    <div id="product-options-modal" class="modal-overlay" style="z-index: 1001;">
+         <div class="modal-content" style="max-width: 450px;">
+            <button id="close-options-modal-button" class="close-modal-button">&times;</button>
+            <h2 id="options-product-name">Pilih Opsi</h2>
+            <div class="options-form">
+                <label for="product-level">Level Pedas:</label>
+                <select id="product-level">
+                    <option value="Lv 0 (Asin Gurih)">Lv 0 (Asin Gurih)</option>
+                    <option value="Lv 1">Lv 1</option>
+                    <option value="Lv 2">Lv 2</option>
+                    <option value="Lv 3">Lv 3</option>
+                    <option value="Lv 4">Lv 4</option>
+                    <option value="Lv 5">Lv 5</option>
+                    <option value="Lv 6">Lv 6</option>
+                    <option value="Lv 7">Lv 7</option>
+                    <option value="Lv 8">Lv 8</option>
+                </select>
+                <label for="product-notes">Catatan (opsional):</label>
+                <input type="text" id="product-notes" placeholder="Contoh: 'Jangan pakai bawang'">
+            </div>
+            <div class="modal-footer">
+                <button id="add-to-cart-options-button">Tambah ke Keranjang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alert Pembayaran -->
+    <div id="alert-modal" class="modal-overlay" style="z-index: 1002;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2>Penting!</h2>
+            <p style="margin: 20px 0;">Pastikan Anda mentransfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
+            <p>Jumlah yang harus dibayar:</p>
+            <h3 id="alert-amount" style="color: #D94A00; font-size: 1.8em; margin: 5px 0 20px 0;">Rp 0</h3>
+            <button id="alert-ok-button" class="confirm-button">OK, Saya Mengerti</button>
+        </div>
+    </div>
+
+    <!-- Modal Pembayaran QRIS -->
+     <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+             <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
+             <h2>Lakukan Pembayaran</h2>
+             <p>Silakan lakukan pembayaran manual sebesar:</p>
+             <h2 id="qris-amount" style="color: #D94A00; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
+             <p>Order ID Anda: <b id="qris-order-id"></b></p>
+             <p>Pindai QRIS di bawah ini:</p>
+             <div id="qris-image-container">
+                 <img src="images/qris.png" alt="Scan QRIS di sini" style="width: 250px; max-width: 80%; border: 1px solid #ccc; border-radius: 8px; margin: 10px auto;">
+             </div>
+             <button id="confirm-payment-modal-button" class="confirm-button">Saya Sudah Bayar</button>
+             <p style="margin-top: 10px; font-size: 0.9em; color: #555;">(Pesanan akan diproses setelah pembayaran diverifikasi)</p>
+        </div>
+    </div>
+
+    <!-- Modal Validasi -->
+    <div id="validation-modal" class="modal-overlay" style="z-index: 1004;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+             <button id="close-validation-modal-button" class="close-modal-button">&times;</button>
+             <h2 style="color: #dc3545;">Mohon Lengkapi Data</h2>
+             <p id="validation-message" style="margin: 20px 0; font-size: 1.1em;"></p>
+             <button id="validation-ok-button" class="validation-button">OK</button>
+        </div>
+    </div>
+
+    <script src="app.js?v=9"></script> 
+</body>
+</html>

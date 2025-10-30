@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfirmasi Pembayaran Diterima</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
+            text-align: center; 
+            padding: 50px 20px; 
+            background-color: #f4f7f6;
+        }
+        .success-box {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px 20px; 
+            border: 1px solid #bbf7d0; 
+            background-color: #f0fdf4; 
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .success-box h1 { 
+            color: #16a34a; /* Hijau */
+            margin-bottom: 15px;
+        }
+        .success-box p {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .success-box a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff; /* Biru */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .success-box a:hover {
+            background-color: #0056b3; /* Biru gelap */
+        }
+    </style>
+</head>
+<body>
+    <div class="success-box">
+        <h1>Pembayaran Akan Segera Diverifikasi!</h1>
+        <p>Terima kasih telah melakukan konfirmasi. Pesanan Anda akan segera kami proses setelah pembayaran Anda masuk ke rekening kami.</p>
+        <p>Anda bisa menutup halaman ini sekarang.</p>
+        <a href="index.html">Kembali ke Halaman Utama</a> 
+    </div>
+
+    <script>
+        // Opsional: Ambil Order ID dari URL jika Anda menyimpannya
+        // const urlParams = new URLSearchParams(window.location.search);
+        // const orderId = urlParams.get('orderId');
+        // if (orderId) {
+        //     document.getElementById('display-order-id').textContent = orderId;
+        //     // Sembunyikan pesan jika order ID tidak ada
+        // } else {
+        //      document.getElementById('order-id-info').style.display = 'none';
+        // }
+    </script>
+</body>
+</html>
