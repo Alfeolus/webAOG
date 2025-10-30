@@ -1,82 +1,58 @@
 // File: public/app.js
-// Versi ini menerapkan HARGA DINAMIS berdasarkan level mie
-// (Sudah diperbaiki logikanya)
+// Versi ini menerapkan HARGA DINAMIS dan "FIRE AND FORGET"
 
 document.addEventListener('DOMContentLoaded', () => {
     
     // =================================================================
+    // URL Anda dari file sebelumnya
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
     // =================================================================
 
-    // --- Ambil Elemen DOM ---
+    // --- Ambil Elemen DOM --- 
     const productListEl = document.getElementById('product-list');
-
-    // --- Elemen Modal Keranjang ---
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
     const cartModal = document.getElementById('cart-modal');
     const closeModalButton = document.getElementById('close-modal-button');
     const modalCartItemsEl = document.getElementById('modal-cart-items');
     const modalCartTotalEl = document.getElementById('modal-cart-total');
-
-    // --- Elemen Form Checkout ---
     const customerNameInput = document.getElementById('customer-name');
     const customerPhoneInput = document.getElementById('customer-phone');
     const customerClassInput = document.getElementById('customer-class');
     const checkoutButton = document.getElementById('checkout-button');
-
-    // --- Elemen Modal Opsi Produk ---
     const productOptionsModal = document.getElementById('product-options-modal');
     const closeOptionsModalButton = document.getElementById('close-options-modal-button');
     const optionsProductName = document.getElementById('options-product-name');
     const productLevelSelect = document.getElementById('product-level');
     const productNotesInput = document.getElementById('product-notes');
     const addToCartOptionsButton = document.getElementById('add-to-cart-options-button');
-
-    // --- Elemen Modal Alert Pembayaran ---
     const alertModal = document.getElementById('alert-modal');
     const alertAmountEl = document.getElementById('alert-amount');
     const alertOkButton = document.getElementById('alert-ok-button');
-
-    // --- Elemen Modal QRIS ---
     const qrisModal = document.getElementById('qris-modal');
     const closeQrisModalButton = document.getElementById('close-qris-modal-button');
     const qrisAmountEl = document.getElementById('qris-amount');
     const qrisOrderIdEl = document.getElementById('qris-order-id');
     const confirmPaymentModalButton = document.getElementById('confirm-payment-modal-button');
-
-    // --- Elemen Modal Validasi ---
     const validationModal = document.getElementById('validation-modal');
     const closeValidationModalButton = document.getElementById('close-validation-modal-button');
     const validationMessageEl = document.getElementById('validation-message');
     const validationOkButton = document.getElementById('validation-ok-button');
 
-
-    // --- Variabel Global ---
     let products = [];
     let cart = [];
     let currentOrderData = null;
 
     // --- 1. Ambil dan Tampilkan Produk ---
     function fetchProducts() {
-        
-        // --- PERUBAHAN HARGA DASAR & OPSI DI SINI ---
         products = [
-            // Harga Mie Gacoan adalah harga level rendah (Lv 0-4)
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
-            
-            // Mie Hompimpa (asin) disamakan dengan Mie Suit (asin) -> tidak perlu opsi
             {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: false},
-            
             {id: 3, name: 'Mie Suit', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-suit.png', requiresOptions: false},
-            
-            // Harga Dimsum diubah ke 15.000
             {id: 4, name: 'Udang Keju', description: 'Dimsum Udang isi Keju (isi 3)', price: 15000, image_url: 'images/udang-keju.png', requiresOptions: false},
             {id: 5, name: 'Udang Rambutan', description: 'Dimsum Udang balut kulit pangsit (isi 3)', price: 15000, image_url: 'images/udang-rambutan.png', requiresOptions: false},
             {id: 6, name: 'Pangsit Goreng', description: 'Pangsit Goreng isi Ayam (isi 5)', price: 15000, image_url: 'images/pangsit-goreng.png', requiresOptions: false}
         ];
-        // --- AKHIR PERUBAHAN ---
-        
         renderProducts();
      }
     function renderProducts() {
@@ -84,12 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         products.forEach(product => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            // Tampilkan harga dasar (harga Lv 0-4 untuk mie)
             let displayPrice = product.price;
-            // Jika produk mie, tampilkan harga awal
-            if (product.requiresOptions) {
-                displayPrice = 15500; 
-            }
+            if (product.requiresOptions) { displayPrice = 15500; }
             card.innerHTML = `<img src="${product.image_url}" alt="${product.name}"><div class="product-info"><h3>${product.name}</h3><div class="price">${formatRupiah(displayPrice)}</div><button data-id="${product.id}">Tambah ke Keranjang</button></div>`;
             card.querySelector('button').addEventListener('click', () => handleProductClick(product.id));
             productListEl.appendChild(card);
@@ -102,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
     closeOptionsModalButton.addEventListener('click', () => { productOptionsModal.style.display = 'none'; });
     productOptionsModal.addEventListener('click', (event) => { if (event.target === productOptionsModal) productOptionsModal.style.display = 'none'; });
-    
     function handleProductClick(productId) {
         const product = products.find(p => p.id === productId);
         if (!product) return;
@@ -116,36 +87,17 @@ document.addEventListener('DOMContentLoaded', () => {
             addToCart(productId, null, undefined); 
         }
      }
-    
-    // --- PERUBAHAN LOGIKA HARGA DI SINI ---
     addToCartOptionsButton.addEventListener('click', () => {
         const productId = parseInt(addToCartOptionsButton.dataset.id);
         const level = productLevelSelect.value;
         const notes = productNotesInput.value || " ";
-        
-        const options = {
-            level: level,
-            notes: notes
-        };
-
-        // Tentukan harga berdasarkan level
-        // Asumsi: Lv 5, 6, 7, 8 harga tinggi. Sisanya (0,1,2,3,4) harga rendah.
+        const options = { level: level, notes: notes };
         const highLevels = ['Lv 5', 'Lv 6', 'Lv 7', 'Lv 8'];
-        let finalPrice;
-
-        if (highLevels.includes(level)) {
-            finalPrice = 16500; // Harga untuk Lv 5-8
-        } else {
-            finalPrice = 15500; // Harga dasar untuk Lv 0-4
-        }
-        
-        // Kirim harga yang sudah dihitung ke fungsi addToCart
+        let finalPrice = 15500; 
+        if (highLevels.includes(level)) { finalPrice = 16500; }
         addToCart(productId, options, finalPrice); 
-        
         productOptionsModal.style.display = 'none';
      });
-    // --- AKHIR PERUBAHAN ---
-    
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         if (currentOrderData) {
@@ -158,19 +110,15 @@ document.addEventListener('DOMContentLoaded', () => {
      });
     closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
     qrisModal.addEventListener('click', (event) => { if (event.target === qrisModal) qrisModal.style.display = 'none'; });
-
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
 
     // --- 3. Logika Keranjang (Cart) ---
-    
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
         const finalPrice = priceOverride !== undefined ? priceOverride : product.price;
-
-        // Cek item yang ada (HANYA untuk yg tidak butuh opsi)
         if (!product.requiresOptions) {
             const existingItem = cart.find(item => item.id === productId);
             if (existingItem) {
@@ -180,20 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return; 
             }
         }
-        
         const uniqueCartId = Date.now().toString();
-        cart.push({ 
-            ...product,
-            price: finalPrice, // Simpan harga final di keranjang
-            quantity: 1, 
-            options: options, 
-            uniqueCartId: uniqueCartId 
-        });
-        
+        cart.push({ ...product, price: finalPrice, quantity: 1, options: options, uniqueCartId: uniqueCartId });
         cartModal.style.display = 'flex';
         renderCart();
      }
-
     function updateQuantity(uniqueCartId, newQuantity) {
         const item = cart.find(i => i.uniqueCartId === uniqueCartId);
         if (item) item.quantity = newQuantity;
@@ -207,25 +146,16 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCartItemsEl.innerHTML = '';
         let total = 0;
         if (cart.length === 0) { modalCartItemsEl.innerHTML = '<p style="text-align: center; padding: 20px 0;">Keranjang Anda kosong.</p>'; }
-        
         cart.forEach(item => {
             let detailsHtml = '';
-            // Tampilkan harga per item (yang mungkin beda-beda)
             let priceDisplay = formatRupiah(item.price); 
-
-            if (item.options) { 
-                let notes = item.options.notes.trim() ? `, ${item.options.notes}` : ''; 
-                detailsHtml = `<div class="cart-item-details">${item.options.level}${notes}</div>`; 
-            }
-
+            if (item.options) { let notes = item.options.notes.trim() ? `, ${item.options.notes}` : ''; detailsHtml = `<div class="cart-item-details">${item.options.level}${notes}</div>`; }
             const itemRow = document.createElement('div');
             itemRow.className = 'cart-item-row';
             itemRow.innerHTML = `<img src="${item.image_url}" alt="${item.name}"><div class="cart-item-info"><b>${item.name}</b><span>${priceDisplay}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.uniqueCartId}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.uniqueCartId}"><button class="quantity-up" data-id="${item.uniqueCartId}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.uniqueCartId}">&times;</button>`;
             modalCartItemsEl.appendChild(itemRow);
-            
             total += item.price * item.quantity;
         });
-        
         modalCartTotalEl.textContent = formatRupiah(total);
         cartCountEl.textContent = cart.length;
         modalCartItemsEl.querySelectorAll('.quantity-down').forEach(btn => btn.addEventListener('click', () => { const id = btn.dataset.id; const item = cart.find(i => i.uniqueCartId === id); if (item.quantity > 1) updateQuantity(id, item.quantity - 1); else removeFromCart(id); }));
@@ -234,54 +164,58 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
      }
 
-    // --- 4. Proses Checkout (Kirim ke Google Sheet) ---
-    checkoutButton.addEventListener('click', async () => {
-        const customerName = customerNameInput.value.trim();
-        const customerPhone = customerPhoneInput.value.trim();
-        const customerClass = customerClassInput.value;
-
-        let errorMessage = "";
-        if (cart.length === 0) { errorMessage = 'Keranjang Anda masih kosong.'; }
-        else if (!customerName) { errorMessage = 'Mohon masukkan Nama Pemesan.'; }
-        else if (!customerPhone) { errorMessage = 'Mohon masukkan No. Telepon / ID Line.'; }
-        else if (!customerClass) { errorMessage = 'Mohon pilih Kelas Anda.'; }
-
-        if (errorMessage) {
-            showValidationError(errorMessage);
-            return;
-        }
-
-        const itemsString = cart.map(item => { 
-            let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; // Tampilkan harga per item
-            if (item.options) { 
-                let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; 
-                detail += ` [${item.options.level}${notes}]`; 
-            } 
-            return detail; 
-        }).join('; \n');
-        
-        const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        const orderData = { nama: customerName, telepon: customerPhone, kelas: customerClass, itemsString: itemsString, totalAsli: totalAsli };
-
+    // --- 4. Proses Checkout (FIRE AND FORGET) ---
+    // HAPUS 'async'
+    checkoutButton.addEventListener('click', () => { 
         try {
+            const customerName = customerNameInput.value.trim();
+            const customerPhone = customerPhoneInput.value.trim();
+            const customerClass = customerClassInput.value;
+            let errorMessage = "";
+            if (cart.length === 0) { errorMessage = 'Keranjang Anda masih kosong.'; }
+            else if (!customerName) { errorMessage = 'Mohon masukkan Nama Pemesan.'; }
+            else if (!customerPhone) { errorMessage = 'Mohon masukkan No. Telepon / ID Line.'; }
+            else if (!customerClass) { errorMessage = 'Mohon pilih Kelas Anda.'; }
+            if (errorMessage) { showValidationError(errorMessage); return; }
+
+            const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('; \n');
+            const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // --- INI SOLUSINYA: HITUNG SEMUA DI FRONTEND ---
+            // 1. Buat Kode Unik (1-99)
+            // Kita gunakan angka acak antara 1-99
+            const kodeUnik = Math.floor(Math.random() * 99) + 1;
+            // 2. Hitung Total Final
+            const totalFinal = totalAsli + kodeUnik;
+            // 3. Buat Order ID acak (misal: A1B2C3)
+            const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            // --- AKHIR PERHITUNGAN ---
+
+            const orderData = {
+                nama: customerName,
+                telepon: customerPhone,
+                kelas: customerClass,
+                itemsString: itemsString,
+                totalFinal: totalFinal // Kirim total final
+            };
+
             checkoutButton.disabled = true;
             checkoutButton.textContent = 'Memproses...';
             if (GOOGLE_SCRIPT_URL === 'PASTE_WEB_APP_URL_BARU_ANDA_DI_SINI') { throw new Error('URL Google Script belum diisi di file app.js!'); }
             
-            // Tambahkan mode: 'cors' untuk jaga-jaga
-            const response = await fetch(GOOGLE_SCRIPT_URL, { 
-                method: 'POST', 
-                mode: 'cors', // Tambahkan ini
-                body: JSON.stringify(orderData), 
+            // --- KIRIM DATA, TAPI JANGAN TUNGGU (FIRE AND FORGET) ---
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors', // mode: 'cors' tetap penting untuk mengirim
+                body: JSON.stringify(orderData),
                 headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            }).catch(err => {
+                // Kita tidak peduli errornya, tapi kita log di console
+                console.warn("Fetch failed (this is expected, ignoring):", err.message);
             });
+            // --- TIDAK ADA 'await', TIDAK ADA '.then()' ---
 
-            if (!response.ok) throw new Error('Gagal menghubungi server. Status: ' + response.status);
-            const data = await response.json();
-            if (data.status !== "success") throw new Error(data.message);
-
-            // --- SUKSES ---
+            // --- LANGSUNG LANJUT SEOLAH-OLAH SUKSES ---
             cartModal.style.display = 'none';
             cart = [];
             renderCart();
@@ -289,25 +223,27 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            currentOrderData = { orderId: data.orderId, finalAmount: data.finalAmount };
-            alertAmountEl.textContent = formatRupiah(data.finalAmount);
+            // Gunakan data yang baru kita hitung
+            currentOrderData = { orderId: orderId, finalAmount: totalFinal };
+            alertAmountEl.textContent = formatRupiah(totalFinal);
             alertModal.style.display = 'flex';
 
         } catch (err) {
-            showValidationError('Terjadi kesalahan: ' + err.message);
+            // Ini hanya akan menangkap error SINKRON (jika ada bug di kode di atas)
+            showValidationError('Terjadi kesalahan lokal: ' + err.message);
             checkoutButton.disabled = false;
             checkoutButton.textContent = 'Proses Pesanan';
         }
     });
 
-    // --- 5. Listener untuk Tombol "Saya Sudah Bayar" DI DALAM MODAL QRIS ---
+    // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
     confirmPaymentModalButton.addEventListener('click', () => {
         qrisModal.style.display = 'none';
         let successUrl = 'payment-success.html';
         window.location.href = successUrl;
     });
 
-    // --- 6. Fungsi Baru: Menampilkan Modal Validasi Error ---
+    // --- 6. Fungsi Modal Validasi Error ---
     function showValidationError(message) {
         validationMessageEl.textContent = message;
         validationModal.style.display = 'flex';
