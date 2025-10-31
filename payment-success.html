@@ -5,63 +5,172 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Konfirmasi Pembayaran Diterima</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
                 Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
             text-align: center; 
-            padding: 50px 20px; 
-            background-color: #f4f7f6;
+            padding: 40px 20px; 
+            background-color: #f8f9fa; /* Latar belakang abu-abu sangat muda */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: #333;
         }
         .success-box {
-            max-width: 500px;
+            max-width: 550px;
             margin: 0 auto;
-            padding: 40px 20px; 
-            border: 1px solid #bbf7d0; 
-            background-color: #f0fdf4; 
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 40px; 
+            background-color: #ffffff; 
+            border-radius: 12px; /* Lebih bulat */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* Shadow lebih lembut */
+            border: 1px solid #e9ecef; /* Border tipis */
+        }
+        .success-box img {
+            width: 100px; /* Ukuran ikon animasi */
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 10px;
         }
         .success-box h1 { 
             color: #16a34a; /* Hijau */
+            font-size: 1.8em;
+            font-weight: 700;
             margin-bottom: 15px;
+            margin-top: 10px; 
         }
-        .success-box p {
+        /* Paragraf "Terima kasih, Jason!" */
+        #thank-you-message {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        #thank-you-message b {
+            color: #FF7B00; /* Warna Oranye Gacoan */
+            font-weight: 700;
+        }
+        
+        /* Kontainer Detail Pesanan */
+        .order-details-container {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f8f9fa; /* Latar belakang abu-abu */
+            border-radius: 8px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        .order-details-container strong {
+            display: block;
             margin-bottom: 15px;
             color: #333;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        /* Ini untuk menampilkan detail pesanan */
+        #order-details-content {
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 1em;
+            color: #555;
+            white-space: pre-wrap; /* Jaga baris baru */
+            word-wrap: break-word;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .success-box p {
+            margin-bottom: 15px;
+            color: #555; /* Teks abu-abu */
+            font-size: 1em; 
         }
         .success-box a {
             display: inline-block;
             margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff; /* Biru */
+            padding: 12px 25px;
+            background-color: #FF7B00; /* Tombol oranye Gacoan */
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.2s;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
         }
         .success-box a:hover {
-            background-color: #0056b3; /* Biru gelap */
+            background-color: #D94A00; /* Oranye gelap */
+            transform: scale(1.03); /* Efek hover */
         }
     </style>
 </head>
 <body>
     <div class="success-box">
-        <h1>Pembayaran Akan Segera Diverifikasi!</h1>
-        <p>Terima kasih telah melakukan konfirmasi. Pesanan Anda akan segera kami proses setelah pembayaran Anda masuk ke rekening kami.</p>
+        
+        <img src="images/done.gif" alt="Pembayaran Berhasil">
+
+        <h1>Pembayaran Diterima!</h1>
+        
+        <p id="thank-you-message">Terima kasih! Pesanan kamu akan segera kita proses !!</p>
+        
+        <div class="order-details-container">
+            <strong>Detail Pesanan Anda:</strong>
+            <pre id="order-details-content">(Tidak ada detail pesanan)</pre>
+        </div>
+
+        <p>Order ID Anda: <b id="order-id-display">...</b></p>
         <p>Anda bisa menutup halaman ini sekarang.</p>
-        <a href="index.html">Kembali ke Halaman Utama</a> 
+        
+        <a href="index.html">Pesan Lagi</a> 
     </div>
 
     <script>
-        // Opsional: Ambil Order ID dari URL jika Anda menyimpannya
-        // const urlParams = new URLSearchParams(window.location.search);
-        // const orderId = urlParams.get('orderId');
-        // if (orderId) {
-        //     document.getElementById('display-order-id').textContent = orderId;
-        //     // Sembunyikan pesan jika order ID tidak ada
-        // } else {
-        //      document.getElementById('order-id-info').style.display = 'none';
-        // }
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // 1. Ambil data dari localStorage
+                const dataString = localStorage.getItem('lastOrderData');
+                
+                if (dataString) {
+                    const data = JSON.parse(dataString);
+                    
+                    // 2. Tampilkan Nama Pemesan
+                    const thankYouEl = document.getElementById('thank-you-message');
+                    if (thankYouEl && data.customerName) {
+                        const safeName = data.customerName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        thankYouEl.innerHTML = 'Terima kasih, <b>' + safeName + '</b>! Pesanan kamu akan segera kita proses !!';
+                    }
+                    
+                    // 3. Tampilkan Detail Pesanan (Format Baru)
+                    const detailsEl = document.getElementById('order-details-content');
+                    if (detailsEl && data.itemsString) {
+                        detailsEl.textContent = data.itemsString; // textContent akan merender \n
+                    }
+                    
+                    // 4. Tampilkan Order ID
+                    const orderIdEl = document.getElementById('order-id-display');
+                    if (orderIdEl && data.orderId) {
+                        orderIdEl.textContent = data.orderId;
+                    }
+
+                    // 5. Hapus data agar tidak muncul lagi
+                    localStorage.removeItem('lastOrderData');
+                } else {
+                     // Sembunyikan detail jika tidak ada data
+                    document.querySelector('.order-details-container').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error("Gagal memuat data pesanan:", error);
+                document.querySelector('.order-details-container').style.display = 'none';
+            }
+            
+            // Ambil Order ID dari URL (jika ada, dari metode lama)
+            // const urlParams = new URLSearchParams(window.location.search);
+            // const orderId = urlParams.get('orderId');
+            // if (orderId) {
+            //     const orderIdEl = document.getElementById('order-id-display');
+            //     orderIdEl.textContent = orderId;
+            // }
+        });
     </script>
 </body>
 </html>

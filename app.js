@@ -1,14 +1,14 @@
 // File: public/app.js
-// Versi ini menerapkan HARGA DINAMIS dan "FIRE AND FORGET"
+// Versi ini mengubah format string pesanan untuk halaman sukses
 
 document.addEventListener('DOMContentLoaded', () => {
     
     // =================================================================
-    // URL Anda dari file sebelumnya
+    // Pastikan URL Google Script Anda sudah benar
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
     // =================================================================
 
-    // --- Ambil Elemen DOM --- 
+    // --- Ambil Elemen DOM ---
     const productListEl = document.getElementById('product-list');
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
     closeOptionsModalButton.addEventListener('click', () => { productOptionsModal.style.display = 'none'; });
     productOptionsModal.addEventListener('click', (event) => { if (event.target === productOptionsModal) productOptionsModal.style.display = 'none'; });
+    
     function handleProductClick(productId) {
         const product = products.find(p => p.id === productId);
         if (!product) return;
@@ -87,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addToCart(productId, null, undefined); 
         }
      }
+    
     addToCartOptionsButton.addEventListener('click', () => {
         const productId = parseInt(addToCartOptionsButton.dataset.id);
         const level = productLevelSelect.value;
@@ -98,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addToCart(productId, options, finalPrice); 
         productOptionsModal.style.display = 'none';
      });
+    
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         if (currentOrderData) {
@@ -110,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
      });
     closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
     qrisModal.addEventListener('click', (event) => { if (event.target === qrisModal) qrisModal.style.display = 'none'; });
+
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
@@ -165,7 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
      }
 
     // --- 4. Proses Checkout (FIRE AND FORGET) ---
-    // HAPUS 'async'
     checkoutButton.addEventListener('click', () => { 
         try {
             const customerName = customerNameInput.value.trim();
@@ -178,44 +181,64 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (!customerClass) { errorMessage = 'Mohon pilih Kelas Anda.'; }
             if (errorMessage) { showValidationError(errorMessage); return; }
 
-            const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('; \n');
+            // --- INI PERUBAHAN FORMATNYA ---
+            const itemsString = cart.map(item => { 
+                let detail = item.name; // "Mie Gacoan"
+                
+                // Tambahkan level HANYA JIKA ada opsi
+                if (item.options) {
+                    // Hapus " (Asin Gurih)" dari level 0
+                    let level = item.options.level.replace(" (Asin Gurih)", ""); // "Lv 1" or "Lv 0"
+                    detail += ` ${level}`; // "Mie Gacoan Lv 1"
+                }
+
+                detail += ` x${item.quantity}`; // "Mie Gacoan Lv 1 x1"
+
+                // Tambahkan catatan jika ada
+                if (item.options && item.options.notes.trim()) {
+                    detail += ` (Catatan: ${item.options.notes.trim()})`; 
+                }
+                
+                return detail; 
+            }).join('\n'); // Pisahkan dengan BARIS BARU, bukan "; \n"
+            // --- AKHIR PERUBAHAN FORMAT ---
+            
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            // --- INI SOLUSINYA: HITUNG SEMUA DI FRONTEND ---
-            // 1. Buat Kode Unik (1-99)
-            // Kita gunakan angka acak antara 1-99
             const kodeUnik = Math.floor(Math.random() * 99) + 1;
-            // 2. Hitung Total Final
             const totalFinal = totalAsli + kodeUnik;
-            // 3. Buat Order ID acak (misal: A1B2C3)
             const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            // --- AKHIR PERHITUNGAN ---
 
             const orderData = {
                 nama: customerName,
                 telepon: customerPhone,
                 kelas: customerClass,
                 itemsString: itemsString,
-                totalFinal: totalFinal // Kirim total final
+                totalFinal: totalFinal 
             };
+            
+            // --- SIMPAN DATA KE LOCALSTORAGE UNTUK HALAMAN SUKSES ---
+            const successData = {
+                customerName: customerName,
+                itemsString: itemsString,
+                orderId: orderId // Simpan juga Order ID
+            };
+            localStorage.setItem('lastOrderData', JSON.stringify(successData));
+            // --- AKHIR PERUBAHAN ---
 
             checkoutButton.disabled = true;
             checkoutButton.textContent = 'Memproses...';
             if (GOOGLE_SCRIPT_URL === 'PASTE_WEB_APP_URL_BARU_ANDA_DI_SINI') { throw new Error('URL Google Script belum diisi di file app.js!'); }
             
-            // --- KIRIM DATA, TAPI JANGAN TUNGGU (FIRE AND FORGET) ---
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'cors', // mode: 'cors' tetap penting untuk mengirim
+                mode: 'cors', 
                 body: JSON.stringify(orderData),
                 headers: { "Content-Type": "text/plain;charset=utf-8" }, 
             }).catch(err => {
-                // Kita tidak peduli errornya, tapi kita log di console
                 console.warn("Fetch failed (this is expected, ignoring):", err.message);
             });
-            // --- TIDAK ADA 'await', TIDAK ADA '.then()' ---
-
-            // --- LANGSUNG LANJUT SEOLAH-OLAH SUKSES ---
+            
             cartModal.style.display = 'none';
             cart = [];
             renderCart();
@@ -223,13 +246,11 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            // Gunakan data yang baru kita hitung
             currentOrderData = { orderId: orderId, finalAmount: totalFinal };
             alertAmountEl.textContent = formatRupiah(totalFinal);
             alertModal.style.display = 'flex';
 
         } catch (err) {
-            // Ini hanya akan menangkap error SINKRON (jika ada bug di kode di atas)
             showValidationError('Terjadi kesalahan lokal: ' + err.message);
             checkoutButton.disabled = false;
             checkoutButton.textContent = 'Proses Pesanan';
@@ -239,8 +260,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
     confirmPaymentModalButton.addEventListener('click', () => {
         qrisModal.style.display = 'none';
+        
+        // --- PERUBAHAN: KIRIM ORDER ID KE HALAMAN SUKSES ---
         let successUrl = 'payment-success.html';
-        window.location.href = successUrl;
+        if (currentOrderData && currentOrderData.orderId) {
+            // Kita kirim Order ID acak yg kita buat
+            successUrl += `?orderId=${currentOrderData.orderId}`;
+        }
+        window.location.href = successUrl; 
+        // --- AKHIR PERUBAHAN ---
     });
 
     // --- 6. Fungsi Modal Validasi Error ---
