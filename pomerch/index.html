@@ -3,46 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Gacoan AOG</title>
-    <link rel="stylesheet" href="style.css?v=7"> 
-    <link rel="icon" href="images/logo.png" type="image/png"> 
+    <title>PO Merch - Ark of Grace</title>
+    <link rel="stylesheet" href="style.css?v=1"> 
+    <link rel="icon" href="images/favicon.png" type="image/png"> 
 </head>
 <body>
     
     <div class="container">
         
         <div class="header-bar">
-            <img src="images/logo.png" alt="Logo Jastip Gacoan" class="header-logo">
-            <h1>Jastip Gacoan AOG</h1>
+            <img src="images/logo.png" alt="Logo Merch" class="header-logo">
+            <h1>Ark of Grace (Merch)</h1>
             <button id="cart-icon-button">
                 🛒 Keranjang (<span id="cart-count">0</span>)
             </button>
         </div>
         
-        <h2>Produk Tersedia</h2>
+        <h2>Pre-Order Merchandise</h2>
         <div id="product-list">
-            <!-- Produk akan dimuat oleh JavaScript -->
-        </div>
+            </div>
         
     </div>
     
-    <!-- ================================== -->
-    <!-- === SEMUA MODAL DI SINI === -->
-    <!-- (Kode Modal tidak berubah, kecuali #qris-image-container) -->
-    <!-- ================================== -->
-
-    <!-- Modal Keranjang Belanja -->
     <div id="cart-modal" class="modal-overlay">
          <div class="modal-content">
             <button id="close-modal-button" class="close-modal-button">&times;</button>
-            <h2>Keranjang Belanja</h2>
+            <h2>Keranjang Merch</h2>
             <div id="modal-cart-items"></div>
             <div class="modal-footer">
                 <h3>Total: <span id="modal-cart-total">Rp 0</span></h3>
-                <input type="text" id="customer-name" placeholder="Nama Kamu" required>
+                <input type="text" id="customer-name" placeholder="Nama Pemesan" required>
                 <input type="text" id="customer-phone" placeholder="No. Telepon / ID Line" required>
                 <select id="customer-class" required>
-                    <option value="" disabled selected>— Pilih Kelas Kamu —</option>
+                    <option value="" disabled selected>— Pilih Kelas Anda —</option>
                     <option value="PPTI 20">PPTI 20</option>
                     <option value="PPTI 21">PPTI 21</option>
                     <option value="PPTI 22">PPTI 22</option>
@@ -59,24 +52,22 @@
         </div>
     </div>
 
-    <!-- Modal Opsi Produk (Level Mie) -->
     <div id="product-options-modal" class="modal-overlay" style="z-index: 1001;">
          <div class="modal-content" style="max-width: 450px;">
             <button id="close-options-modal-button" class="close-modal-button">&times;</button>
             <h2 id="options-product-name">Pilih Opsi</h2>
             <div class="options-form">
-                <label for="product-level">Level Pedas:</label>
-                <select id="product-level">
-                    <option value="Lv 0 (Asin Gurih)">Lv 0</option>
-                    <option value="Lv 1">Lv 1</option>
-                    <option value="Lv 2">Lv 2</option>
-                    <option value="Lv 3">Lv 3</option>
-                    <option value="Lv 4">Lv 4</option>
-                    <option value="Lv 6">Lv 6</option>
-                    <option value="Lv 8">Lv 8</option>
+                <label for="product-size">Pilih Ukuran:</label>
+                <select id="product-size">
+                    <option value="S">S</option>
+                    <option value="M" selected>M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="Lengan Panjang">Lengan Panjang (+10rb)</option>
                 </select>
                 <label for="product-notes">Catatan (opsional):</label>
-                <input type="text" id="product-notes" placeholder="Contoh: 'Jangan pakai bawang'">
+                <input type="text" id="product-notes" placeholder="Contoh: 'Tanpa sablon belakang'">
             </div>
             <div class="modal-footer">
                 <button id="add-to-cart-options-button">Tambah ke Keranjang</button>
@@ -84,51 +75,41 @@
         </div>
     </div>
 
-    <!-- Modal Alert Pembayaran -->
     <div id="alert-modal" class="modal-overlay" style="z-index: 1002;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h2>Penting!</h2>
-            <p style="margin: 20px 0;">Pastiin kamu transfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya yaa!!</p>
+            <p style="margin: 20px 0;">Pastikan Anda mentransfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
             <p>Jumlah yang harus dibayar:</p>
-            <h3 id="alert-amount" style="color: #D94A00; font-size: 1.8em; margin: 5px 0 20px 0;">Rp 0</h3>
-            <button id="alert-ok-button" class="confirm-button">OK, Paham!!</button>
+            <h3 id="alert-amount" style="color: #00aaff; font-size: 1.8em; margin: 5px 0 20px 0;">Rp 0</h3>
+            <button id="alert-ok-button" class="confirm-button">OK, Saya Mengerti</button>
         </div>
     </div>
 
-    <!-- Modal Pembayaran QRIS -->
-     <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
+    <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
         <div class="modal-content" style="max-width: 450px; text-align: center;">
              <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
              <h2>Lakukan Pembayaran</h2>
-             <p>Silahkan lakukan pembayaran sebesar:</p>
-             <h2 id="qris-amount" style="color: #D94A00; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
-             <p>Order ID Kamu: <b id="qris-order-id"></b></p>
+             <p>Silakan lakukan pembayaran manual sebesar:</p>
+             <h2 id="qris-amount" style="color: #00aaff; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
+             <p>Order ID Anda: <b id="qris-order-id"></b></p>
              <p>Pindai QRIS di bawah ini:</p>
-             
-             <!-- INI PERUBAHANNYA: KOSONGKAN DIV INI -->
              <div id="qris-image-container">
-                 <!-- Canvas QRIS akan digambar di sini oleh JS -->
+                 <img src="images/qris.png" alt="Scan QRIS di sini" style="width: 250px; max-width: 80%; border: 1px solid #555; border-radius: 8px; margin: 10px auto;">
              </div>
-             
-             <button id="confirm-payment-modal-button" class="confirm-button">Sudah Bayar !!</button>
-             <p style="margin-top: 10px; font-size: 0.9em; color: #555;">(Tolong klik tombol diatas setelah melakukan pembayaran)</p>
+             <button id="confirm-payment-modal-button" class="confirm-button">Saya Sudah Bayar</button>
+             <p style="margin-top: 10px; font-size: 0.9em; color: #888;">(Pesanan akan diproses setelah pembayaran diverifikasi)</p>
         </div>
     </div>
 
-    <!-- Modal Validasi -->
     <div id="validation-modal" class="modal-overlay" style="z-index: 1004;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
              <button id="close-validation-modal-button" class="close-modal-button">&times;</button>
-             <h2 style="color: #dc3545;">Tolong lengkapi data</h2>
+             <h2 style="color: #ff4d4d;">Mohon Lengkapi Data</h2>
              <p id="validation-message" style="margin: 20px 0; font-size: 1.1em;"></p>
              <button id="validation-ok-button" class="validation-button">OK</button>
         </div>
     </div>
-    
-    <!-- TAMBAHKAN LIBRARY QRIOUS DI SINI -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    
-    <!-- NAIKKAN VERSI INI SETIAP KALI ANDA MENGUBAH APP.JS -->
-    <script src="app.js?v=3000"></script> <!-- Saya ganti ke v=3000 (angka acak) -->
+
+    <script src="app.js?v=1"></script> 
 </body>
 </html>

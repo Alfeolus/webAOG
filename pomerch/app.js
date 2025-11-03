@@ -1,64 +1,12 @@
-// File: public/app.js
-// Versi ini menambahkan GENERATOR QRIS DINAMIS
-
-// =================================================================
-// === KODE QRIS GENERATOR ANDA DITEMPEL DI SINI ===
-// =================================================================
-// 🧩 QRIS statis dasar (milik Anda)
-const qrisBase =
-  "00020101021126610014COM.GO-JEK.WWW01189360091436674204410210G6674204410303UMI51440014ID.CO.QRIS.WWW0215ID10254362115320303UMI5204569153033605802ID5912Ark Of Grace6005BOGOR61051614362070703A01";
-
-// 🧮 Fungsi CRC16-CCITT (XModem)
-function crc16(str) {
-  let crc = 0xffff;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
-      crc &= 0xffff;
-    }
-  }
-  return crc.toString(16).toUpperCase().padStart(4, "0");
-}
-
-// 🪄 Fungsi utama: generate QRIS dinamis dari nominal
-// (Saya ubah agar menerima 'nominal' dan menargetkan div modal)
-function generateDynamicQris(nominal) {
-  const qrContainer = document.getElementById("qris-image-container");
-  qrContainer.innerHTML = ""; // Kosongkan QR lama (jika ada)
-
-  if (!nominal || nominal <= 0) {
-    console.error("Nominal tidak valid untuk QRIS");
-    return;
-  }
-
-  const nominalStr = String(Math.round(nominal)); // Pastikan integer
-  const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
-  let qrisNoCRC = qrisBase + amountTag + "5802ID6304";
-  const crc = crc16(qrisNoCRC);
-  const finalQris = qrisNoCRC + crc;
-
-  // 🎯 Generate QR Code ke dalam Modal
-  new QRious({
-    element: qrContainer.appendChild(document.createElement("canvas")),
-    value: finalQris,
-    size: 250, // Ukuran canvas QR
-    padding: 10, // Beri padding putih
-    background: 'white',
-    foreground: 'black'
-  });
-
-  console.log("QRIS String Dibuat:", finalQris);
-}
-// === AKHIR KODE QRIS GENERATOR ===
-// =================================================================
-
+// File: pomerch/app.js
+// Versi ini untuk PO Merchandise dengan tema gelap
 
 document.addEventListener('DOMContentLoaded', () => {
     
     // =================================================================
-    // URL Google Script Anda
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
+    // === PENTING! BUAT GOOGLE SHEET BARU UNTUK MERCH, ===
+    // === DEPLOY, DAN PASTE URL BARU ANDA DI SINI ===
+    const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_NEW_MERCH_SCRIPT_URL_HERE';
     // =================================================================
 
     // --- Ambil Elemen DOM ---
@@ -76,9 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const productOptionsModal = document.getElementById('product-options-modal');
     const closeOptionsModalButton = document.getElementById('close-options-modal-button');
     const optionsProductName = document.getElementById('options-product-name');
-    const productLevelSelect = document.getElementById('product-level');
+    
+    // Diubah dari Level ke Size
+    const productSizeSelect = document.getElementById('product-size'); 
     const productNotesInput = document.getElementById('product-notes');
     const addToCartOptionsButton = document.getElementById('add-to-cart-options-button');
+    
     const alertModal = document.getElementById('alert-modal');
     const alertAmountEl = document.getElementById('alert-amount');
     const alertOkButton = document.getElementById('alert-ok-button');
@@ -98,14 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. Ambil dan Tampilkan Produk ---
     function fetchProducts() {
+        
+        // --- PRODUK BARU UNTUK MERCH ---
+        // Pastikan path 'image_url' relatif (images/...)
         products = [
-            {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
-            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: true},
-            {id: 3, name: 'Mie Suit', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-suit.png', requiresOptions: false},
-            {id: 4, name: 'Udang Keju', description: 'Dimsum Udang isi Keju (isi 3)', price: 15000, image_url: 'images/udang-keju.png', requiresOptions: false},
-            {id: 5, name: 'Udang Rambutan', description: 'Dimsum Udang balut kulit pangsit (isi 3)', price: 15000, image_url: 'images/udang-rambutan.png', requiresOptions: false},
-            {id: 6, name: 'Pangsit Goreng', description: 'Pangsit Goreng isi Ayam (isi 5)', price: 15000, image_url: 'images/pangsit-goreng.png', requiresOptions: false}
+            {id: 1, name: 'T-Shirt "Ark of Grace"', description: 'Bahan Cotton Combed 24s, Sablon Plastisol.', price: 150000, image_url: 'images/t-shirt.png', requiresOptions: true},
+            {id: 2, name: 'Hoodie "Gracefall"', description: 'Bahan Cotton Fleece, Bordir Komputer.', price: 280000, image_url: 'images/hoodie.png', requiresOptions: true},
+            {id: 3, name: 'Totebag "Logo"', description: 'Bahan Kanvas Tebal, Sablon Karet.', price: 75000, image_url: 'images/totebag.png', requiresOptions: false},
+            {id: 4, name: 'Sticker Pack (5 pcs)', description: 'Bahan Vinyl Laminated, Anti Air.', price: 35000, image_url: 'images/stickers.png', requiresOptions: false}
         ];
+        // --- AKHIR PRODUK BARU ---
+        
         renderProducts();
      }
     function renderProducts() {
@@ -114,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'product-card';
             let displayPrice = product.price;
-            if (product.requiresOptions) { displayPrice = 15500; }
             card.innerHTML = `<img src="${product.image_url}" alt="${product.name}"><div class="product-info"><h3>${product.name}</h3><div class="price">${formatRupiah(displayPrice)}</div><button data-id="${product.id}">Tambah ke Keranjang</button></div>`;
             card.querySelector('button').addEventListener('click', () => handleProductClick(product.id));
             productListEl.appendChild(card);
@@ -127,30 +80,43 @@ document.addEventListener('DOMContentLoaded', () => {
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
     closeOptionsModalButton.addEventListener('click', () => { productOptionsModal.style.display = 'none'; });
     productOptionsModal.addEventListener('click', (event) => { if (event.target === productOptionsModal) productOptionsModal.style.display = 'none'; });
+    
     function handleProductClick(productId) {
         const product = products.find(p => p.id === productId);
         if (!product) return;
         if (product.requiresOptions) {
             optionsProductName.textContent = product.name;
-            productLevelSelect.value = "Lv 1";
+            productSizeSelect.value = "M"; // Default ke M
             productNotesInput.value = "";
             addToCartOptionsButton.dataset.id = productId;
             productOptionsModal.style.display = 'flex';
         } else {
-            addToCart(productId, null, undefined); 
+            addToCart(productId, null, product.price); 
         }
      }
+    
     addToCartOptionsButton.addEventListener('click', () => {
         const productId = parseInt(addToCartOptionsButton.dataset.id);
-        const level = productLevelSelect.value;
+        const size = productSizeSelect.value;
         const notes = productNotesInput.value || " ";
-        const options = { level: level, notes: notes };
-        const highLevels = ['Lv 5', 'Lv 6', 'Lv 7', 'Lv 8'];
-        let finalPrice = 15500; 
-        if (highLevels.includes(level)) { finalPrice = 16500; }
+        
+        const options = {
+            size: size,
+            notes: notes
+        };
+        
+        let product = products.find(p => p.id === productId);
+        let finalPrice = product.price;
+
+        // Logika harga custom: Jika Lengan Panjang, tambah 10rb
+        if (size === "Lengan Panjang") {
+            finalPrice += 10000;
+        }
+
         addToCart(productId, options, finalPrice); 
         productOptionsModal.style.display = 'none';
      });
+    
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         if (currentOrderData) {
@@ -163,15 +129,16 @@ document.addEventListener('DOMContentLoaded', () => {
      });
     closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
     qrisModal.addEventListener('click', (event) => { if (event.target === qrisModal) qrisModal.style.display = 'none'; });
+
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
 
     // --- 3. Logika Keranjang (Cart) ---
-    function addToCart(productId, options, priceOverride) {
+    function addToCart(productId, options, finalPrice) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
-        const finalPrice = priceOverride !== undefined ? priceOverride : product.price;
+
         if (!product.requiresOptions) {
             const existingItem = cart.find(item => item.id === productId);
             if (existingItem) {
@@ -202,7 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.forEach(item => {
             let detailsHtml = '';
             let priceDisplay = formatRupiah(item.price); 
-            if (item.options) { let notes = item.options.notes.trim() ? `, ${item.options.notes}` : ''; detailsHtml = `<div class="cart-item-details">${item.options.level}${notes}</div>`; }
+            if (item.options) { 
+                let notes = item.options.notes.trim() ? `, ${item.options.notes}` : ''; 
+                // Ubah dari 'level' ke 'size'
+                detailsHtml = `<div class="cart-item-details">Ukuran: ${item.options.size}${notes}</div>`; 
+            }
             const itemRow = document.createElement('div');
             itemRow.className = 'cart-item-row';
             itemRow.innerHTML = `<img src="${item.image_url}" alt="${item.name}"><div class="cart-item-info"><b>${item.name}</b><span>${priceDisplay}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.uniqueCartId}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.uniqueCartId}"><button class="quantity-up" data-id="${item.uniqueCartId}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.uniqueCartId}">&times;</button>`;
@@ -224,16 +195,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const customerPhone = customerPhoneInput.value.trim();
             const customerClass = customerClassInput.value;
             let errorMessage = "";
-            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong.'; }
-            else if (!customerName) { errorMessage = 'Tolong masukkan Nama Pemesan.'; }
-            else if (!customerPhone) { errorMessage = 'Tolong masukkan No. Telepon / ID Line.'; }
-            else if (!customerClass) { errorMessage = 'Tolong pilih Kelas Anda.'; }
+            if (cart.length === 0) { errorMessage = 'Keranjang Anda masih kosong.'; }
+            else if (!customerName) { errorMessage = 'Mohon masukkan Nama Pemesan.'; }
+            else if (!customerPhone) { errorMessage = 'Mohon masukkan No. Telepon / ID Line.'; }
+            else if (!customerClass) { errorMessage = 'Mohon pilih Kelas Anda.'; }
             if (errorMessage) { showValidationError(errorMessage); return; }
 
-            const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('\n');
+            // --- Ubah Format String Pesanan ---
+            const itemsString = cart.map(item => { 
+                let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; 
+                if (item.options) { 
+                    let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; 
+                    detail += ` [Ukuran: ${item.options.size}${notes}]`; // Ubah ke 'size'
+                } 
+                return detail; 
+            }).join('\n'); // Pisahkan dengan BARIS BARU
+            // --- Akhir Perubahan ---
+            
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            // Kode unik sekarang adalah angka acak (1-99), karena kita tidak menunggu balasan Google
             const kodeUnik = Math.floor(Math.random() * 99) + 1;
             const totalFinal = totalAsli + kodeUnik;
             const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -246,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalFinal: totalFinal 
             };
             
+            // Simpan data untuk halaman sukses
             const successData = {
                 customerName: customerName,
                 itemsString: itemsString,
@@ -255,14 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             checkoutButton.disabled = true;
             checkoutButton.textContent = 'Memproses...';
-            if (GOOGLE_SCRIPT_URL === 'PASTE_WEB_APP_URL_BARU_ANDA_DI_SINI') { throw new Error('URL Google Script belum diisi di file app.js!'); }
+            if (GOOGLE_SCRIPT_URL === 'PASTE_YOUR_NEW_MERCH_SCRIPT_URL_HERE') { throw new Error('URL Google Script belum diisi di file app.js!'); }
             
-            // --- KIRIM DATA, TAPI JANGAN TUNGGU (FIRE AND FORGET) ---
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'cors', 
                 body: JSON.stringify(orderData),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                headers: { "Content-Type": "text-plain;charset=utf-8" }, 
             }).catch(err => {
                 console.warn("Fetch failed (this is expected, ignoring):", err.message);
             });
@@ -274,15 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            // --- INI PERUBAHANNYA ---
-            // 1. Simpan data untuk modal
             currentOrderData = { orderId: orderId, finalAmount: totalFinal };
-            // 2. Buat QRIS dinamis SEKARANG
-            generateDynamicQris(totalFinal);
-            // 3. Tampilkan alert
             alertAmountEl.textContent = formatRupiah(totalFinal);
             alertModal.style.display = 'flex';
-            // --- AKHIR PERUBAHAN ---
 
         } catch (err) {
             showValidationError('Terjadi kesalahan lokal: ' + err.message);
@@ -294,7 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
     confirmPaymentModalButton.addEventListener('click', () => {
         qrisModal.style.display = 'none';
-        let successUrl = 'payment-success.html';
+        // Arahkan ke file sukses di dalam folder pomerch
+        let successUrl = 'payment-success.html'; 
         window.location.href = successUrl;
     });
 
