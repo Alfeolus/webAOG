@@ -1,14 +1,7 @@
-// File: public/app.js
-// Versi ini menambahkan GENERATOR QRIS DINAMIS
-
-// =================================================================
-// === KODE QRIS GENERATOR ANDA DITEMPEL DI SINI ===
-// =================================================================
-// 🧩 QRIS statis dasar (milik Anda)
+// QRIS DINAMIS GENERATOR
 const qrisBase =
   "00020101021126610014COM.GO-JEK.WWW01189360091430425684560210G0425684560303UMI51440014ID.CO.QRIS.WWW0215ID10254504507270303UMI5204866153033605802ID5912Ark Of Grace6005BOGOR61051614362070703A01630470DE";
 
-// 🧮 Fungsi CRC16-CCITT (XModem)
 function crc16(str) {
   let crc = 0xffff;
   for (let i = 0; i < str.length; i++) {
@@ -21,47 +14,40 @@ function crc16(str) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-// 🪄 Fungsi utama: generate QRIS dinamis dari nominal
-// (Saya ubah agar menerima 'nominal' dan menargetkan div modal)
 function generateDynamicQris(nominal) {
   const qrContainer = document.getElementById("qris-image-container");
-  qrContainer.innerHTML = ""; // Kosongkan QR lama (jika ada)
+  qrContainer.innerHTML = ""; 
 
   if (!nominal || nominal <= 0) {
     console.error("Nominal tidak valid untuk QRIS");
     return;
   }
 
-  const nominalStr = String(Math.round(nominal)); // Pastikan integer
+  const nominalStr = String(Math.round(nominal)); 
   const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
   let qrisNoCRC = qrisBase + amountTag + "5802ID6304";
   const crc = crc16(qrisNoCRC);
   const finalQris = qrisNoCRC + crc;
 
-  // 🎯 Generate QR Code ke dalam Modal
+
   new QRious({
     element: qrContainer.appendChild(document.createElement("canvas")),
     value: finalQris,
-    size: 250, // Ukuran canvas QR
-    padding: 10, // Beri padding putih
+    size: 250, 
+    padding: 10, 
     background: 'white',
     foreground: 'black'
   });
 
   console.log("QRIS String Dibuat:", finalQris);
 }
-// === AKHIR KODE QRIS GENERATOR ===
-// =================================================================
 
+//END QRIS GENERATOR
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // =================================================================
-    // URL Google Script Anda
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
-    // =================================================================
-
-    // --- Ambil Elemen DOM ---
+    
     const productListEl = document.getElementById('product-list');
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
@@ -96,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let cart = [];
     let currentOrderData = null;
 
-    // --- 1. Ambil dan Tampilkan Produk ---
     function fetchProducts() {
         products = [
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
@@ -121,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
      }
 
-    // --- 2. Logika Modal ---
     cartIconButton.addEventListener('click', () => { cartModal.style.display = 'flex'; renderCart(); });
     closeModalButton.addEventListener('click', () => { cartModal.style.display = 'none'; });
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
@@ -167,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
 
-    // --- 3. Logika Keranjang (Cart) ---
+
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
@@ -217,14 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
      }
 
-    // --- 4. Proses Checkout (FIRE AND FORGET) ---
     checkoutButton.addEventListener('click', () => { 
         try {
             const customerName = customerNameInput.value.trim();
             const customerPhone = customerPhoneInput.value.trim();
             const customerClass = customerClassInput.value;
             let errorMessage = "";
-            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong.'; }
+            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong nihh.'; }
             else if (!customerName) { errorMessage = 'Tolong masukkan Nama Pemesan.'; }
             else if (!customerPhone) { errorMessage = 'Tolong masukkan No. Telepon / ID Line.'; }
             else if (!customerClass) { errorMessage = 'Tolong pilih Kelas Anda.'; }
@@ -233,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('\n');
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            // Kode unik sekarang adalah angka acak (1-99), karena kita tidak menunggu balasan Google
             const kodeUnik = Math.floor(Math.random() * 99) + 1;
             const totalFinal = totalAsli + kodeUnik;
             const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -257,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
             checkoutButton.textContent = 'Memproses...';
             if (GOOGLE_SCRIPT_URL === 'PASTE_WEB_APP_URL_BARU_ANDA_DI_SINI') { throw new Error('URL Google Script belum diisi di file app.js!'); }
             
-            // --- KIRIM DATA, TAPI JANGAN TUNGGU (FIRE AND FORGET) ---
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'cors', 
@@ -274,15 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            // --- INI PERUBAHANNYA ---
-            // 1. Simpan data untuk modal
+
             currentOrderData = { orderId: orderId, finalAmount: totalFinal };
-            // 2. Buat QRIS dinamis SEKARANG
             generateDynamicQris(totalFinal);
-            // 3. Tampilkan alert
             alertAmountEl.textContent = formatRupiah(totalFinal);
             alertModal.style.display = 'flex';
-            // --- AKHIR PERUBAHAN ---
 
         } catch (err) {
             showValidationError('Terjadi kesalahan lokal: ' + err.message);
@@ -291,14 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
     confirmPaymentModalButton.addEventListener('click', () => {
         qrisModal.style.display = 'none';
         let successUrl = 'payment-success.html';
         window.location.href = successUrl;
     });
 
-    // --- 6. Fungsi Modal Validasi Error ---
     function showValidationError(message) {
         validationMessageEl.textContent = message;
         validationModal.style.display = 'flex';

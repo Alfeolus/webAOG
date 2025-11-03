@@ -21,17 +21,10 @@
         
         <h2>List Makanan</h2>
         <div id="product-list">
-            <!-- Produk akan dimuat oleh JavaScript -->
         </div>
         
     </div>
     
-    <!-- ================================== -->
-    <!-- === SEMUA MODAL DI SINI === -->
-    <!-- (Kode Modal tidak berubah, kecuali #qris-image-container) -->
-    <!-- ================================== -->
-
-    <!-- Modal Keranjang Belanja -->
     <div id="cart-modal" class="modal-overlay">
          <div class="modal-content">
             <button id="close-modal-button" class="close-modal-button">&times;</button>
@@ -59,7 +52,6 @@
         </div>
     </div>
 
-    <!-- Modal Opsi Produk (Level Mie) -->
     <div id="product-options-modal" class="modal-overlay" style="z-index: 1001;">
          <div class="modal-content" style="max-width: 450px;">
             <button id="close-options-modal-button" class="close-modal-button">&times;</button>
@@ -84,7 +76,6 @@
         </div>
     </div>
 
-    <!-- Modal Alert Pembayaran -->
     <div id="alert-modal" class="modal-overlay" style="z-index: 1002;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h2>Penting!</h2>
@@ -95,7 +86,7 @@
         </div>
     </div>
 
-    <!-- Modal Pembayaran QRIS -->
+
      <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
         <div class="modal-content" style="max-width: 450px; text-align: center;">
              <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
@@ -104,10 +95,7 @@
              <h2 id="qris-amount" style="color: #D94A00; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
              <p>Order ID Kamu: <b id="qris-order-id"></b></p>
              <p>Pindai QRIS di bawah ini:</p>
-             
-             <!-- INI PERUBAHANNYA: KOSONGKAN DIV INI -->
              <div id="qris-image-container">
-                 <!-- Canvas QRIS akan digambar di sini oleh JS -->
              </div>
              
              <button id="confirm-payment-modal-button" class="confirm-button">Sudah Bayar !!</button>
@@ -115,7 +103,6 @@
         </div>
     </div>
 
-    <!-- Modal Validasi -->
     <div id="validation-modal" class="modal-overlay" style="z-index: 1004;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
              <button id="close-validation-modal-button" class="close-modal-button">&times;</button>
@@ -124,11 +111,8 @@
              <button id="validation-ok-button" class="validation-button">OK</button>
         </div>
     </div>
-    
-    <!-- TAMBAHKAN LIBRARY QRIOUS DI SINI -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    
-    <!-- NAIKKAN VERSI INI SETIAP KALI ANDA MENGUBAH APP.JS -->
-    <script src="app.js?v=3000"></script> <!-- Saya ganti ke v=3000 (angka acak) -->
+    <script src="app.js?v=3002"></script> 
 </body>
 </html>

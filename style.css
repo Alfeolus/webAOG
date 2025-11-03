@@ -1,4 +1,4 @@
-    /* File: public/style.css */
+
 
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
@@ -81,18 +81,13 @@
         background-color: #D94A00; 
     }
 
-    /* --- Header & Tombol Keranjang --- */
-    /* --- Header & Tombol Keranjang --- */
 .header-bar {
-    display: flex; /* Menggunakan flexbox untuk penataan */
-    align-items: center; /* Memposisikan item secara vertikal di tengah */
-    justify-content: space-between; /* Menjaga jarak antar item (logo, judul, tombol) */
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
     border-bottom: 2px solid #eee;
-    padding-bottom: 15px; /* Sedikit lebih banyak padding bawah */
-    margin-bottom: 25px; /* Sedikit lebih banyak margin bawah */
-    /* Mungkin tambahkan padding kiri/kanan jika perlu */
-    /* padding-left: 10px; */
-    /* padding-right: 10px; */
+    padding-bottom: 15px; 
+    margin-bottom: 25px; 
 }
 
 /* === BAGIAN BARU UNTUK LOGO === */

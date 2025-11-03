@@ -12,7 +12,7 @@
                 Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
             text-align: center; 
             padding: 40px 20px; 
-            background-color: #f8f9fa; /* Latar belakang abu-abu sangat muda */
+            background-color: #f8f9fa;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,24 +25,24 @@
             margin: 0 auto;
             padding: 40px; 
             background-color: #ffffff; 
-            border-radius: 12px; /* Lebih bulat */
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* Shadow lebih lembut */
-            border: 1px solid #e9ecef; /* Border tipis */
+            border-radius: 12px; 
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); 
+            border: 1px solid #e9ecef; 
         }
         .success-box img {
-            width: 100px; /* Ukuran ikon animasi */
+            width: 100px;
             height: 100px;
             object-fit: contain;
             margin-bottom: 10px;
         }
         .success-box h1 { 
-            color: #16a34a; /* Hijau */
+            color: #16a34a;
             font-size: 1.8em;
             font-weight: 700;
             margin-bottom: 15px;
             margin-top: 10px; 
         }
-        /* Paragraf "Terima kasih, Jason!" */
+
         #thank-you-message {
             font-size: 1.2em;
             font-weight: 600;
@@ -50,15 +50,15 @@
             color: #333;
         }
         #thank-you-message b {
-            color: #FF7B00; /* Warna Oranye Gacoan */
+            color: #FF7B00; 
             font-weight: 700;
         }
         
-        /* Kontainer Detail Pesanan */
+
         .order-details-container {
             margin: 25px 0;
             padding: 20px;
-            background-color: #f8f9fa; /* Latar belakang abu-abu */
+            background-color: #f8f9fa; 
             border-radius: 8px;
             text-align: left;
             border: 1px solid #dee2e6;
@@ -70,12 +70,12 @@
             font-size: 1.1em;
             font-weight: 600;
         }
-        /* Ini untuk menampilkan detail pesanan */
+
         #order-details-content {
             font-family: 'Courier New', Courier, monospace; 
             font-size: 1em;
             color: #555;
-            white-space: pre-wrap; /* Jaga baris baru */
+            white-space: pre-wrap; 
             word-wrap: break-word;
             line-height: 1.6;
             margin: 0;
@@ -83,7 +83,7 @@
         
         .success-box p {
             margin-bottom: 15px;
-            color: #555; /* Teks abu-abu */
+            color: #555;
             font-size: 1em; 
         }
         .success-box a {
@@ -98,8 +98,8 @@
             transition: background-color 0.2s, transform 0.2s;
         }
         .success-box a:hover {
-            background-color: #D94A00; /* Oranye gelap */
-            transform: scale(1.03); /* Efek hover */
+            background-color: #D94A00; 
+            transform: scale(1.03);
         }
     </style>
 </head>
@@ -126,13 +126,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                // 1. Ambil data dari localStorage
                 const dataString = localStorage.getItem('lastOrderData');
                 
                 if (dataString) {
                     const data = JSON.parse(dataString);
                     
-                    // 2. Tampilkan Nama Pemesan
                     const thankYouEl = document.getElementById('thank-you-message');
                     if (thankYouEl && data.customerName) {
                         const safeName = data.customerName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -162,14 +160,6 @@
                 console.error("Gagal memuat data pesanan:", error);
                 document.querySelector('.order-details-container').style.display = 'none';
             }
-            
-            // Ambil Order ID dari URL (jika ada, dari metode lama)
-            // const urlParams = new URLSearchParams(window.location.search);
-            // const orderId = urlParams.get('orderId');
-            // if (orderId) {
-            //     const orderIdEl = document.getElementById('order-id-display');
-            //     orderIdEl.textContent = orderId;
-            // }
         });
     </script>
 </body>
