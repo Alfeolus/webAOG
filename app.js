@@ -6,7 +6,7 @@
 // =================================================================
 // 🧩 QRIS statis dasar (milik Anda)
 const qrisBase =
-  "00020101021126610014COM.GO-JEK.WWW01189360091436674204410210G6674204410303UMI51440014ID.CO.QRIS.WWW0215ID10254362115320303UMI5204569153033605802ID5912Ark Of Grace6005BOGOR61051614362070703A01";
+  "00020101021126610014COM.GO-JEK.WWW01189360091430425684560210G0425684560303UMI51440014ID.CO.QRIS.WWW0215ID10254504507270303UMI5204866153033605802ID5912Ark Of Grace6005BOGOR61051614362070703A01630470DE";
 
 // 🧮 Fungsi CRC16-CCITT (XModem)
 function crc16(str) {
@@ -22,7 +22,6 @@ function crc16(str) {
 }
 
 // 🪄 Fungsi utama: generate QRIS dinamis dari nominal
-// (Saya ubah agar menerima 'nominal' dan menargetkan div modal)
 function generateDynamicQris(nominal) {
   const qrContainer = document.getElementById("qris-image-container");
   qrContainer.innerHTML = ""; // Kosongkan QR lama (jika ada)
@@ -60,36 +59,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // URL Google Script Anda
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
     // =================================================================
+    
+    // =================================================================
+    // === 1. TAMBAHAN: Buat Password Rahasia Anda ===
+    // (Ganti "RahasiaSuperAman123" dengan password Anda sendiri)
+    // =================================================================
+    const MY_SECRET_KEY = "jasonf100#";
+    // =================================================================
+
 
     // --- Ambil Elemen DOM ---
     const productListEl = document.getElementById('product-list');
     const cartIconButton = document.getElementById('cart-icon-button');
-    const cartCountEl = document.getElementById('cart-count');
-    const cartModal = document.getElementById('cart-modal');
-    const closeModalButton = document.getElementById('close-modal-button');
-    const modalCartItemsEl = document.getElementById('modal-cart-items');
-    const modalCartTotalEl = document.getElementById('modal-cart-total');
-    const customerNameInput = document.getElementById('customer-name');
-    const customerPhoneInput = document.getElementById('customer-phone');
-    const customerClassInput = document.getElementById('customer-class');
-    const checkoutButton = document.getElementById('checkout-button');
-    const productOptionsModal = document.getElementById('product-options-modal');
-    const closeOptionsModalButton = document.getElementById('close-options-modal-button');
-    const optionsProductName = document.getElementById('options-product-name');
-    const productLevelSelect = document.getElementById('product-level');
-    const productNotesInput = document.getElementById('product-notes');
-    const addToCartOptionsButton = document.getElementById('add-to-cart-options-button');
-    const alertModal = document.getElementById('alert-modal');
-    const alertAmountEl = document.getElementById('alert-amount');
-    const alertOkButton = document.getElementById('alert-ok-button');
-    const qrisModal = document.getElementById('qris-modal');
-    const closeQrisModalButton = document.getElementById('close-qris-modal-button');
-    const qrisAmountEl = document.getElementById('qris-amount');
-    const qrisOrderIdEl = document.getElementById('qris-order-id');
-    const confirmPaymentModalButton = document.getElementById('confirm-payment-modal-button');
-    const validationModal = document.getElementById('validation-modal');
-    const closeValidationModalButton = document.getElementById('close-validation-modal-button');
-    const validationMessageEl = document.getElementById('validation-message');
+    // ... (sisa elemen DOM Anda, tidak berubah) ...
     const validationOkButton = document.getElementById('validation-ok-button');
 
     let products = [];
@@ -100,7 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function fetchProducts() {
         products = [
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
-            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: true},
+            // --- PERBAIKAN BUG ---
+            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: false}, // Ini harusnya false
+            // --- AKHIR PERBAIKAN ---
             {id: 3, name: 'Mie Suit', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-suit.png', requiresOptions: false},
             {id: 4, name: 'Udang Keju', description: 'Dimsum Udang isi Keju (isi 3)', price: 15000, image_url: 'images/udang-keju.png', requiresOptions: false},
             {id: 5, name: 'Udang Rambutan', description: 'Dimsum Udang balut kulit pangsit (isi 3)', price: 15000, image_url: 'images/udang-rambutan.png', requiresOptions: false},
@@ -122,11 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
      }
 
     // --- 2. Logika Modal ---
+    // (Tidak berubah)
     cartIconButton.addEventListener('click', () => { cartModal.style.display = 'flex'; renderCart(); });
     closeModalButton.addEventListener('click', () => { cartModal.style.display = 'none'; });
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
     closeOptionsModalButton.addEventListener('click', () => { productOptionsModal.style.display = 'none'; });
     productOptionsModal.addEventListener('click', (event) => { if (event.target === productOptionsModal) productOptionsModal.style.display = 'none'; });
+    
     function handleProductClick(productId) {
         const product = products.find(p => p.id === productId);
         if (!product) return;
@@ -140,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addToCart(productId, null, undefined); 
         }
      }
+    
     addToCartOptionsButton.addEventListener('click', () => {
         const productId = parseInt(addToCartOptionsButton.dataset.id);
         const level = productLevelSelect.value;
@@ -151,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addToCart(productId, options, finalPrice); 
         productOptionsModal.style.display = 'none';
      });
+    
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         if (currentOrderData) {
@@ -168,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
 
     // --- 3. Logika Keranjang (Cart) ---
+    // (Tidak berubah)
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
@@ -233,18 +222,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('\n');
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            // Kode unik sekarang adalah angka acak (1-99), karena kita tidak menunggu balasan Google
             const kodeUnik = Math.floor(Math.random() * 99) + 1;
             const totalFinal = totalAsli + kodeUnik;
             const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
+            // =================================================================
+            // === 2. TAMBAHAN: Kirim Password Rahasia ke Google Sheet ===
+            // =================================================================
             const orderData = {
                 nama: customerName,
                 telepon: customerPhone,
                 kelas: customerClass,
                 itemsString: itemsString,
-                totalFinal: totalFinal 
+                totalFinal: totalFinal,
+                secretKey: MY_SECRET_KEY // <-- TAMBAHKAN INI
             };
+            // =================================================================
             
             const successData = {
                 customerName: customerName,
@@ -274,15 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            // --- INI PERUBAHANNYA ---
-            // 1. Simpan data untuk modal
             currentOrderData = { orderId: orderId, finalAmount: totalFinal };
-            // 2. Buat QRIS dinamis SEKARANG
             generateDynamicQris(totalFinal);
-            // 3. Tampilkan alert
             alertAmountEl.textContent = formatRupiah(totalFinal);
             alertModal.style.display = 'flex';
-            // --- AKHIR PERUBAHAN ---
 
         } catch (err) {
             showValidationError('Terjadi kesalahan lokal: ' + err.message);
@@ -292,6 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
+    // (Tidak berubah)
     confirmPaymentModalButton.addEventListener('click', () => {
         qrisModal.style.display = 'none';
         let successUrl = 'payment-success.html';
@@ -299,12 +288,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 6. Fungsi Modal Validasi Error ---
+    // (Tidak berubah)
     function showValidationError(message) {
         validationMessageEl.textContent = message;
         validationModal.style.display = 'flex';
     }
 
     // --- Helper ---
+    // (Tidak berubah)
     function formatRupiah(number) {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
