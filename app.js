@@ -1,5 +1,5 @@
-// QRIS DINAMIS GENERATOR
-const qrisBase =
+
+const qrisBaseLama =
   "00020101021126610014COM.GO-JEK.WWW01189360091430425684560210G0425684560303UMI51440014ID.CO.QRIS.WWW0215ID10254504507270303UMI5204866153033605802ID5912Ark Of Grace6005BOGOR61051614362070703A01630470DE";
 
 function crc16(str) {
@@ -25,10 +25,25 @@ function generateDynamicQris(nominal) {
 
   const nominalStr = String(Math.round(nominal)); 
   const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
-  let qrisNoCRC = qrisBase + amountTag + "5802ID6304";
-  const crc = crc16(qrisNoCRC);
-  const finalQris = qrisNoCRC + crc;
+  
+  const qrisBaseTanpaCRC = qrisBaseLama.substring(0, qrisBaseLama.length - 8);
+  
+  const titikSisip = "5802ID"; // Tag 58 (Country Code)
+  const indexSisip = qrisBaseTanpaCRC.indexOf(titikSisip);
 
+  if (indexSisip === -1) {
+    console.error("String qrisBase tidak valid, tidak menemukan '5802ID'");
+    return;
+  }
+
+  const part1 = qrisBaseTanpaCRC.substring(0, indexSisip);
+  const part2 = qrisBaseTanpaCRC.substring(indexSisip);
+
+  let qrisNoCRC = part1 + amountTag + part2 + "6304";
+
+  const crc = crc16(qrisNoCRC);
+  
+  const finalQris = qrisNoCRC + crc;
 
   new QRious({
     element: qrContainer.appendChild(document.createElement("canvas")),
@@ -41,13 +56,17 @@ function generateDynamicQris(nominal) {
 
   console.log("QRIS String Dibuat:", finalQris);
 }
+// === AKHIR KODE QRIS GENERATOR ===
+// =================================================================
 
-//END QRIS GENERATOR
 
 document.addEventListener('DOMContentLoaded', () => {
     
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
-    
+
+    const MY_SECRET_KEY = "jasonf100#";
+
+
     const productListEl = document.getElementById('product-list');
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
@@ -85,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function fetchProducts() {
         products = [
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
-            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: true},
+            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: true}, 
             {id: 3, name: 'Mie Suit', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-suit.png', requiresOptions: false},
             {id: 4, name: 'Udang Keju', description: 'Dimsum Udang isi Keju (isi 3)', price: 15000, image_url: 'images/udang-keju.png', requiresOptions: false},
             {id: 5, name: 'Udang Rambutan', description: 'Dimsum Udang balut kulit pangsit (isi 3)', price: 15000, image_url: 'images/udang-rambutan.png', requiresOptions: false},
@@ -111,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
     closeOptionsModalButton.addEventListener('click', () => { productOptionsModal.style.display = 'none'; });
     productOptionsModal.addEventListener('click', (event) => { if (event.target === productOptionsModal) productOptionsModal.style.display = 'none'; });
+    
     function handleProductClick(productId) {
         const product = products.find(p => p.id === productId);
         if (!product) return;
@@ -124,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addToCart(productId, null, undefined); 
         }
      }
+    
     addToCartOptionsButton.addEventListener('click', () => {
         const productId = parseInt(addToCartOptionsButton.dataset.id);
         const level = productLevelSelect.value;
@@ -135,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addToCart(productId, options, finalPrice); 
         productOptionsModal.style.display = 'none';
      });
+    
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         if (currentOrderData) {
@@ -150,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
-
 
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
@@ -207,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const customerPhone = customerPhoneInput.value.trim();
             const customerClass = customerClassInput.value;
             let errorMessage = "";
-            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong nihh.'; }
+            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong.'; }
             else if (!customerName) { errorMessage = 'Tolong masukkan Nama Pemesan.'; }
             else if (!customerPhone) { errorMessage = 'Tolong masukkan No. Telepon / ID Line.'; }
             else if (!customerClass) { errorMessage = 'Tolong pilih Kelas Anda.'; }
@@ -225,7 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 telepon: customerPhone,
                 kelas: customerClass,
                 itemsString: itemsString,
-                totalFinal: totalFinal 
+                totalFinal: totalFinal,
+                secretKey: MY_SECRET_KEY 
             };
             
             const successData = {
@@ -255,9 +277,12 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-
             currentOrderData = { orderId: orderId, finalAmount: totalFinal };
+            
+            // Generate QRIS dengan TOTAL FINAL (yang ada kode unik)
             generateDynamicQris(totalFinal);
+            
+            // Tampilkan alert
             alertAmountEl.textContent = formatRupiah(totalFinal);
             alertModal.style.display = 'flex';
 
@@ -279,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         validationModal.style.display = 'flex';
     }
 
-    // --- Helper ---
     function formatRupiah(number) {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -288,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).format(number);
     }
 
-    // --- Mulai aplikasi ---
     fetchProducts();
     cartCountEl.textContent = '0';
 });
