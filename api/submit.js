@@ -1,7 +1,7 @@
 // File: /api/submit.js
-// VERSI FIRE AND FORGET - Tidak menunggu response Google
+// Versi: Fire-and-Forget
 
-// (Fungsi crc16 dan generateFinalQrisString Anda tetap sama)
+// (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
   let crc = 0xffff;
   for (let i = 0; i < str.length; i++) {
@@ -13,7 +13,6 @@ function crc16(str) {
   }
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
-
 function generateFinalQrisString(nominal) {
   const qrisBaseLama = process.env.QRIS_BASE_STRING;
   if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING tidak ditemukan."); }
@@ -29,74 +28,105 @@ function generateFinalQrisString(nominal) {
   const crc = crc16(qrisNoCRC);
   return qrisNoCRC + crc;
 }
+// --- AKHIR FUNGSI ---
+
 
 export default async function handler(request, response) {
+  // Hanya izinkan metode POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
   }
 
+  // Definisikan variabel di scope atas
+  let totalFinal;
+  let orderId;
+  let finalQrisString;
+  let sheetData;
+  const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
+
+  // ===================================================================
+  // === BAGIAN 1: PEKERJAAN KRITIS (DIKIRIM KE FRONTEND) ===
+  // ===================================================================
+  // Semua ini HARUS berhasil. Jika gagal, frontend akan dapat error 500.
   try {
     const data = request.body;
-    const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
 
+    // Validasi Environment Variables
     if (!GOOGLE_SCRIPT_URL) {
-      throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
+        throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
     }
-
+    // Validasi QRIS_BASE_STRING dipindahkan ke dalam generateFinalQrisString
+    
     // Hitung Total Final di backend
     const kodeUnik = Math.floor(Math.random() * 99) + 1;
-    const totalFinal = data.totalAsli + kodeUnik;
-    const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    totalFinal = data.totalAsli + kodeUnik;
+    orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // Buat String QRIS Dinamis di backend
-    const finalQrisString = generateFinalQrisString(totalFinal);
+    // Buat String QRIS Dinamis di backend (bisa melempar error jika env var hilang)
+    finalQrisString = generateFinalQrisString(totalFinal);
 
-    // Siapkan data untuk Google Sheet
-    const sheetData = {
+    // Siapkan data untuk Google Sheet (disimpan di variabel)
+    sheetData = {
       nama: data.nama,
       telepon: data.telepon,
       kelas: data.kelas,
       itemsString: data.itemsString,
       totalFinal: totalFinal
     };
-
+    
     // =======================================================
-    // === FIRE AND FORGET: TIDAK MENUNGGU RESPONSE GOOGLE ===
+    // === LANGSUNG KIRIM BALASAN KE FRONTEND ===
     // =======================================================
-    fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(sheetData),
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-    })
-    .then(async (googleResponse) => {
-      // Optional: Log untuk monitoring saja
-      if (googleResponse && googleResponse.ok) {
-        console.log("✅ Data berhasil dikirim ke Google Sheet");
-      } else {
-        console.warn("⚠️ Google Sheet response tidak OK, tapi data mungkin tetap masuk");
-      }
-    })
-    .catch((error) => {
-      // Optional: Log error untuk monitoring
-      console.error("❌ Gagal mengirim ke Google Sheet:", error.message);
-    });
-    // =======================================================
-
-    // LANGSUNG KIRIM RESPONSE SUKSES KE FRONTEND
-    // TIDAK MENUNGGU GOOGLE SCRIPT LAGI
+    // Frontend akan menerima data ini dan menampilkan modal QRIS.
+    // Koneksi ke frontend selesai di sini.
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
       finalAmount: totalFinal,
-      qrisString: finalQrisString,
-      message: "Pesanan berhasil diproses. Silakan lanjutkan pembayaran."
+      qrisString: finalQrisString 
     });
 
   } catch (error) {
-    console.error("Error di /api/submit:", error.message);
-    response.status(500).json({ 
-      status: "error", 
-      message: error.message 
-    });
+    // Jika ada error di BAGIAN 1 (misal QRIS_BASE_STRING tidak ada),
+    // kirim error ke frontend dan hentikan eksekusi.
+    console.error("Error Kritis di /api/submit:", error.message);
+    if (!response.headersSent) {
+        response.status(500).json({ status: "error", message: error.message });
+    }
+    return; // Hentikan fungsi
   }
+
+
+  // ===================================================================
+  // === BAGIAN 2: FIRE-AND-FORGET (DIKERJAKAN DI LATAR BELAKANG) ===
+  // ===================================================================
+  // Kode ini dieksekusi SETELAH response.json() dikirim ke frontend.
+  // Frontend tidak akan menunggu ini selesai.
+  try {
+    // Kita 'await' di sini, tapi frontend sudah tidak peduli.
+    const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(sheetData), // Ambil data dari variabel di atas
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+    });
+
+    // Cek apakah Google merespons dengan OK (hanya untuk logging di Vercel)
+    if (!googleResponse.ok) {
+      // Jika Gagal, log ke Vercel, frontend tidak akan tahu
+      console.error(`Google Script GAGAL dihubungi (background). Status: ${googleResponse.statusText}`);
+    } else {
+      const googleResult = await googleResponse.json();
+      if (googleResult.status !== "success") {
+        console.error(`Google Script ERROR (background): ${googleResult.message}`);
+      } else {
+        // Sukses
+        console.log("Sukses kirim ke Google Sheet (background).");
+      }
+    }
+  } catch (error) {
+    // Tangkap jika fetch-nya sendiri gagal (misal Google down)
+    console.error("Error saat 'fire and forget' ke Google Script:", error.message);
+  }
+  
+  // Fungsi serverless selesai dengan sendirinya
 }
