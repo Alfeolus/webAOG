@@ -1,7 +1,7 @@
 // File: /api/submit.js
-// Versi ini MEMPERBAIKI bug 'mode: cors' di server
+// VERSI FIRE AND FORGET - Tidak menunggu response Google
 
-// (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
+// (Fungsi crc16 dan generateFinalQrisString Anda tetap sama)
 function crc16(str) {
   let crc = 0xffff;
   for (let i = 0; i < str.length; i++) {
@@ -13,6 +13,7 @@ function crc16(str) {
   }
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
+
 function generateFinalQrisString(nominal) {
   const qrisBaseLama = process.env.QRIS_BASE_STRING;
   if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING tidak ditemukan."); }
@@ -28,24 +29,18 @@ function generateFinalQrisString(nominal) {
   const crc = crc16(qrisNoCRC);
   return qrisNoCRC + crc;
 }
-// --- AKHIR FUNGSI ---
-
 
 export default async function handler(request, response) {
-  // Hanya izinkan metode POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
   }
 
   try {
     const data = request.body;
-
-    // Ambil rahasia dari Vercel Environment Variables
     const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
-    // const MY_SECRET_KEY = process.env.MY_SECRET_KEY; // <-- Kita hapus ini
 
     if (!GOOGLE_SCRIPT_URL) {
-        throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
+      throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
     }
 
     // Hitung Total Final di backend
@@ -63,41 +58,45 @@ export default async function handler(request, response) {
       kelas: data.kelas,
       itemsString: data.itemsString,
       totalFinal: totalFinal
-      // secretKey: MY_SECRET_KEY // <-- Kita hapus ini
     };
-    
+
     // =======================================================
-    // === INI PERBAIKANNYA: 'mode: cors' DIHAPUS ===
+    // === FIRE AND FORGET: TIDAK MENUNGGU RESPONSE GOOGLE ===
     // =======================================================
-    const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        // mode: 'cors', // <-- INI ADALAH BIANG KEROKNYA
-        body: JSON.stringify(sheetData),
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(sheetData),
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+    })
+    .then(async (googleResponse) => {
+      // Optional: Log untuk monitoring saja
+      if (googleResponse && googleResponse.ok) {
+        console.log("✅ Data berhasil dikirim ke Google Sheet");
+      } else {
+        console.warn("⚠️ Google Sheet response tidak OK, tapi data mungkin tetap masuk");
+      }
+    })
+    .catch((error) => {
+      // Optional: Log error untuk monitoring
+      console.error("❌ Gagal mengirim ke Google Sheet:", error.message);
     });
-
-    // Cek apakah Google merespons dengan OK
-    if (!googleResponse.ok) {
-      throw new Error(`Google Script GAGAL dihubungi. Status: ${googleResponse.statusText}`);
-    }
-
-    const googleResult = await googleResponse.json();
-    if (googleResult.status !== "success") {
-      throw new Error(`Google Script ERROR: ${googleResult.message}`);
-    }
     // =======================================================
 
-    // KIRIM BALASAN SUKSES KE FRONTEND (app.js)
+    // LANGSUNG KIRIM RESPONSE SUKSES KE FRONTEND
+    // TIDAK MENUNGGU GOOGLE SCRIPT LAGI
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
       finalAmount: totalFinal,
-      qrisString: finalQrisString 
+      qrisString: finalQrisString,
+      message: "Pesanan berhasil diproses. Silakan lanjutkan pembayaran."
     });
 
   } catch (error) {
-    // Jika Vercel error ATAU Google error, kirim error ke frontend
     console.error("Error di /api/submit:", error.message);
-    response.status(500).json({ status: "error", message: error.message });
+    response.status(500).json({ 
+      status: "error", 
+      message: error.message 
+    });
   }
 }
