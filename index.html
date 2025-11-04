@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Gacoan AOG</title>
-    <link rel="stylesheet" href="style.css?v=7"> 
+    <title>Jastip Gacoan Alfeolus</title>
+    <link rel="stylesheet" href="style.css?v=10"> 
     <link rel="icon" href="images/logo.png" type="image/png"> 
 </head>
 <body>
@@ -13,15 +13,15 @@
         
         <div class="header-bar">
             <img src="images/logo.png" alt="Logo Jastip Gacoan" class="header-logo">
-            <h1>Jastip Gacoan AOG</h1>
+            <h1>Website Jastip Gacoan</h1>
             <button id="cart-icon-button">
                 🛒 Keranjang (<span id="cart-count">0</span>)
             </button>
         </div>
         
-        <h2>List Makanan</h2>
+        <h2>Produk Tersedia</h2>
         <div id="product-list">
-        </div>
+            </div>
         
     </div>
     
@@ -32,10 +32,10 @@
             <div id="modal-cart-items"></div>
             <div class="modal-footer">
                 <h3>Total: <span id="modal-cart-total">Rp 0</span></h3>
-                <input type="text" id="customer-name" placeholder="Nama Kamu" required>
+                <input type="text" id="customer-name" placeholder="Nama Pemesan" required>
                 <input type="text" id="customer-phone" placeholder="No. Telepon / ID Line" required>
                 <select id="customer-class" required>
-                    <option value="" disabled selected>— Pilih Kelas Kamu —</option>
+                    <option value="" disabled selected>— Pilih Kelas Anda —</option>
                     <option value="PPTI 20">PPTI 20</option>
                     <option value="PPTI 21">PPTI 21</option>
                     <option value="PPTI 22">PPTI 22</option>
@@ -59,12 +59,14 @@
             <div class="options-form">
                 <label for="product-level">Level Pedas:</label>
                 <select id="product-level">
-                    <option value="Lv 0 (Asin Gurih)">Lv 0</option>
+                    <option value="Lv 0 (Asin Gurih)">Lv 0 (Asin Gurih)</option>
                     <option value="Lv 1">Lv 1</option>
                     <option value="Lv 2">Lv 2</option>
                     <option value="Lv 3">Lv 3</option>
                     <option value="Lv 4">Lv 4</option>
+                    <option value="Lv 5">Lv 5</option>
                     <option value="Lv 6">Lv 6</option>
+                    <option value="Lv 7">Lv 7</option>
                     <option value="Lv 8">Lv 8</option>
                 </select>
                 <label for="product-notes">Catatan (opsional):</label>
@@ -79,40 +81,38 @@
     <div id="alert-modal" class="modal-overlay" style="z-index: 1002;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h2>Penting!</h2>
-            <p style="margin: 20px 0;">Pastiin kamu transfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya yaa!!</p>
+            <p style="margin: 20px 0;">Pastikan Anda mentransfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
             <p>Jumlah yang harus dibayar:</p>
             <h3 id="alert-amount" style="color: #D94A00; font-size: 1.8em; margin: 5px 0 20px 0;">Rp 0</h3>
-            <button id="alert-ok-button" class="confirm-button">OK, Paham!!</button>
+            <button id="alert-ok-button" class="confirm-button">OK, Saya Mengerti</button>
         </div>
     </div>
 
-
-     <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
+    <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
         <div class="modal-content" style="max-width: 450px; text-align: center;">
              <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
              <h2>Lakukan Pembayaran</h2>
-             <p>Silahkan lakukan pembayaran sebesar:</p>
+             <p>Silakan lakukan pembayaran manual sebesar:</p>
              <h2 id="qris-amount" style="color: #D94A00; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
-             <p>Order ID Kamu: <b id="qris-order-id"></b></p>
+             <p>Order ID Anda: <b id="qris-order-id"></b></p>
              <p>Pindai QRIS di bawah ini:</p>
              <div id="qris-image-container">
-             </div>
-             
-             <button id="confirm-payment-modal-button" class="confirm-button">Sudah Bayar !!</button>
-             <p style="margin-top: 10px; font-size: 0.9em; color: #555;">(Tolong klik tombol diatas setelah melakukan pembayaran)</p>
+                 </div>
+             <button id="confirm-payment-modal-button" class="confirm-button">Saya Sudah Bayar</button>
+             <p style="margin-top: 10px; font-size: 0.9em; color: #555;">(Pesanan akan diproses setelah pembayaran diverifikasi)</p>
         </div>
     </div>
 
     <div id="validation-modal" class="modal-overlay" style="z-index: 1004;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
              <button id="close-validation-modal-button" class="close-modal-button">&times;</button>
-             <h2 style="color: #dc3545;">Tolong lengkapi data</h2>
+             <h2 style="color: #dc3545;">Mohon Lengkapi Data</h2>
              <p id="validation-message" style="margin: 20px 0; font-size: 1.1em;"></p>
              <button id="validation-ok-button" class="validation-button">OK</button>
         </div>
     </div>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script src="app.js?v=3002"></script> 
+    <script src="app.js?v=10"></script> 
 </body>
 </html>

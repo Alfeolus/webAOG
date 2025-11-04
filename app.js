@@ -1,72 +1,44 @@
+// File: public/app.js
+// Versi FINAL AMAN: Menggunakan Vercel Serverless Function
 
-const qrisBaseLama =
-  "00020101021126610014COM.GO-JEK.WWW01189360091430425684560210G0425684560303UMI51440014ID.CO.QRIS.WWW0215ID10254504507270303UMI5204866153033605802ID5912Ark Of Grace6005BOGOR61051614362070703A01630470DE";
+// =================================================================
+// === SEMUA RAHASIA (QRIS, KEY, URL) SUDAH DIHAPUS DARI SINI ===
+// =================================================================
 
-function crc16(str) {
-  let crc = 0xffff;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
-      crc &= 0xffff;
-    }
-  }
-  return crc.toString(16).toUpperCase().padStart(4, "0");
-}
-
-function generateDynamicQris(nominal) {
+// 🪄 Fungsi baru: menggambar QRIS dari string yang diterima
+function renderQrCode(qrisString) {
   const qrContainer = document.getElementById("qris-image-container");
-  qrContainer.innerHTML = ""; 
+  qrContainer.innerHTML = ""; // Kosongkan QR lama
 
-  if (!nominal || nominal <= 0) {
-    console.error("Nominal tidak valid untuk QRIS");
+  if (!qrisString) {
+    console.error("String QRIS kosong, tidak bisa menggambar.");
+    qrContainer.innerHTML = "<p>Error: Gagal memuat QRIS.</p>";
     return;
   }
 
-  const nominalStr = String(Math.round(nominal)); 
-  const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
-  
-  const qrisBaseTanpaCRC = qrisBaseLama.substring(0, qrisBaseLama.length - 8);
-  
-  const titikSisip = "5802ID"; // Tag 58 (Country Code)
-  const indexSisip = qrisBaseTanpaCRC.indexOf(titikSisip);
-
-  if (indexSisip === -1) {
-    console.error("String qrisBase tidak valid, tidak menemukan '5802ID'");
-    return;
-  }
-
-  const part1 = qrisBaseTanpaCRC.substring(0, indexSisip);
-  const part2 = qrisBaseTanpaCRC.substring(indexSisip);
-
-  let qrisNoCRC = part1 + amountTag + part2 + "6304";
-
-  const crc = crc16(qrisNoCRC);
-  
-  const finalQris = qrisNoCRC + crc;
-
+  // 🎯 Generate QR Code ke dalam Modal
   new QRious({
     element: qrContainer.appendChild(document.createElement("canvas")),
-    value: finalQris,
+    value: qrisString,
     size: 250, 
     padding: 10, 
     background: 'white',
     foreground: 'black'
   });
-
-  console.log("QRIS String Dibuat:", finalQris);
 }
-// === AKHIR KODE QRIS GENERATOR ===
-// =================================================================
 
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwElRxf4Qu5VjtBJt89B5nS1H_jlWRVTdpmPEe7Ikx7dX6dFwj93drwefBUCNeXsHW45Q/exec';
+    // =================================================================
+    // === URL BACKEND SEKARANG ADALAH DOMAIN ANDA SENDIRI ===
+    // =================================================================
+    const BACKEND_API_URL = '/api/submit';
+    // =================================================================
+    
+    // (SEMUA KUNCI RAHASIA SUDAH DIHAPUS)
 
-    const MY_SECRET_KEY = "jasonf100#";
-
-
+    // --- Ambil Elemen DOM ---
     const productListEl = document.getElementById('product-list');
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
@@ -99,12 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let products = [];
     let cart = [];
-    let currentOrderData = null;
+    let currentOrderData = null; // Cukup untuk menyimpan Order ID
 
+    // --- 1. Ambil dan Tampilkan Produk ---
     function fetchProducts() {
         products = [
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
-            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: true}, 
+            {id: 2, name: 'Mie Hompimpa', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-hompimpa.png', requiresOptions: false},
             {id: 3, name: 'Mie Suit', description: 'Mie (Asin Gurih).', price: 15500, image_url: 'images/mie-suit.png', requiresOptions: false},
             {id: 4, name: 'Udang Keju', description: 'Dimsum Udang isi Keju (isi 3)', price: 15000, image_url: 'images/udang-keju.png', requiresOptions: false},
             {id: 5, name: 'Udang Rambutan', description: 'Dimsum Udang balut kulit pangsit (isi 3)', price: 15000, image_url: 'images/udang-rambutan.png', requiresOptions: false},
@@ -125,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
      }
 
+    // --- 2. Logika Modal ---
     cartIconButton.addEventListener('click', () => { cartModal.style.display = 'flex'; renderCart(); });
     closeModalButton.addEventListener('click', () => { cartModal.style.display = 'none'; });
     cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
@@ -173,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
 
+    // --- 3. Logika Keranjang (Cart) ---
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
@@ -222,7 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
      }
 
-    checkoutButton.addEventListener('click', () => { 
+    // --- 4. Proses Checkout (AMAN & TIDAK AKAN FAILED TO FETCH) ---
+    checkoutButton.addEventListener('click', async () => { 
         try {
             const customerName = customerNameInput.value.trim();
             const customerPhone = customerPhoneInput.value.trim();
@@ -234,42 +210,41 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (!customerClass) { errorMessage = 'Tolong pilih Kelas Anda.'; }
             if (errorMessage) { showValidationError(errorMessage); return; }
 
+            checkoutButton.disabled = true;
+            checkoutButton.textContent = 'Memproses...';
+
             const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('\n');
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            const kodeUnik = Math.floor(Math.random() * 99) + 1;
-            const totalFinal = totalAsli + kodeUnik;
-            const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
-
+            // HANYA kirim data mentah. Backend akan hitung sisanya.
             const orderData = {
                 nama: customerName,
                 telepon: customerPhone,
                 kelas: customerClass,
                 itemsString: itemsString,
-                totalFinal: totalFinal,
-                secretKey: MY_SECRET_KEY 
+                totalAsli: totalAsli
+                // TIDAK ADA LAGI SECRET KEY ATAU RECAPTCHA DI SINI
             };
             
-            const successData = {
-                customerName: customerName,
-                itemsString: itemsString,
-                orderId: orderId
-            };
-            localStorage.setItem('lastOrderData', JSON.stringify(successData));
-            
-            checkoutButton.disabled = true;
-            checkoutButton.textContent = 'Memproses...';
-            if (GOOGLE_SCRIPT_URL === 'PASTE_WEB_APP_URL_BARU_ANDA_DI_SINI') { throw new Error('URL Google Script belum diisi di file app.js!'); }
-            
-            fetch(GOOGLE_SCRIPT_URL, {
+            // --- KIRIM DATA KE BACKEND VERCEL ANDA ---
+            const response = await fetch(BACKEND_API_URL, { 
                 method: 'POST',
-                mode: 'cors', 
+                // mode: 'cors' TIDAK DIPERLUKAN LAGI!
                 body: JSON.stringify(orderData),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-            }).catch(err => {
-                console.warn("Fetch failed (this is expected, ignoring):", err.message);
+                headers: { "Content-Type": "application/json" }, // Kirim sebagai JSON
             });
+
+            if (!response.ok) {
+                throw new Error('Gagal menghubungi server. Status: ' + response.statusText);
+            }
+
+            const data = await response.json(); 
+
+            if (data.status !== "success") {
+                throw new Error(data.message);
+            }
             
+            // --- JIKA SUKSES ---
             cartModal.style.display = 'none';
             cart = [];
             renderCart();
@@ -277,33 +252,53 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            currentOrderData = { orderId: orderId, finalAmount: totalFinal };
+            // 'data' sekarang berisi: { status, orderId, finalAmount, qrisString }
+            currentOrderData = { 
+                orderId: data.orderId, 
+                finalAmount: data.finalAmount,
+                customerName: customerName,
+                itemsString: itemsString
+            };
             
-            // Generate QRIS dengan TOTAL FINAL (yang ada kode unik)
-            generateDynamicQris(totalFinal);
+            // Generate QRIS dengan string AMAN dari backend
+            renderQrCode(data.qrisString); 
             
             // Tampilkan alert
-            alertAmountEl.textContent = formatRupiah(totalFinal);
+            alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
 
         } catch (err) {
-            showValidationError('Terjadi kesalahan lokal: ' + err.message);
+            // Ini akan menangkap jika Vercel error
+            showValidationError('Terjadi kesalahan: ' + err.message);
             checkoutButton.disabled = false;
             checkoutButton.textContent = 'Proses Pesanan';
         }
     });
 
+    // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
     confirmPaymentModalButton.addEventListener('click', () => {
         qrisModal.style.display = 'none';
+        
+        if (currentOrderData) {
+             const successData = {
+                customerName: currentOrderData.customerName,
+                itemsString: currentOrderData.itemsString,
+                orderId: currentOrderData.orderId
+            };
+            localStorage.setItem('lastOrderData', JSON.stringify(successData));
+        }
+        
         let successUrl = 'payment-success.html';
         window.location.href = successUrl;
     });
 
+    // --- 6. Fungsi Modal Validasi Error ---
     function showValidationError(message) {
         validationMessageEl.textContent = message;
         validationModal.style.display = 'flex';
     }
 
+    // --- Helper ---
     function formatRupiah(number) {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -312,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).format(number);
     }
 
+    // --- Mulai aplikasi ---
     fetchProducts();
     cartCountEl.textContent = '0';
 });
