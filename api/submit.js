@@ -1,5 +1,5 @@
 // File: /api/submit.js
-// VERSI FINAL v2 (True Fire-and-Forget, TANPA await)
+// VERSI FINAL v3 (Paling Stabil: "Tunggu, tapi Abaikan Balasan")
 
 // ===================================================================
 // === FUNGSI HELPER (JANGAN DIHAPUS) ===
@@ -35,7 +35,7 @@ function generateFinalQrisString(nominal) {
 
 
 // ===================================================================
-// === FUNGSI HANDLER (FIRE-AND-FORGET) ===
+// === FUNGSI HANDLER ===
 // ===================================================================
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
@@ -47,7 +47,7 @@ export default async function handler(request, response) {
   try {
     const data = request.body;
     if (!GOOGLE_SCRIPT_URL) {
-        throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
+      throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
     }
     
     // Hitung Total Final
@@ -55,10 +55,10 @@ export default async function handler(request, response) {
     const totalFinal = data.totalAsli + kodeUnik;
     const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // Buat String QRIS Dinamis
+    // Buat QRIS
     const finalQrisString = generateFinalQrisString(totalFinal);
 
-    // Siapkan data untuk Google Sheet
+    // Siapkan data sheet
     const sheetData = {
       nama: data.nama,
       telepon: data.telepon,
@@ -68,45 +68,43 @@ export default async function handler(request, response) {
     };
     
     // =======================================================
-    // === LANGSUNG KIRIM BALASAN KE FRONTEND ===
+    // === KIRIM DATA KE GOOGLE & TUNGGU (INI KUNCINYA) ===
     // =======================================================
+    console.log("Mengirim data ke Google Sheet dan menunggu...");
+    
+    // Kita 'await' fetch, memaksa Vercel tetap hidup
+    const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(sheetData),
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+    });
+
+    // Kita log statusnya untuk debug di Vercel
+    console.log(`Fetch ke Google selesai. Status: ${googleResponse.status}`);
+    
+    // !! PENTING !!
+    // Kita TIDAK lagi 'await googleResponse.json()'
+    // Kita TIDAK peduli balasannya HTML atau JSON,
+    // karena kita tahu datanya sudah masuk.
+    // Kita langsung lanjut ke langkah berikutnya.
+    
+    // =======================================================
+    // === KIRIM BALASAN SUKSES KE FRONTEND ===
+    // =======================================================
+    // Kode ini HANYA akan berjalan SETELAH fetch di atas selesai.
+    
+    console.log("Mengirim balasan sukses (QRIS) ke frontend.");
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
       finalAmount: totalFinal,
       qrisString: finalQrisString 
     });
-    
-    // =======================================================
-    // === "TEMBAK" DATA KE GOOGLE (TANPA 'await') ===
-    // =======================================================
-    // Kita panggil fetch, tapi kita tidak 'await'.
-    // Ini mengembalikan Promise, yang kita biarkan berjalan di background.
-    console.log("Fire-and-Forget: Menembakkan data ke Google Sheet...");
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(sheetData),
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-    }).then(res => {
-        // Ini akan berjalan di background NANTI
-        if (res.ok) {
-            console.log("Fire-and-Forget: Sukses terkirim (background).");
-        } else {
-            console.error(`Fire-and-Forget: Gagal, Google merespons dengan ${res.status} (background).`);
-        }
-    }).catch(err => {
-        // Jika fetch-nya sendiri gagal
-        console.error("Fire-and-Forget: Error network saat fetch (background):", err.message);
-    });
-
-    // Fungsi handler selesai di sini, Vercel akan menutup koneksi.
 
   } catch (error) {
-    // Ini HANYA akan menangkap error dari BAGIAN KRITIS (sebelum response.json)
+    // Menangkap error jika QRIS_BASE_STRING hilang, 
+    // atau jika fetch-nya sendiri gagal (misal Google down)
     console.error("Error Kritis di /api/submit:", error.message);
-    if (!response.headersSent) {
-        response.status(500).json({ status: "error", message: error.message });
-    }
-    // Tidak perlu 'return' karena kita sudah di akhir
+    response.status(500).json({ status: "error", message: error.message });
   }
 }
