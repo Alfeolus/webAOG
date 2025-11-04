@@ -1,5 +1,5 @@
 // File: /api/submit.js
-// Versi ini MENUNGGU balasan dari Google Sheet
+// Versi ini MEMPERBAIKI bug 'mode: cors' di server
 
 // (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
@@ -67,25 +67,22 @@ export default async function handler(request, response) {
     };
     
     // =======================================================
-    // === INI PERUBAHANNYA: KITA MENUNGGU GOOGLE (await) ===
+    // === INI PERBAIKANNYA: 'mode: cors' DIHAPUS ===
     // =======================================================
     const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        mode: 'cors',
+        // mode: 'cors', // <-- INI ADALAH BIANG KEROKNYA
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" }, 
     });
 
     // Cek apakah Google merespons dengan OK
     if (!googleResponse.ok) {
-      // Ini akan menangkap error CORS jika Code.gs (doOptions) Anda belum di-deploy
       throw new Error(`Google Script GAGAL dihubungi. Status: ${googleResponse.statusText}`);
     }
 
-    // Cek balasan dari Google
     const googleResult = await googleResponse.json();
     if (googleResult.status !== "success") {
-      // Ini akan menangkap error "Akses Ditolak" jika Secret Key Anda salah
       throw new Error(`Google Script ERROR: ${googleResult.message}`);
     }
     // =======================================================
