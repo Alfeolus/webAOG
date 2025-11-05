@@ -1,9 +1,4 @@
-// File: /api/submit.js
-// VERSI FINAL v3 (Paling Stabil: "Tunggu, tapi Abaikan Balasan")
 
-// ===================================================================
-// === FUNGSI HELPER (JANGAN DIHAPUS) ===
-// ===================================================================
 function crc16(str) {
   let crc = 0xffff;
   for (let i = 0; i < str.length; i++) {
@@ -79,19 +74,9 @@ export default async function handler(request, response) {
         headers: { "Content-Type": "text/plain;charset=utf-8" }, 
     });
 
-    // Kita log statusnya untuk debug di Vercel
-    console.log(Fetch ke Google selesai. Status: ${googleResponse.status});
+
+    console.log(`Fetch ke Google selesai. Status: ${googleResponse.status}`);
     
-    // !! PENTING !!
-    // Kita TIDAK lagi 'await googleResponse.json()'
-    // Kita TIDAK peduli balasannya HTML atau JSON,
-    // karena kita tahu datanya sudah masuk.
-    // Kita langsung lanjut ke langkah berikutnya.
-    
-    // =======================================================
-    // === KIRIM BALASAN SUKSES KE FRONTEND ===
-    // =======================================================
-    // Kode ini HANYA akan berjalan SETELAH fetch di atas selesai.
     
     console.log("Mengirim balasan sukses (QRIS) ke frontend.");
     response.status(200).json({
@@ -102,8 +87,6 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-    // Menangkap error jika QRIS_BASE_STRING hilang, 
-    // atau jika fetch-nya sendiri gagal (misal Google down)
     console.error("Error Kritis di /api/submit:", error.message);
     response.status(500).json({ status: "error", message: error.message });
   }
