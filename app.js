@@ -181,26 +181,62 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
      }
 
-    // --- 4. Proses Checkout 
+
+// --- 4. Proses Checkout 
     checkoutButton.addEventListener('click', async () => { 
         try {
             const customerName = customerNameInput.value.trim();
             const customerPhone = customerPhoneInput.value.trim();
             const customerClass = customerClassInput.value;
             let errorMessage = "";
-            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong.'; }
-            else if (!customerName) { errorMessage = 'Tolong masukkan Nama Pemesan.'; }
-            else if (!customerPhone) { errorMessage = 'Tolong masukkan No. Telepon / ID Line.'; }
-            else if (!customerClass) { errorMessage = 'Tolong pilih Kelas Anda.'; }
-            if (errorMessage) { showValidationError(errorMessage); return; }
+            
+            // Regex untuk mengecek apakah string hanya berisi angka
+            const onlyNumbersRegex = /^[0-9]+$/;
 
+            if (cart.length === 0) { 
+                errorMessage = 'Keranjang kamu masih kosong.'; 
+            }
+            // Validasi Nama
+            else if (!customerName) { 
+                errorMessage = 'Tolong masukkan Nama kamu.'; 
+            }
+            else if (customerName.length < 3) { 
+                errorMessage = 'Nama kamu terlalu pendek.';
+            }
+            else if (onlyNumbersRegex.test(customerName)) { 
+                errorMessage = 'Nama kamu tidak valid (hanya berisi angka).';
+            }
+            // Validasi Telepon (Hanya Angka)
+            else if (!customerPhone) { 
+                // BARU: Pesan error diubah
+                errorMessage = 'Tolong isi No. Telepon.'; 
+            }
+            // BARU: Validasi "Hanya Angka" untuk telepon
+            else if (!onlyNumbersRegex.test(customerPhone)) {
+                errorMessage = 'No. Telepon harus berupa angka.';
+            }
+            // BARU: Validasi panjang minimal telepon diubah
+            else if (customerPhone.length < 8) { 
+                errorMessage = 'No. Telepon terlalu pendek (min. 8 angka).';
+            }
+            // Validasi Kelas
+            else if (!customerClass) { 
+                errorMessage = 'Tolong pilih Kelas Kamu.'; 
+            }
+            
+            // Jika ada pesan error, tampilkan dan hentikan
+            if (errorMessage) { 
+                showValidationError(errorMessage); 
+                return; 
+            }
+
+            // --- Mulai dari sini, kode Anda tetap sama ---
             checkoutButton.disabled = true;
             checkoutButton.textContent = 'Memproses...';
 
             const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('\n');
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-
             const orderData = {
                 nama: customerName,
                 telepon: customerPhone,
@@ -209,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalAsli: totalAsli
             };
             
-
             const response = await fetch(BACKEND_API_URL, { 
                 method: 'POST',
                 body: JSON.stringify(orderData),
@@ -217,7 +252,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error('Gagal menghubungi server. Status: ' + response.statusText);
+                // Coba baca pesan error dari server jika ada
+                let serverMessage = response.statusText;
+                try {
+                    const errorData = await response.json();
+                    serverMessage = errorData.message || serverMessage;
+                } catch (e) {
+                    // Biarkan serverMessage apa adanya
+                }
+                throw new Error(`Gagal menghubungi server. Status: ${serverMessage}`);
             }
 
             const data = await response.json(); 
@@ -240,10 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 customerName: customerName,
                 itemsString: itemsString
             };
-
+            
             renderQrCode(data.qrisString); 
             
-
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
 
