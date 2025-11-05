@@ -1,9 +1,4 @@
-// File: /api/submit.js
-// VERSI FINAL v3 (Paling Stabil: "Tunggu, tapi Abaikan Balasan")
 
-// ===================================================================
-// === FUNGSI HELPER (JANGAN DIHAPUS) ===
-// ===================================================================
 function crc16(str) {
   let crc = 0xffff;
   for (let i = 0; i < str.length; i++) {
@@ -18,7 +13,6 @@ function crc16(str) {
 function generateFinalQrisString(nominal) {
   const qrisBaseLama = process.env.QRIS_BASE_STRING;
   if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING tidak ditemukan."); }
-  
   const nominalStr = String(Math.round(nominal));
   const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
   const qrisBaseTanpaCRC = qrisBaseLama.substring(0, qrisBaseLama.length - 8);
@@ -31,69 +25,72 @@ function generateFinalQrisString(nominal) {
   const crc = crc16(qrisNoCRC);
   return qrisNoCRC + crc;
 }
-// --- AKHIR FUNGSI HELPER ---
+// --- AKHIR FUNGSI ---
 
 
-// ===================================================================
-// === FUNGSI HANDLER ===
-// ===================================================================
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
   }
 
-  const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
-
   try {
     const data = request.body;
-    if (!GOOGLE_SCRIPT_URL) {
-      throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
+
+    const { nama, telepon, kelas, itemsString, totalAsli } = data;
+
+    // Cek apakah nama terlalu pendek
+    if (!nama || nama.trim().length < 3) {
+      throw new Error("Nama kamu ga valid nih.");
     }
     
-    // Hitung Total Final
+    // Cek apakah nomor telepon hanya angka dan minimal 8 digit
+    const phoneRegex = /^[0-9]{8,}$/;
+    if (!telepon || !phoneRegex.test(telepon.replace(/\D/g, ''))) { // Menghapus spasi/tanda +
+      throw new Error("Nomor Telepon kelihatannya tidak valid.");
+    }
+
+    // Cek apakah kelas dipilih
+    if (!kelas) {
+        throw new Error("Kelas wajib dipilih.");
+    }
+
+    const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
+    if (!GOOGLE_SCRIPT_URL) {
+        throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
+    }
+
+    // Hitung Total Final di backend
     const kodeUnik = Math.floor(Math.random() * 99) + 1;
-    const totalFinal = data.totalAsli + kodeUnik;
+    const totalFinal = totalAsli + kodeUnik;
     const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // Buat QRIS
+    // Buat String QRIS Dinamis di backend
     const finalQrisString = generateFinalQrisString(totalFinal);
 
-    // Siapkan data sheet
     const sheetData = {
-      nama: data.nama,
-      telepon: data.telepon,
-      kelas: data.kelas,
-      itemsString: data.itemsString,
+      nama: nama,
+      telepon: telepon,
+      kelas: kelas,
+      itemsString: itemsString,
       totalFinal: totalFinal
     };
     
-    // =======================================================
-    // === KIRIM DATA KE GOOGLE & TUNGGU (INI KUNCINYA) ===
-    // =======================================================
-    console.log("Mengirim data ke Google Sheet dan menunggu...");
-    
-    // Kita 'await' fetch, memaksa Vercel tetap hidup
+
     const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
+        mode: 'cors',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" }, 
     });
 
-    // Kita log statusnya untuk debug di Vercel
-    console.log(`Fetch ke Google selesai. Status: ${googleResponse.status}`);
-    
-    // !! PENTING !!
-    // Kita TIDAK lagi 'await googleResponse.json()'
-    // Kita TIDAK peduli balasannya HTML atau JSON,
-    // karena kita tahu datanya sudah masuk.
-    // Kita langsung lanjut ke langkah berikutnya.
-    
-    // =======================================================
-    // === KIRIM BALASAN SUKSES KE FRONTEND ===
-    // =======================================================
-    // Kode ini HANYA akan berjalan SETELAH fetch di atas selesai.
-    
-    console.log("Mengirim balasan sukses (QRIS) ke frontend.");
+    if (!googleResponse.ok) {
+      throw new Error(`Google Script GAGAL dihubungi. Status: ${googleResponse.statusText}`);
+    }
+    const googleResult = await googleResponse.json();
+    if (googleResult.status !== "success") {
+      throw new Error(`Google Script ERROR: ${googleResult.message}`);
+    }
+
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
@@ -102,9 +99,8 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-    // Menangkap error jika QRIS_BASE_STRING hilang, 
-    // atau jika fetch-nya sendiri gagal (misal Google down)
-    console.error("Error Kritis di /api/submit:", error.message);
-    response.status(500).json({ status: "error", message: error.message });
+
+    console.error("Error di /api/submit:", error.message);
+    response.status(400).json({ status: "error", message: error.message });
   }
 }

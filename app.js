@@ -1,11 +1,4 @@
-// File: public/app.js
-// Versi FINAL AMAN: Menggunakan Vercel Serverless Function
 
-// =================================================================
-// === SEMUA RAHASIA (QRIS, KEY, URL) SUDAH DIHAPUS DARI SINI ===
-// =================================================================
-
-// 🪄 Fungsi baru: menggambar QRIS dari string yang diterima
 function renderQrCode(qrisString) {
   const qrContainer = document.getElementById("qris-image-container");
   qrContainer.innerHTML = ""; // Kosongkan QR lama
@@ -16,7 +9,7 @@ function renderQrCode(qrisString) {
     return;
   }
 
-  // 🎯 Generate QR Code ke dalam Modal
+
   new QRious({
     element: qrContainer.appendChild(document.createElement("canvas")),
     value: qrisString,
@@ -30,15 +23,8 @@ function renderQrCode(qrisString) {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // =================================================================
-    // === URL BACKEND SEKARANG ADALAH DOMAIN ANDA SENDIRI ===
-    // =================================================================
-    const BACKEND_API_URL = '/api/submit';
-    // =================================================================
-    
-    // (SEMUA KUNCI RAHASIA SUDAH DIHAPUS)
 
-    // --- Ambil Elemen DOM ---
+    const BACKEND_API_URL = '/api/submit';
     const productListEl = document.getElementById('product-list');
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
@@ -71,9 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let products = [];
     let cart = [];
-    let currentOrderData = null; // Cukup untuk menyimpan Order ID
-
-    // --- 1. Ambil dan Tampilkan Produk ---
+    let currentOrderData = null; 
     function fetchProducts() {
         products = [
             {id: 1, name: 'Mie Gacoan', description: 'Mie, Ayam Cincang, Pangsit Goreng.', price: 15500, image_url: 'images/mie-gacoan.png', requiresOptions: true},
@@ -197,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
      }
 
-    // --- 4. Proses Checkout (AMAN & TIDAK AKAN FAILED TO FETCH) ---
+    // --- 4. Proses Checkout 
     checkoutButton.addEventListener('click', async () => { 
         try {
             const customerName = customerNameInput.value.trim();
@@ -216,22 +200,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemsString = cart.map(item => { let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; if (item.options) { let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; detail += ` [${item.options.level}${notes}]`; } return detail; }).join('\n');
             const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            // HANYA kirim data mentah. Backend akan hitung sisanya.
+
             const orderData = {
                 nama: customerName,
                 telepon: customerPhone,
                 kelas: customerClass,
                 itemsString: itemsString,
                 totalAsli: totalAsli
-                // TIDAK ADA LAGI SECRET KEY ATAU RECAPTCHA DI SINI
             };
             
-            // --- KIRIM DATA KE BACKEND VERCEL ANDA ---
+
             const response = await fetch(BACKEND_API_URL, { 
                 method: 'POST',
-                // mode: 'cors' TIDAK DIPERLUKAN LAGI!
                 body: JSON.stringify(orderData),
-                headers: { "Content-Type": "application/json" }, // Kirim sebagai JSON
+                headers: { "Content-Type": "application/json" }, 
             });
 
             if (!response.ok) {
@@ -252,23 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
             customerPhoneInput.value = '';
             customerClassInput.value = '';
 
-            // 'data' sekarang berisi: { status, orderId, finalAmount, qrisString }
             currentOrderData = { 
                 orderId: data.orderId, 
                 finalAmount: data.finalAmount,
                 customerName: customerName,
                 itemsString: itemsString
             };
-            
-            // Generate QRIS dengan string AMAN dari backend
+
             renderQrCode(data.qrisString); 
             
-            // Tampilkan alert
+
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
 
         } catch (err) {
-            // Ini akan menangkap jika Vercel error
             showValidationError('Terjadi kesalahan: ' + err.message);
             checkoutButton.disabled = false;
             checkoutButton.textContent = 'Proses Pesanan';
