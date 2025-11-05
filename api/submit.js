@@ -1,3 +1,17 @@
+  response.setHeader('Access-Control-Allow-Credentials', true);
+  response.setHeader('Access-Control-Allow-Origin', '*'); // Atau ganti domain spesifik
+  response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  response.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (request.method === 'OPTIONS') {
+    response.status(200).end();
+    return;
+  }
+  // === END CORS ===
+
+  if (request.method !== 'POST') {
+    return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
+  }
 
 function crc16(str) {
   let crc = 0xffff;
