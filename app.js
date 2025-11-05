@@ -135,21 +135,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
+        
         const finalPrice = priceOverride !== undefined ? priceOverride : product.price;
+        
         if (!product.requiresOptions) {
             const existingItem = cart.find(item => item.id === productId);
             if (existingItem) {
                 updateQuantity(existingItem.uniqueCartId, existingItem.quantity + 1);
-                cartModal.style.display = 'flex';
                 renderCart();
                 return; 
             }
         }
+        
         const uniqueCartId = Date.now().toString();
         cart.push({ ...product, price: finalPrice, quantity: 1, options: options, uniqueCartId: uniqueCartId });
-        cartModal.style.display = 'flex';
-        renderCart();
+        
+
+        
+        renderCart(); 
      }
+
     function updateQuantity(uniqueCartId, newQuantity) {
         const item = cart.find(i => i.uniqueCartId === uniqueCartId);
         if (item) item.quantity = newQuantity;
