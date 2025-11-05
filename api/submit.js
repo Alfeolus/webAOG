@@ -1,18 +1,3 @@
-  response.setHeader('Access-Control-Allow-Credentials', true);
-  response.setHeader('Access-Control-Allow-Origin', '*'); // Atau ganti domain spesifik
-  response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  response.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
-  if (request.method === 'OPTIONS') {
-    response.status(200).end();
-    return;
-  }
-  // === END CORS ===
-
-  if (request.method !== 'POST') {
-    return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
-  }
-
 function crc16(str) {
   let crc = 0xffff;
   for (let i = 0; i < str.length; i++) {
@@ -24,6 +9,7 @@ function crc16(str) {
   }
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
+
 function generateFinalQrisString(nominal) {
   const qrisBaseLama = process.env.QRIS_BASE_STRING;
   if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING tidak ditemukan."); }
@@ -39,10 +25,20 @@ function generateFinalQrisString(nominal) {
   const crc = crc16(qrisNoCRC);
   return qrisNoCRC + crc;
 }
-// --- AKHIR FUNGSI ---
 
+// --- HAPUS export default DAN GANTI DENGAN: ---
+module.exports = async function handler(request, response) {
+  // Set CORS headers
+  response.setHeader('Access-Control-Allow-Credentials', true);
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  response.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-export default async function handler(request, response) {
+  if (request.method === 'OPTIONS') {
+    response.status(200).end();
+    return;
+  }
+
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
   }
@@ -59,7 +55,7 @@ export default async function handler(request, response) {
     
     // Cek apakah nomor telepon hanya angka dan minimal 8 digit
     const phoneRegex = /^[0-9]{8,}$/;
-    if (!telepon || !phoneRegex.test(telepon.replace(/\D/g, ''))) { // Menghapus spasi/tanda +
+    if (!telepon || !phoneRegex.test(telepon.replace(/\D/g, ''))) {
       throw new Error("Nomor Telepon kelihatannya tidak valid.");
     }
 
@@ -88,11 +84,9 @@ export default async function handler(request, response) {
       itemsString: itemsString,
       totalFinal: totalFinal
     };
-    
 
     const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        mode: 'cors',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" }, 
     });
@@ -113,8 +107,7 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-
     console.error("Error di /api/submit:", error.message);
     response.status(400).json({ status: "error", message: error.message });
   }
-}
+};
