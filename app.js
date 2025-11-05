@@ -1,7 +1,7 @@
 
 function renderQrCode(qrisString) {
   const qrContainer = document.getElementById("qris-image-container");
-  qrContainer.innerHTML = ""; // Kosongkan QR lama
+  qrContainer.innerHTML = ""; 
 
   if (!qrisString) {
     console.error("String QRIS kosong, tidak bisa menggambar.");
@@ -208,14 +208,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Validasi Telepon (Hanya Angka)
             else if (!customerPhone) { 
-                // BARU: Pesan error diubah
+
                 errorMessage = 'Tolong isi No. Telepon.'; 
             }
-            // BARU: Validasi "Hanya Angka" untuk telepon
+
             else if (!onlyNumbersRegex.test(customerPhone)) {
                 errorMessage = 'No. Telepon harus berupa angka.';
             }
-            // BARU: Validasi panjang minimal telepon diubah
+
             else if (customerPhone.length < 8) { 
                 errorMessage = 'No. Telepon terlalu pendek (min. 8 angka).';
             }
@@ -224,13 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorMessage = 'Tolong pilih Kelas Kamu.'; 
             }
             
-            // Jika ada pesan error, tampilkan dan hentikan
+
             if (errorMessage) { 
                 showValidationError(errorMessage); 
                 return; 
             }
 
-            // --- Mulai dari sini, kode Anda tetap sama ---
+
             checkoutButton.disabled = true;
             checkoutButton.textContent = 'Memproses...';
 
@@ -252,13 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                // Coba baca pesan error dari server jika ada
+
                 let serverMessage = response.statusText;
                 try {
                     const errorData = await response.json();
                     serverMessage = errorData.message || serverMessage;
                 } catch (e) {
-                    // Biarkan serverMessage apa adanya
                 }
                 throw new Error(`Gagal menghubungi server. Status: ${serverMessage}`);
             }
@@ -269,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.message);
             }
             
-            // --- JIKA SUKSES ---
+
             cartModal.style.display = 'none';
             cart = [];
             renderCart();

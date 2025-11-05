@@ -26,12 +26,7 @@ function generateFinalQrisString(nominal) {
   const crc = crc16(qrisNoCRC);
   return qrisNoCRC + crc;
 }
-// --- AKHIR FUNGSI HELPER ---
 
-
-// ===================================================================
-// === FUNGSI HANDLER ===
-// ===================================================================
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
@@ -62,9 +57,6 @@ export default async function handler(request, response) {
       totalFinal: totalFinal
     };
     
-    // =======================================================
-    // === KIRIM DATA KE GOOGLE & TUNGGU (INI KUNCINYA) ===
-    // =======================================================
     console.log("Mengirim data ke Google Sheet dan menunggu...");
     
     // Kita 'await' fetch, memaksa Vercel tetap hidup
