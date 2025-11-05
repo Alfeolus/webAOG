@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function addToCart(productId, options, priceOverride) {
         const product = { ...products.find(p => p.id === productId) }; 
         if (!product) return;
-        
         const finalPrice = priceOverride !== undefined ? priceOverride : product.price;
         
         if (!product.requiresOptions) {
@@ -143,16 +142,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (existingItem) {
                 updateQuantity(existingItem.uniqueCartId, existingItem.quantity + 1);
                 renderCart();
+                
+                showValidationError("Produk ditambahkan ke keranjang!");
                 return; 
             }
         }
         
         const uniqueCartId = Date.now().toString();
         cart.push({ ...product, price: finalPrice, quantity: 1, options: options, uniqueCartId: uniqueCartId });
-        
-
-        
-        renderCart(); 
+        renderCart();
+        showValidationError("Produk ditambahkan ke keranjang!");
      }
 
     function updateQuantity(uniqueCartId, newQuantity) {
