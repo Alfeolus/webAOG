@@ -3,114 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jastip Gacoan AOG</title>
-    <link rel="stylesheet" href="style.css?v=10"> 
-    <link rel="icon" href="images/logo.png" type="image/png"> 
+    <title>PO GACOAN CLOSE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset Sederhana */
+        body, h1, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
+            text-align: center; 
+            padding: 50px 20px; 
+            background-color: #f4f7f6; /* Latar belakang abu-abu muda */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+
+        /* Kotak Konten Utama */
+        .container {
+            max-width: 550px;
+            margin: 0 auto;
+            padding: 40px 50px; 
+            background-color: #ffffff; 
+            border-radius: 12px; /* Lebih bulat */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); /* Shadow lebih lembut */
+            border: 1px solid #e9ecef;
+        }
+
+        /* Logo Anda */
+        .logo {
+            width: 80px; /* Ukuran logo */
+            height: auto;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        /* Judul "PO DITUTUP" */
+        h1 { 
+            color: #d9534f; /* Warna merah yang tegas tapi elegan */
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        /* Paragraf pesan */
+        .message {
+            font-size: 1.1em;
+            color: #555; /* Teks abu-abu tua */
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Kontainer untuk info selanjutnya */
+        .next-steps {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e9ecef; /* Garis pemisah */
+        }
+
+        .next-steps p {
+            font-size: 0.95em;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        /* Tombol Link (misal ke Instagram) */
+        .social-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #FF7B00; /* Warna oranye Gacoan */
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .social-link:hover {
+            background-color: #D94A00; /* Oranye lebih gelap saat disentuh */
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
-    
+
     <div class="container">
         
-        <div class="header-bar">
-            <img src="images/logo.png" alt="Logo Jastip Gacoan" class="header-logo">
-            <h1>Jastip Gacoan AOG</h1>
-            <button id="cart-icon-button">
-                🛒 Keranjang (<span id="cart-count">0</span>)
-            </button>
-        </div>
+        <img src="images/logo.png" alt="Logo Ark of Grace" class="logo">
         
-        <h2>List Makanan</h2>
-        <div id="product-list">
-            </div>
+        <h1>Pre-Order Close!!</h1>
         
-    </div>
-    
-    <div id="cart-modal" class="modal-overlay">
-         <div class="modal-content">
-            <button id="close-modal-button" class="close-modal-button">&times;</button>
-            <h2>Keranjang Belanja</h2>
-            <div id="modal-cart-items"></div>
-            <div class="modal-footer">
-                <h3>Total: <span id="modal-cart-total">Rp 0</span></h3>
-                <input type="text" id="customer-name" placeholder="Nama Pemesan" required>
-                <input type="text" id="customer-phone" placeholder="No. Telepon" required>
-                <select id="customer-class" required>
-                    <option value="" disabled selected>— Pilih Kelas Kamu —</option>
-                    <option value="PPTI 20">PPTI 20</option>
-                    <option value="PPTI 21">PPTI 21</option>
-                    <option value="PPTI 22">PPTI 22</option>
-                    <option value="PPTI 23">PPTI 23</option>
-                    <option value="PPTI 24">PPTI 24</option>
-                    <option value="PPTI 25">PPTI 25</option>
-                    <option value="PPBP 7">PPBP 7</option>
-                    <option value="PPBP 8">PPBP 8</option>
-                    <option value="PPBP 9">PPBP 9</option>
-                    <option value="PPBP 10">PPBP 10</option>
-                </select>
-                <button id="checkout-button">Proses Pesanan</button>
-            </div>
+        <p class="message">
+            Thank you semua buat antusiasnya!!
+        </p>
+
+        <div class="next-steps">
+            <p>See You di next PO<br></p>
+            
+            <a href="instagram.com/natal.pptippbp" class="social-link">Follow Instagram AOG</a>
         </div>
+
     </div>
 
-    <div id="product-options-modal" class="modal-overlay" style="z-index: 1001;">
-         <div class="modal-content" style="max-width: 450px;">
-            <button id="close-options-modal-button" class="close-modal-button">&times;</button>
-            <h2 id="options-product-name">Pilih Opsi</h2>
-            <div class="options-form">
-                <label for="product-level">Level Pedas:</label>
-                <select id="product-level">
-                    <option value="Lv 0">Lv 0</option>
-                    <option value="Lv 1">Lv 1</option>
-                    <option value="Lv 2">Lv 2</option>
-                    <option value="Lv 3">Lv 3</option>
-                    <option value="Lv 4">Lv 4</option>
-                    <option value="Lv 6">Lv 6</option>
-                    <option value="Lv 8">Lv 8</option>
-                </select>
-                <label for="product-notes">Catatan (opsional):</label>
-                <input type="text" id="product-notes" placeholder="Contoh: 'Jangan pakai bawang'">
-            </div>
-            <div class="modal-footer">
-                <button id="add-to-cart-options-button">Tambah ke Keranjang</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="alert-modal" class="modal-overlay" style="z-index: 1002;">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h2>Penting!</h2>
-            <p style="margin: 20px 0;">Pastikan kamu mentransfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
-            <p>Jumlah yang harus dibayar:</p>
-            <h3 id="alert-amount" style="color: #D94A00; font-size: 1.8em; margin: 5px 0 20px 0;">Rp 0</h3>
-            <button id="alert-ok-button" class="confirm-button">OK, Paham!!</button>
-        </div>
-    </div>
-
-    <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
-        <div class="modal-content" style="max-width: 450px; text-align: center;">
-             <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
-             <h2>Lakukan Pembayaran</h2>
-             <p>Silahkan lakukan pembayaran sebesar:</p>
-             <h2 id="qris-amount" style="color: #D94A00; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
-             <p>Order ID Kamu: <b id="qris-order-id"></b></p>
-             <p>Pindai QRIS di bawah ini:</p>
-             <div id="qris-image-container">
-                 </div>
-             <button id="confirm-payment-modal-button" class="confirm-button">Sudah Bayar!!</button>
-             <p style="margin-top: 10px; font-size: 0.9em; color: #555;">(Klik tombol diatas kalau sudah melakukan pembayaran)</p>
-        </div>
-    </div>
-
-    <div id="validation-modal" class="modal-overlay" style="z-index: 1004;">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-             <button id="close-validation-modal-button" class="close-modal-button">&times;</button>
-             <h2 id="validation-title" style="color: #dc3545;">Mohon Lengkapi Data</h2>
-             <p id="validation-message" style="margin: 20px 0; font-size: 1.1em;"></p>
-             <button id="validation-ok-button" class="validation-button">OK</button>
-        </div>
-    </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script src="app.js?v=10"></script> 
 </body>
 </html>
