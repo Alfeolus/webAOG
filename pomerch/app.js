@@ -1,35 +1,77 @@
 // File: pomerch/app.js
-// Versi ini untuk PO Merchandise dengan tema gelap
+// Versi ini menambahkan TOAST NOTIFICATION
+
+function renderQrCode(qrisString) {
+  const qrContainer = document.getElementById("qris-image-container");
+  qrContainer.innerHTML = "";
+  if (!qrisString) {
+    console.error("String QRIS kosong, tidak bisa menggambar.");
+    qrContainer.innerHTML = "<p>Error: Gagal memuat QRIS.</p>";
+    return;
+  }
+  new QRious({
+    element: qrContainer.appendChild(document.createElement("canvas")),
+    value: qrisString,
+    size: 250, padding: 10, background: 'white', foreground: 'black'
+  });
+}
+
+// ==========================================================
+// === FUNGSI BARU UNTUK TOAST NOTIFICATION ===
+// ==========================================================
+let toastTimer; // Variabel untuk menyimpan timer
+function showToast(message) {
+    const toast = document.getElementById('toast-notification');
+    toast.innerText = message;
+    toast.classList.add('show');
+
+    // Hapus timer sebelumnya jika ada
+    if (toastTimer) {
+        clearTimeout(toastTimer);
+    }
+
+    // Buat timer baru untuk menyembunyikan toast
+    toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000); // Sembunyikan setelah 3 detik
+}
+// ==========================================================
+
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // =================================================================
-    // === PENTING! BUAT GOOGLE SHEET BARU UNTUK MERCH, ===
-    // === DEPLOY, DAN PASTE URL BARU ANDA DI SINI ===
-    const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_NEW_MERCH_SCRIPT_URL_HERE';
-    // =================================================================
-
-    // --- Ambil Elemen DOM ---
+    const BACKEND_API_URL = '/api/submit';
+    
+    // === Ambil Elemen DOM ===
     const productListEl = document.getElementById('product-list');
+    const multiStepModal = document.getElementById('multi-step-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const closeModalButton = document.getElementById('close-modal-button');
+    const backModalButton = document.getElementById('modal-back-button');
+    const step1 = document.querySelector('.modal-step[data-step="1"]');
+    const step1Title = document.getElementById('step-1-title');
+    const designGridContainer = document.getElementById('design-grid-container');
+    const step2 = document.querySelector('.modal-step[data-step="2"]');
+    const step2Title = document.getElementById('step-2-title');
+    const sizeOptionsContainer = document.getElementById('size-options-container');
+    const sizeSelector = document.getElementById('size-selector');
+    const modelOptionsContainer = document.getElementById('model-options-container');
+    const modelSelector = document.getElementById('model-selector');
+    const bundleOptionsContainer = document.getElementById('bundle-options-container');
+    const addToCartButton = document.getElementById('add-to-cart-button');
+    
+    // (Elemen helper dan catatan sudah dihapus)
+
     const cartIconButton = document.getElementById('cart-icon-button');
     const cartCountEl = document.getElementById('cart-count');
     const cartModal = document.getElementById('cart-modal');
-    const closeModalButton = document.getElementById('close-modal-button');
+    const closeCartModalButton = document.querySelector('#cart-modal .close-modal-button');
     const modalCartItemsEl = document.getElementById('modal-cart-items');
     const modalCartTotalEl = document.getElementById('modal-cart-total');
     const customerNameInput = document.getElementById('customer-name');
     const customerPhoneInput = document.getElementById('customer-phone');
     const customerClassInput = document.getElementById('customer-class');
     const checkoutButton = document.getElementById('checkout-button');
-    const productOptionsModal = document.getElementById('product-options-modal');
-    const closeOptionsModalButton = document.getElementById('close-options-modal-button');
-    const optionsProductName = document.getElementById('options-product-name');
-    
-    // Diubah dari Level ke Size
-    const productSizeSelect = document.getElementById('product-size'); 
-    const productNotesInput = document.getElementById('product-notes');
-    const addToCartOptionsButton = document.getElementById('add-to-cart-options-button');
-    
     const alertModal = document.getElementById('alert-modal');
     const alertAmountEl = document.getElementById('alert-amount');
     const alertOkButton = document.getElementById('alert-ok-button');
@@ -43,80 +85,466 @@ document.addEventListener('DOMContentLoaded', () => {
     const validationMessageEl = document.getElementById('validation-message');
     const validationOkButton = document.getElementById('validation-ok-button');
 
-    let products = [];
     let cart = [];
-    let currentOrderData = null;
+    let currentOrderData = null; 
+    let currentSelection = {
+        product: null,
+        basePrice: 0,
+        type: 'satuan',
+        design: null,
+        size: null, 
+        bundleOptions: [] 
+    };
 
-    // --- 1. Ambil dan Tampilkan Produk ---
-    function fetchProducts() {
-        
-        // --- PRODUK BARU UNTUK MERCH ---
-        // Pastikan path 'image_url' relatif (images/...)
-        products = [
-            {id: 1, name: 'T-Shirt "Ark of Grace"', description: 'Bahan Cotton Combed 24s, Sablon Plastisol.', price: 150000, image_url: 'images/t-shirt.png', requiresOptions: true},
-            {id: 2, name: 'Hoodie "Gracefall"', description: 'Bahan Cotton Fleece, Bordir Komputer.', price: 280000, image_url: 'images/hoodie.png', requiresOptions: true},
-            {id: 3, name: 'Totebag "Logo"', description: 'Bahan Kanvas Tebal, Sablon Karet.', price: 75000, image_url: 'images/totebag.png', requiresOptions: false},
-            {id: 4, name: 'Sticker Pack (5 pcs)', description: 'Bahan Vinyl Laminated, Anti Air.', price: 35000, image_url: 'images/stickers.png', requiresOptions: false}
-        ];
-        // --- AKHIR PRODUK BARU ---
-        
-        renderProducts();
-     }
-    function renderProducts() {
-        productListEl.innerHTML = '';
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            let displayPrice = product.price;
-            card.innerHTML = `<img src="${product.image_url}" alt="${product.name}"><div class="product-info"><h3>${product.name}</h3><div class="price">${formatRupiah(displayPrice)}</div><button data-id="${product.id}">Tambah ke Keranjang</button></div>`;
-            card.querySelector('button').addEventListener('click', () => handleProductClick(product.id));
-            productListEl.appendChild(card);
+    // === Database Produk ===
+    const KAOS_DESIGNS = Array.from({length: 14}, (_, i) => `Desain ${i + 1}`);
+    const KAOS_SIZES = ["S", "M", "L", "XL", "XXL", "Lengan Panjang (+Rp 10rb)"]; 
+    const JERSEY_DESIGNS = Array.from({length: 4}, (_, i) => `Desain ${i + 1}`);
+    const JERSEY_SIZES = ["S", "M", "L", "XL", "XXL", "Lengan Panjang (+Rp 10rb)"]; 
+    const STIKER_MODELS = ["Stiker A", "Stiker B", "Stiker C"];
+    const KEYCHAIN_MODELS = ["Model A", "Model B", "Model C", "Model D"]; 
+
+    const productDatabase = {
+        "Kaos": {
+            basePrice: 97000,
+            type: 'satuan',
+            designs: KAOS_DESIGNS,
+            sizes: [...KAOS_SIZES, "3XL", "4XL", "5XL", "6XL", "7XL", "8XL"] 
+        },
+        "Jersey": {
+            basePrice: 95000,
+            type: 'satuan',
+            designs: JERSEY_DESIGNS,
+            sizes: [...JERSEY_SIZES, "3XL", "4XL", "5XL", "6XL", "7XL", "8XL"] 
+        },
+        "Stiker": { basePrice: 5000, type: 'satuan', models: STIKER_MODELS },
+        "Keychain": { basePrice: 45000, type: 'satuan', models: KEYCHAIN_MODELS },
+        "Bundle of Blessings": {
+            basePrice: 285000,
+            type: 'bundle',
+            items: [
+                { name: "Kaos I", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
+                { name: "Kaos II", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
+                { name: "Kaos III", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES }
+            ]
+        },
+        "Santa’s Safe Haven": {
+            basePrice: 170000,
+            type: 'bundle',
+            items: [
+                { name: "Kaos", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
+                { name: "Jersey", type: "Jersey", designs: JERSEY_DESIGNS, sizes: JERSEY_SIZES }
+            ]
+        },
+        "A December to Remember": {
+            basePrice: 185000,
+            type: 'bundle',
+            items: [
+                { name: "Kaos", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
+                { name: "Jersey", type: "Jersey", designs: JERSEY_DESIGNS, sizes: JERSEY_SIZES },
+                { name: "Stiker", type: "Stiker", models: STIKER_MODELS },
+                { name: "Keychain", type: "Keychain", models: KEYCHAIN_MODELS }
+            ]
+        },
+        "Mistletoe Mavericks": {
+            basePrice: 245000,
+            type: 'bundle',
+            items: [
+                { name: "Jersey I", type: "Jersey", designs: JERSEY_DESIGNS, sizes: JERSEY_SIZES },
+                { name: "Jersey II", type: "Jersey", designs: JERSEY_DESIGNS, sizes: JERSEY_SIZES },
+                { name: "Jersey III", type: "Jersey", designs: JERSEY_DESIGNS, sizes: JERSEY_SIZES }
+            ]
+        }
+    };
+    
+    function createDropdown(id, label, options) {
+        let optionsHtml = `<option value="" disabled selected>Pilih ${label}</option>`;
+        options.forEach(opt => {
+            optionsHtml += `<option value="${opt}">${opt}</option>`;
         });
-     }
+        return `
+            <div class="bundle-option">
+                <label for="${id}">${label}:</label>
+                <select id="${id}">${optionsHtml}</select>
+            </div>
+        `;
+    }
 
-    // --- 2. Logika Modal ---
-    cartIconButton.addEventListener('click', () => { cartModal.style.display = 'flex'; renderCart(); });
-    closeModalButton.addEventListener('click', () => { cartModal.style.display = 'none'; });
-    cartModal.addEventListener('click', (event) => { if (event.target === cartModal) cartModal.style.display = 'none'; });
-    closeOptionsModalButton.addEventListener('click', () => { productOptionsModal.style.display = 'none'; });
-    productOptionsModal.addEventListener('click', (event) => { if (event.target === productOptionsModal) productOptionsModal.style.display = 'none'; });
-    
-    function handleProductClick(productId) {
-        const product = products.find(p => p.id === productId);
-        if (!product) return;
-        if (product.requiresOptions) {
-            optionsProductName.textContent = product.name;
-            productSizeSelect.value = "M"; // Default ke M
-            productNotesInput.value = "";
-            addToCartOptionsButton.dataset.id = productId;
-            productOptionsModal.style.display = 'flex';
+    function goToModalStep(stepNumber) {
+        document.querySelectorAll('#multi-step-modal .modal-step').forEach(step => step.classList.remove('active'));
+        document.querySelector(`#multi-step-modal .modal-step[data-step="${stepNumber}"]`).classList.add('active');
+        
+        if (stepNumber === 1) {
+            modalTitle.innerText = `Pilih Desain ${currentSelection.product}`;
+            backModalButton.style.display = 'none';
         } else {
-            addToCart(productId, null, product.price); 
+            modalTitle.innerText = 'Pilih Opsi';
+            backModalButton.style.display = (currentSelection.type === 'satuan' && productDatabase[currentSelection.product].designs) ? 'block' : 'none';
         }
-     }
-    
-    addToCartOptionsButton.addEventListener('click', () => {
-        const productId = parseInt(addToCartOptionsButton.dataset.id);
-        const size = productSizeSelect.value;
-        const notes = productNotesInput.value || " ";
-        
-        const options = {
-            size: size,
-            notes: notes
-        };
-        
-        let product = products.find(p => p.id === productId);
-        let finalPrice = product.price;
+    }
 
-        // Logika harga custom: Jika Lengan Panjang, tambah 10rb
-        if (size === "Lengan Panjang") {
-            finalPrice += 10000;
+    function resetModal() {
+        currentSelection = { product: null, basePrice: 0, type: 'satuan', design: null, size: null, bundleOptions: [] };
+        designGridContainer.innerHTML = '';
+        sizeSelector.innerHTML = '';
+        modelSelector.innerHTML = '';
+        bundleOptionsContainer.innerHTML = '';
+    }
+
+    function openModalForProduct(productName) {
+        resetModal();
+        const productData = productDatabase[productName];
+        if (!productData) return;
+
+        currentSelection.product = productName;
+        currentSelection.basePrice = productData.basePrice;
+        currentSelection.type = productData.type;
+
+        sizeOptionsContainer.style.display = 'none';
+        modelOptionsContainer.style.display = 'none';
+        bundleOptionsContainer.style.display = 'none';
+
+        if (productData.type === 'satuan') {
+            if (productData.designs) {
+                step1Title.innerText = `Pilih Desain ${productName}`;
+                designGridContainer.innerHTML = ''; 
+                productData.designs.forEach((designName, i) => {
+                    const imgName = `${productName.toLowerCase()}-desain-${i + 1}.png`; 
+                    const item = document.createElement('div');
+                    item.className = 'design-item';
+                    item.dataset.design = designName;
+                    item.innerHTML = `<img src="images/designs/${imgName}" alt="${designName}">`;
+                    item.addEventListener('click', () => selectDesign(item, designName));
+                    designGridContainer.appendChild(item);
+                });
+                
+                sizeOptionsContainer.style.display = 'block';
+                step2Title.innerText = "Pilih Ukuran & Opsi";
+                sizeSelector.innerHTML = '';
+                productData.sizes.forEach(size => {
+                    const btn = document.createElement('button');
+                    btn.className = 'size-btn';
+                    btn.dataset.size = size;
+                    btn.innerText = size;
+                    if (size.includes("Lengan Panjang")) {
+                        btn.classList.add('lengan-panjang');
+                    }
+                    btn.addEventListener('click', () => selectSize(btn, size));
+                    sizeSelector.appendChild(btn);
+                });
+
+                goToModalStep(1); 
+                
+            } else if (productData.models) {
+                modelOptionsContainer.style.display = 'block';
+                step2Title.innerText = `Pilih Model ${productName}`;
+                modelSelector.innerHTML = '';
+                productData.models.forEach(model => {
+                    const btn = document.createElement('button');
+                    btn.className = 'model-btn';
+                    btn.dataset.model = model;
+                    btn.innerText = model;
+                    btn.addEventListener('click', () => selectModel(btn, model));
+                    modelSelector.appendChild(btn);
+                });
+                
+                goToModalStep(2); 
+            }
+        } else if (productData.type === 'bundle') {
+            bundleOptionsContainer.style.display = 'block';
+            step2Title.innerText = `Pilih Opsi ${productName}`;
+            bundleOptionsContainer.innerHTML = ''; 
+            
+            productData.items.forEach((item, index) => {
+                const itemGroupId = `bundle-item-${index}`;
+                let itemHtml = `<div class="bundle-item-group" id="${itemGroupId}"><strong>${item.name}</strong>`;
+                
+                if (item.designs) {
+                    itemHtml += createDropdown(`${itemGroupId}-design`, 'Desain', item.designs);
+                }
+                if (item.sizes) {
+                    itemHtml += createDropdown(`${itemGroupId}-size`, 'Ukuran', item.sizes);
+                }
+                if (item.models) {
+                    itemHtml += createDropdown(`${itemGroupId}-model`, 'Model', item.models);
+                }
+                
+                itemHtml += '</div>';
+                bundleOptionsContainer.innerHTML += itemHtml;
+            });
+            
+            goToModalStep(2); 
         }
+        
+        multiStepModal.style.display = 'flex';
+    }
 
-        addToCart(productId, options, finalPrice); 
-        productOptionsModal.style.display = 'none';
-     });
+    function selectDesign(element, designName) {
+        document.querySelectorAll('.design-item.selected').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        currentSelection.design = designName;
+        setTimeout(() => goToModalStep(2), 200); 
+    }
+
+    function selectSize(element, sizeName) {
+        document.querySelectorAll('.size-btn.selected').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        currentSelection.size = sizeName;
+    }
     
+    function selectModel(element, modelName) {
+        document.querySelectorAll('.model-btn.selected').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        currentSelection.size = modelName; 
+    }
+
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const productName = card.dataset.product;
+            openModalForProduct(productName);
+        });
+    });
+
+    closeModalButton.addEventListener('click', () => multiStepModal.style.display = 'none');
+    backModalButton.addEventListener('click', () => goToModalStep(1));
+    multiStepModal.addEventListener('click', (e) => {
+        if (e.target === multiStepModal) multiStepModal.style.display = 'none';
+    });
+
+
+    addToCartButton.addEventListener('click', () => {
+        const productData = productDatabase[currentSelection.product];
+        // currentSelection.notes = productNotesInput.value || " "; // Dihapus
+        let finalPrice = currentSelection.basePrice;
+        let optionsSummary = ""; 
+        let validationError = false;
+        
+        if (currentSelection.type === 'satuan') {
+            if ((productData.designs && !currentSelection.design) || !currentSelection.size) {
+                validationError = true;
+            }
+            if (currentSelection.design) optionsSummary += `${currentSelection.design}, `;
+            optionsSummary += currentSelection.size;
+            
+            if (currentSelection.size.includes("Lengan Panjang")) {
+                finalPrice += 10000;
+            }
+            
+        } else if (currentSelection.type === 'bundle') {
+            currentSelection.bundleOptions = []; 
+            let bundleOptionsStrings = [];
+            
+            productData.items.forEach((item, index) => {
+                const itemGroupId = `bundle-item-${index}`;
+                let design = document.getElementById(`${itemGroupId}-design`)?.value;
+                let size = document.getElementById(`${itemGroupId}-size`)?.value;
+                let model = document.getElementById(`${itemGroupId}-model`)?.value;
+
+                if ((item.designs && !design) || (item.sizes && !size) || (item.models && !model)) {
+                    validationError = true;
+                }
+                
+                let itemSummary = `${item.name}: `;
+                if (design) itemSummary += `${design}, `;
+                if (size) itemSummary += `${size}`;
+                if (model) itemSummary += `${model}`;
+
+                bundleOptionsStrings.push(itemSummary);
+                
+                if (size && size.includes("Lengan Panjang")) {
+                    finalPrice += 10000;
+                }
+            });
+            optionsSummary = bundleOptionsStrings.join(' | ');
+        }
+        
+        if (validationError) {
+            alert("Mohon lengkapi semua pilihan (desain, ukuran, atau model)!");
+            return;
+        }
+        
+        const uniqueCartId = Date.now().toString();
+        
+        const imgPath = `images/${currentSelection.product.toLowerCase().split(' ')[0]}-preview.png`;
+        
+        cart.push({
+            id: uniqueCartId,
+            name: currentSelection.product,
+            price: finalPrice,
+            quantity: 1,
+            options: {
+                size: optionsSummary, 
+                notes: " " // Tidak ada catatan
+            },
+            image_url: imgPath
+        });
+        
+        renderCart();
+        // cartModal.style.display = 'flex'; // <-- DIHAPUS
+        showToast(`${currentSelection.product} ditambahkan!`); // <-- DITAMBAHKAN
+        multiStepModal.style.display = 'none'; 
+    });
+
+    cartIconButton.addEventListener('click', () => { cartModal.style.display = 'flex'; renderCart(); });
+    closeCartModalButton.addEventListener('click', () => { cartModal.style.display = 'none'; });
+    cartModal.addEventListener('click', (e) => { if (e.target === cartModal) cartModal.style.display = 'none'; });
+    
+    function renderCart() {
+        modalCartItemsEl.innerHTML = '';
+        let total = 0;
+        if (cart.length === 0) { modalCartItemsEl.innerHTML = '<p style="text-align: center; padding: 20px 0; color: #aaa;">Keranjang Anda kosong.</p>'; }
+        
+        cart.forEach(item => {
+            let detailsHtml = '';
+            if (item.options) { 
+                let notes = (item.options.notes && item.options.notes.trim() && item.options.notes !== " ") ? `, ${item.options.notes}` : ''; 
+                detailsHtml = `<div class="cart-item-details">${item.options.size}${notes}</div>`; 
+            }
+            
+            const itemRow = document.createElement('div');
+            itemRow.className = 'cart-item-row';
+            itemRow.innerHTML = `<img src="${item.image_url}" alt="${item.name}"><div class="cart-item-info"><b>${item.name}</b><span>${formatRupiah(item.price)}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.id}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.id}"><button class="quantity-up" data-id="${item.id}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.id}">&times;</button>`;
+            modalCartItemsEl.appendChild(itemRow);
+            total += item.price * item.quantity;
+        });
+        
+        modalCartTotalEl.textContent = formatRupiah(total);
+        cartCountEl.textContent = cart.length;
+        
+        modalCartItemsEl.querySelectorAll('.quantity-down').forEach(btn => btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const item = cart.find(i => i.id === id);
+            if (item.quantity > 1) updateQuantity(id, item.quantity - 1);
+            else removeFromCart(id);
+        }));
+        modalCartItemsEl.querySelectorAll('.quantity-up').forEach(btn => btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            updateQuantity(id, cart.find(i => i.id === id).quantity + 1);
+        }));
+        modalCartItemsEl.querySelectorAll('.quantity-controls input').forEach(input => input.addEventListener('change', (e) => {
+            const id = input.dataset.id;
+            let newQty = parseInt(e.target.value);
+            if (isNaN(newQty) || newQty < 1) newQty = 1;
+            updateQuantity(id, newQty);
+        }));
+        modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
+    }
+    
+    function updateQuantity(id, newQuantity) {
+        const item = cart.find(i => i.id === id);
+        if (item) item.quantity = newQuantity;
+        renderCart();
+    }
+    function removeFromCart(id) {
+        cart = cart.filter(i => i.id !== id);
+        renderCart();
+    }
+    
+    checkoutButton.addEventListener('click', async () => { 
+        try {
+            const customerName = customerNameInput.value.trim();
+            const customerPhone = customerPhoneInput.value.trim();
+            const customerClass = customerClassInput.value;
+            let errorMessage = "";
+            if (cart.length === 0) { errorMessage = 'Keranjang kamu masih kosong.'; }
+            else if (!customerName) { errorMessage = 'Tolong masukkan Nama Pemesan.'; }
+            else if (!customerPhone) { errorMessage = 'Tolong masukkan No. Telepon / ID Line.'; }
+            else if (!customerClass) { errorMessage = 'Tolong pilih Kelas Anda.'; }
+            if (errorMessage) { showValidationError(errorMessage); return; }
+
+            checkoutButton.disabled = true;
+            checkoutButton.textContent = 'Memproses...';
+
+            const itemsString = cart.map(item => { 
+                let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; 
+                if (item.options) { 
+                    let notes = (item.options.notes && item.options.notes.trim() && item.options.notes !== " ") ? `, Catatan: ${item.options.notes}` : ''; 
+                    detail += ` [Opsi: ${item.options.size}${notes}]`; 
+                } 
+                return detail; 
+            }).join('\n');
+            const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            const orderData = {
+                nama: customerName,
+                telepon: customerPhone,
+                kelas: customerClass,
+                itemsString: itemsString,
+                totalAsli: totalAsli
+            };
+            
+            const response = await fetch(BACKEND_API_URL, { 
+                method: 'POST',
+                body: JSON.stringify(orderData),
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || `Gagal menghubungi server. Status: ${response.statusText}`);
+            }
+
+            const data = await response.json(); 
+
+            if (data.status !== "success") {
+                throw new Error(data.message);
+            }
+            
+            cartModal.style.display = 'none';
+            cart = [];
+            renderCart();
+            customerNameInput.value = '';
+            customerPhoneInput.value = '';
+            customerClassInput.value = '';
+
+            currentOrderData = { 
+                orderId: data.orderId, 
+                finalAmount: data.finalAmount,
+                customerName: customerName,
+                itemsString: itemsString
+            };
+            
+            renderQrCode(data.qrisString); 
+            
+            alertAmountEl.textContent = formatRupiah(data.finalAmount);
+            alertModal.style.display = 'flex';
+
+        } catch (err) {
+            showValidationError('Terjadi kesalahan: ' + err.message);
+            checkoutButton.disabled = false;
+            checkoutButton.textContent = 'Proses Pesanan';
+        }
+    });
+
+    confirmPaymentModalButton.addEventListener('click', () => {
+        qrisModal.style.display = 'none';
+        
+        if (currentOrderData) {
+             const successData = {
+                customerName: currentOrderData.customerName,
+                itemsString: currentOrderData.itemsString,
+                orderId: currentOrderData.orderId
+            };
+            localStorage.setItem('lastOrderData', JSON.stringify(successData));
+        }
+        
+        let successUrl = 'payment-success.html';
+        window.location.href = successUrl;
+    });
+
+    function showValidationError(message) {
+        validationMessageEl.textContent = message;
+        validationModal.style.display = 'flex';
+    }
+
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        }).format(number);
+    }
+
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         if (currentOrderData) {
@@ -126,169 +554,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         checkoutButton.disabled = false;
         checkoutButton.textContent = 'Proses Pesanan';
-     });
+    });
     closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
-    qrisModal.addEventListener('click', (event) => { if (event.target === qrisModal) qrisModal.style.display = 'none'; });
-
+    qrisModal.addEventListener('click', (e) => { if (e.target === qrisModal) qrisModal.style.display = 'none'; });
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
-    validationModal.addEventListener('click', (event) => { if (event.target === validationModal) validationModal.style.display = 'none'; });
+    validationModal.addEventListener('click', (e) => { if (e.target === validationModal) validationModal.style.display = 'none'; });
 
-    // --- 3. Logika Keranjang (Cart) ---
-    function addToCart(productId, options, finalPrice) {
-        const product = { ...products.find(p => p.id === productId) }; 
-        if (!product) return;
-
-        if (!product.requiresOptions) {
-            const existingItem = cart.find(item => item.id === productId);
-            if (existingItem) {
-                updateQuantity(existingItem.uniqueCartId, existingItem.quantity + 1);
-                cartModal.style.display = 'flex';
-                renderCart();
-                return; 
-            }
-        }
-        const uniqueCartId = Date.now().toString();
-        cart.push({ ...product, price: finalPrice, quantity: 1, options: options, uniqueCartId: uniqueCartId });
-        cartModal.style.display = 'flex';
-        renderCart();
-     }
-    function updateQuantity(uniqueCartId, newQuantity) {
-        const item = cart.find(i => i.uniqueCartId === uniqueCartId);
-        if (item) item.quantity = newQuantity;
-        renderCart();
-     }
-    function removeFromCart(uniqueCartId) {
-        cart = cart.filter(i => i.uniqueCartId !== uniqueCartId);
-        renderCart();
-     }
-    function renderCart() {
-        modalCartItemsEl.innerHTML = '';
-        let total = 0;
-        if (cart.length === 0) { modalCartItemsEl.innerHTML = '<p style="text-align: center; padding: 20px 0;">Keranjang Anda kosong.</p>'; }
-        cart.forEach(item => {
-            let detailsHtml = '';
-            let priceDisplay = formatRupiah(item.price); 
-            if (item.options) { 
-                let notes = item.options.notes.trim() ? `, ${item.options.notes}` : ''; 
-                // Ubah dari 'level' ke 'size'
-                detailsHtml = `<div class="cart-item-details">Ukuran: ${item.options.size}${notes}</div>`; 
-            }
-            const itemRow = document.createElement('div');
-            itemRow.className = 'cart-item-row';
-            itemRow.innerHTML = `<img src="${item.image_url}" alt="${item.name}"><div class="cart-item-info"><b>${item.name}</b><span>${priceDisplay}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.uniqueCartId}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.uniqueCartId}"><button class="quantity-up" data-id="${item.uniqueCartId}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.uniqueCartId}">&times;</button>`;
-            modalCartItemsEl.appendChild(itemRow);
-            total += item.price * item.quantity;
-        });
-        modalCartTotalEl.textContent = formatRupiah(total);
-        cartCountEl.textContent = cart.length;
-        modalCartItemsEl.querySelectorAll('.quantity-down').forEach(btn => btn.addEventListener('click', () => { const id = btn.dataset.id; const item = cart.find(i => i.uniqueCartId === id); if (item.quantity > 1) updateQuantity(id, item.quantity - 1); else removeFromCart(id); }));
-        modalCartItemsEl.querySelectorAll('.quantity-up').forEach(btn => btn.addEventListener('click', () => { const id = btn.dataset.id; updateQuantity(id, cart.find(i => i.uniqueCartId === id).quantity + 1); }));
-        modalCartItemsEl.querySelectorAll('.quantity-controls input').forEach(input => input.addEventListener('change', (e) => { const id = input.dataset.id; let newQty = parseInt(e.target.value); if (isNaN(newQty) || newQty < 1) newQty = 1; updateQuantity(id, newQty); }));
-        modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
-     }
-
-    // --- 4. Proses Checkout (FIRE AND FORGET) ---
-    checkoutButton.addEventListener('click', () => { 
-        try {
-            const customerName = customerNameInput.value.trim();
-            const customerPhone = customerPhoneInput.value.trim();
-            const customerClass = customerClassInput.value;
-            let errorMessage = "";
-            if (cart.length === 0) { errorMessage = 'Keranjang Anda masih kosong.'; }
-            else if (!customerName) { errorMessage = 'Mohon masukkan Nama Pemesan.'; }
-            else if (!customerPhone) { errorMessage = 'Mohon masukkan No. Telepon / ID Line.'; }
-            else if (!customerClass) { errorMessage = 'Mohon pilih Kelas Anda.'; }
-            if (errorMessage) { showValidationError(errorMessage); return; }
-
-            // --- Ubah Format String Pesanan ---
-            const itemsString = cart.map(item => { 
-                let detail = `${item.name} (x${item.quantity}) - @${formatRupiah(item.price)}`; 
-                if (item.options) { 
-                    let notes = item.options.notes.trim() ? `, Catatan: ${item.options.notes}` : ''; 
-                    detail += ` [Ukuran: ${item.options.size}${notes}]`; // Ubah ke 'size'
-                } 
-                return detail; 
-            }).join('\n'); // Pisahkan dengan BARIS BARU
-            // --- Akhir Perubahan ---
-            
-            const totalAsli = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
-            const kodeUnik = Math.floor(Math.random() * 99) + 1;
-            const totalFinal = totalAsli + kodeUnik;
-            const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-            const orderData = {
-                nama: customerName,
-                telepon: customerPhone,
-                kelas: customerClass,
-                itemsString: itemsString,
-                totalFinal: totalFinal 
-            };
-            
-            // Simpan data untuk halaman sukses
-            const successData = {
-                customerName: customerName,
-                itemsString: itemsString,
-                orderId: orderId
-            };
-            localStorage.setItem('lastOrderData', JSON.stringify(successData));
-            
-            checkoutButton.disabled = true;
-            checkoutButton.textContent = 'Memproses...';
-            if (GOOGLE_SCRIPT_URL === 'PASTE_YOUR_NEW_MERCH_SCRIPT_URL_HERE') { throw new Error('URL Google Script belum diisi di file app.js!'); }
-            
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'cors', 
-                body: JSON.stringify(orderData),
-                headers: { "Content-Type": "text-plain;charset=utf-8" }, 
-            }).catch(err => {
-                console.warn("Fetch failed (this is expected, ignoring):", err.message);
-            });
-            
-            cartModal.style.display = 'none';
-            cart = [];
-            renderCart();
-            customerNameInput.value = '';
-            customerPhoneInput.value = '';
-            customerClassInput.value = '';
-
-            currentOrderData = { orderId: orderId, finalAmount: totalFinal };
-            alertAmountEl.textContent = formatRupiah(totalFinal);
-            alertModal.style.display = 'flex';
-
-        } catch (err) {
-            showValidationError('Terjadi kesalahan lokal: ' + err.message);
-            checkoutButton.disabled = false;
-            checkoutButton.textContent = 'Proses Pesanan';
-        }
+    // --- (PENTING) Menjalankan AOS setelah semua dimuat ---
+    AOS.init({
+        duration: 600, // Durasi animasi
+        once: true, // Hanya animasi sekali
     });
 
-    // --- 5. Listener untuk Tombol "Saya Sudah Bayar" ---
-    confirmPaymentModalButton.addEventListener('click', () => {
-        qrisModal.style.display = 'none';
-        // Arahkan ke file sukses di dalam folder pomerch
-        let successUrl = 'payment-success.html'; 
-        window.location.href = successUrl;
-    });
-
-    // --- 6. Fungsi Modal Validasi Error ---
-    function showValidationError(message) {
-        validationMessageEl.textContent = message;
-        validationModal.style.display = 'flex';
-    }
-
-    // --- Helper ---
-    function formatRupiah(number) {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(number);
-    }
-
-    // --- Mulai aplikasi ---
-    fetchProducts();
-    cartCountEl.textContent = '0';
 });

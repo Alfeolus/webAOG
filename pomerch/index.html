@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PO Merch - Ark of Grace</title>
-    <link rel="stylesheet" href="style.css?v=1"> 
-    <link rel="icon" href="images/favicon.png" type="image/png"> 
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css?v=6"> 
+    <link rel="icon" href="images/logo.png" type="image/png">
 </head>
 <body>
     
@@ -13,21 +16,129 @@
         
         <div class="header-bar">
             <img src="images/logo.png" alt="Logo Merch" class="header-logo">
-            <h1>Ark of Grace (Merch)</h1>
-            <button id="cart-icon-button">
+            <h1>PO Merch AOG</h1>
+            <button id="cart-icon-button" class="action-button">
                 🛒 Keranjang (<span id="cart-count">0</span>)
             </button>
         </div>
         
         <h2>Pre-Order Merchandise</h2>
         <div id="product-list">
+            
+            <div class="product-card" data-product="Kaos" data-aos="fade-up">
+                <img src="images/kaos-preview.png" alt="Kaos">
+                <div class="product-info">
+                    <h3>Kaos</h3>
+                    <div class="price">Rp 97.000</div>
+                    <button class="action-button">Pilih Desain</button>
+                </div>
             </div>
-        
-    </div>
+
+            <div class="product-card" data-product="Jersey" data-aos="fade-up" data-aos-delay="100">
+                <img src="images/jersey-preview.png" alt="Jersey">
+                <div class="product-info">
+                    <h3>Jersey</h3>
+                    <div class="price">Rp 95.000</div>
+                    <button class="action-button">Pilih Desain</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-product="Stiker" data-aos="fade-up" data-aos-delay="200">
+                <img src="images/stiker-preview.png" alt="Stiker Pack">
+                <div class="product-info">
+                    <h3>Sticker</h3>
+                    <div class="price">Rp 5.000</div>
+                    <button class="action-button">Pilih Model</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-product="Keychain" data-aos="fade-up" data-aos-delay="300">
+                <img src="images/keychain-preview.png" alt="Keychain">
+                <div class="product-info">
+                    <h3>Keychain Akrilik</h3>
+                    <div class="price">Rp 45.000</div>
+                    <button class="action-button">Pilih Model</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-product="Bundle of Blessings" data-aos="fade-up" data-aos-delay="50">
+                <img src="images/bundleofblessings.png" alt="Bundle of Blessings">
+                <div class="product-info">
+                    <h3>Bundle of Blessings</h3>
+                    <div class="price">Rp 285.000</div>
+                    <button class="action-button">Pilih Opsi Bundle</button>
+                </div>
+            </div>
+            
+            <div class="product-card" data-product="Santa’s Safe Haven" data-aos="fade-up" data-aos-delay="150">
+                <img src="images/bundle-santa.png" alt="Santa’s Safe Haven">
+                <div class="product-info">
+                    <h3>Santa’s Safe Haven</h3>
+                    <div class="price">Rp 170.000</div>
+                    <button class="action-button">Pilih Opsi Bundle</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-product="A December to Remember" data-aos="fade-up" data-aos-delay="250">
+                <img src="images/bundle-december.png" alt="A December to Remember">
+                <div class="product-info">
+                    <h3>A December to Remember</h3>
+                    <div class="price">Rp 185.000</div>
+                    <button class="action-button">Pilih Opsi Bundle</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-product="Mistletoe Mavericks" data-aos="fade-up" data-aos-delay="350">
+                <img src="images/mistletoemaverick.png" alt="Mistletoe Mavericks">
+                <div class="product-info">
+                    <h3>Mistletoe Mavericks</h3>
+                    <div class="price">Rp 245.000</div>
+                    <button class="action-button">Pilih Opsi Bundle</button>
+                </div>
+            </div>
+
+        </div>
+    </div>      
     
-    <div id="cart-modal" class="modal-overlay">
+    <div id="multi-step-modal" class="modal-overlay">
          <div class="modal-content">
             <button id="close-modal-button" class="close-modal-button">&times;</button>
+            <button id="modal-back-button" class="modal-back-button">← Kembali</button>
+            
+            <h2 id="modal-title">Pilih Produk</h2>
+
+            <div class="modal-step" data-step="1">
+                <h3 id="step-1-title">Pilih Desain</h3>
+                <div class="design-grid" id="design-grid-container">
+                </div>
+            </div>
+            
+            <div class="modal-step" data-step="2">
+                <h3 id="step-2-title">Pilih Ukuran & Opsi</h3>
+                
+                <div class="options-container" id="size-options-container">
+                    <strong>Ukuran:</strong>
+                    <div class="size-selector" id="size-selector"></div>
+                </div>
+
+                <div class="options-container" id="model-options-container">
+                    <strong>Model:</strong>
+                    <div class="model-selector" id="model-selector"></div>
+                </div>
+
+                <div class="options-container" id="bundle-options-container">
+                </div>
+
+                <div class="modal-footer">
+                    <button id="add-to-cart-button" class="action-button">Tambah ke Keranjang</button>
+                </div>
+            </div>
+         </div>
+    </div>
+
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-cart-modal" class="close-modal-button">&times;</button>
             <h2>Keranjang Merch</h2>
             <div id="modal-cart-items"></div>
             <div class="modal-footer">
@@ -47,35 +158,12 @@
                     <option value="PPBP 9">PPBP 9</option>
                     <option value="PPBP 10">PPBP 10</option>
                 </select>
-                <button id="checkout-button">Proses Pesanan</button>
+                <button id="checkout-button" class="action-button">Proses Pesanan</button>
             </div>
         </div>
     </div>
 
-    <div id="product-options-modal" class="modal-overlay" style="z-index: 1001;">
-         <div class="modal-content" style="max-width: 450px;">
-            <button id="close-options-modal-button" class="close-modal-button">&times;</button>
-            <h2 id="options-product-name">Pilih Opsi</h2>
-            <div class="options-form">
-                <label for="product-size">Pilih Ukuran:</label>
-                <select id="product-size">
-                    <option value="S">S</option>
-                    <option value="M" selected>M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                    <option value="XXL">XXL</option>
-                    <option value="Lengan Panjang">Lengan Panjang (+10rb)</option>
-                </select>
-                <label for="product-notes">Catatan (opsional):</label>
-                <input type="text" id="product-notes" placeholder="Contoh: 'Tanpa sablon belakang'">
-            </div>
-            <div class="modal-footer">
-                <button id="add-to-cart-options-button">Tambah ke Keranjang</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="alert-modal" class="modal-overlay" style="z-index: 1002;">
+    <div id="alert-modal" class="modal-overlay"> 
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h2>Penting!</h2>
             <p style="margin: 20px 0;">Pastikan Anda mentransfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
@@ -85,7 +173,7 @@
         </div>
     </div>
 
-    <div id="qris-modal" class="modal-overlay" style="z-index: 1003;">
+    <div id="qris-modal" class="modal-overlay"> 
         <div class="modal-content" style="max-width: 450px; text-align: center;">
              <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
              <h2>Lakukan Pembayaran</h2>
@@ -94,22 +182,24 @@
              <p>Order ID Anda: <b id="qris-order-id"></b></p>
              <p>Pindai QRIS di bawah ini:</p>
              <div id="qris-image-container">
-                 <img src="images/qris.png" alt="Scan QRIS di sini" style="width: 250px; max-width: 80%; border: 1px solid #555; border-radius: 8px; margin: 10px auto;">
              </div>
-             <button id="confirm-payment-modal-button" class="confirm-button">Saya Sudah Bayar</button>
+             <button id="confirm-payment-modal-button" class="action-button">Saya Sudah Bayar</button>
              <p style="margin-top: 10px; font-size: 0.9em; color: #888;">(Pesanan akan diproses setelah pembayaran diverifikasi)</p>
         </div>
     </div>
 
-    <div id="validation-modal" class="modal-overlay" style="z-index: 1004;">
+    <div id="validation-modal" class="modal-overlay"> 
         <div class="modal-content" style="max-width: 400px; text-align: center;">
              <button id="close-validation-modal-button" class="close-modal-button">&times;</button>
              <h2 style="color: #ff4d4d;">Mohon Lengkapi Data</h2>
              <p id="validation-message" style="margin: 20px 0; font-size: 1.1em;"></p>
-             <button id="validation-ok-button" class="validation-button">OK</button>
+             <button id="validation-ok-button" class="action-button">OK</button>
         </div>
     </div>
-
-    <script src="app.js?v=1"></script> 
+    
+    <div id="toast-notification" class="toast"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="app.js?v=6"></script> 
 </body>
-</html>
+</html> 

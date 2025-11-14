@@ -1,31 +1,79 @@
 /* File: pomerch/style.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+/* Versi Desain: AOS + Glassmorphism + Tombol Selalu Terlihat */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-blue: #00aaff;
+    --button-primary: #007bff;
+    --button-hover: #0056b3;
+    --button-green: #28a745;
+    --border-color: #333;
+    --font-family-primary: 'Poppins', sans-serif;
+}
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: var(--font-family-primary);
     margin: 0;
     padding: 20px;
-    background-color: #121212; /* Latar belakang gelap */
-    color: #e0e0e0; /* Teks terang */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden; /* Mencegah bug AOS */
 }
 
 .container {
     max-width: 900px;
     margin: 0 auto;
-    background: #1e1e1e; /* Kontainer gelap */
+    background: var(--bg-secondary);
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    border: 1px solid #333; /* Border gelap */
+    border: 1px solid var(--border-color);
 }
 
-h1, h2 {
-    color: #ffffff; /* Judul terang */
+h1, h2, h3 {
+    color: var(--text-primary);
     font-weight: 700;
 }
+h2 { margin-top: 0; }
 
-/* --- Kartu Produk --- */
+/* --- Tombol Aksi (dengan Animasi Gradien) --- */
+.action-button {
+    background: linear-gradient(90deg, #007bff, #00aaff, #007bff);
+    background-size: 200% 100%;
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    width: 100%; 
+    transition: all 0.3s ease;
+    animation: gradient-flow 4s linear infinite;
+}
+
+@keyframes gradient-flow {
+    0% { background-position: 200% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+.action-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    animation: none;
+}
+
+
+/* --- Kartu Produk Interaktif (Tombol Selalu Terlihat) --- */
 #product-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -33,25 +81,30 @@ h1, h2 {
 }
 
 .product-card {
-    border: 1px solid #333;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: #2a2a2a; /* Warna kartu gelap */
+    background: #2a2a2a;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     overflow: hidden; 
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
+    position: relative; 
 }
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 15px 5px #007bff; /* Efek glow biru */
+    box-shadow: 0 8px 25px rgba(0, 170, 255, 0.3);
 }
 .product-card img {
     width: 100%;
     height: 180px; 
     object-fit: cover; 
     display: block;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border-color);
+    transition: transform 0.3s ease;
+}
+.product-card:hover img {
+    transform: scale(1.05); /* Efek zoom pada gambar */
 }
 .product-info {
     padding: 15px;
@@ -62,36 +115,28 @@ h1, h2 {
 .product-card h3 {
     font-size: 1.1em;
     margin: 0 0 10px 0; 
-    color: #ffffff;
+    color: var(--text-primary);
     flex-grow: 1; 
 }
 .product-card .price {
     font-weight: bold;
     font-size: 1.2em;
-    color: #00aaff; /* Aksen biru */
+    color: var(--accent-blue);
     margin-bottom: 15px;
 }
 .product-card button {
-    background-color: #007bff; /* Aksen biru */
-    color: white;
-    border: none;
-    padding: 12px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    width: 100%; 
+    /* Tombol selalu terlihat */
+    opacity: 1; 
+    transform: translateY(0); 
 }
-.product-card button:hover {
-    background-color: #0056b3; 
-}
+
 
 /* --- Header & Tombol Keranjang --- */
 .header-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 15px;
     margin-bottom: 25px;
 }
@@ -101,18 +146,24 @@ h1, h2 {
     margin-right: 15px; 
     object-fit: contain;
     flex-shrink: 0;
+    animation: float-animation 4s ease-in-out infinite;
+}
+@keyframes float-animation {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
 }
 .header-bar h1 {
     margin: 0;
     font-size: 1.8em;
-    color: #ffffff;
+    color: var(--text-primary);
     flex-grow: 1; 
     text-align: left;
     line-height: 1.2;
 }
 #cart-icon-button {
-    background-color: #333; /* Tombol gelap */
-    color: #ffffff;
+    background-color: #333; 
+    color: var(--text-primary);
     font-size: 1em;
     padding: 10px 15px;
     border: 1px solid #444;
@@ -120,12 +171,16 @@ h1, h2 {
     transition: background-color 0.2s;
     white-space: nowrap;
     flex-shrink: 0;
+    width: auto; 
+    animation: none; /* Batalkan animasi gradien */
 }
 #cart-icon-button:hover {
     background-color: #444;
+    transform: none; /* Batalkan hover action-button */
+    box-shadow: none;
 }
 
-/* --- Gaya Modal --- */
+/* --- Gaya Modal (Glassmorphism) --- */
 .modal-overlay {
     position: fixed;
     z-index: 1000;
@@ -134,21 +189,24 @@ h1, h2 {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.7); /* Overlay lebih gelap */
+    background-color: rgba(0,0,0,0.5); 
     display: none; 
     justify-content: center;
     align-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .modal-content {
-    background-color: #2a2a2a; /* Modal gelap */
-    color: #e0e0e0;
+    background-color: rgba(30, 30, 30, 0.75); 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    color: var(--text-primary);
     margin: auto;
     padding: 25px;
-    border: 1px solid #444;
     width: 90%;
     max-width: 650px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 12px; 
+    box-shadow: 0 4px 30px rgba(0,0,0,0.2);
     position: relative;
     animation: fadeIn 0.3s;
 }
@@ -166,13 +224,163 @@ h1, h2 {
     background: none;
     border: none;
     cursor: pointer;
+    z-index: 10;
 }
 .close-modal-button:hover,
 .close-modal-button:focus {
     color: #ffffff;
 }
 
-/* --- Isi Modal Keranjang Belanja --- */
+.modal-back-button {
+    color: var(--accent-blue);
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 1em;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: none; 
+}
+.modal-back-button:hover {
+    text-decoration: underline;
+}
+
+.modal-step {
+    display: none; 
+}
+.modal-step.active {
+    display: block; 
+}
+
+/* --- Gaya Step 1: Pilih Desain --- */
+.design-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2); 
+    border-radius: 5px;
+}
+.design-item {
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+}
+.design-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 3px;
+}
+.design-item:hover {
+    border-color: var(--accent-blue);
+    transform: scale(1.05);
+}
+.design-item.selected {
+    border-color: var(--button-green);
+    box-shadow: 0 0 10px var(--button-green);
+}
+
+/* --- Gaya Step 2: Pilih Ukuran / Model --- */
+.options-container {
+    margin-top: 20px;
+}
+.options-container strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+.size-selector, .model-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.size-btn, .model-btn {
+    background-color: #444;
+    border: 1px solid #555;
+    color: var(--text-primary);
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.size-btn:hover, .model-btn:hover {
+    background-color: #555;
+    border-color: #777;
+    transform: scale(1.05);
+}
+.size-btn.selected, .model-btn.selected {
+    background-color: var(--button-primary);
+    border-color: var(--accent-blue);
+    font-weight: bold;
+}
+.size-btn.lengan-panjang {
+    background-color: #c28900; 
+}
+.size-btn.lengan-panjang.selected {
+    background-color: #ffb700;
+    color: #121212;
+}
+
+/* Helper Ukuran */
+.size-helper-toggle {
+    font-size: 0.9em;
+    color: var(--accent-blue);
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 15px;
+}
+.size-helper-content {
+    display: none;
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+.size-helper-content input {
+    width: calc(50% - 30px);
+    margin: 5px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: #333;
+    color: var(--text-primary);
+}
+.size-helper-content button {
+    width: 80%;
+    padding: 8px;
+    margin-top: 10px;
+    background-color: var(--button-green);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+#helper-result {
+    font-weight: bold;
+    color: var(--accent-blue);
+    margin-top: 10px;
+}
+#product-notes {
+    width: calc(100% - 20px); 
+    padding: 10px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: #ffffff;
+    border-radius: 4px;
+    font-size: 1em; 
+}
+
+
+/* --- Gaya Modal Keranjang --- */
 #modal-cart-items {
     max-height: 50vh; 
     overflow-y: auto;
@@ -243,7 +451,7 @@ h1, h2 {
 .remove-item-button {
     background: none;
     border: none;
-    color: #ff4d4d; /* Merah error */
+    color: #ff4d4d;
     font-size: 1.5em; 
     font-weight: bold;
     cursor: pointer;
@@ -252,7 +460,6 @@ h1, h2 {
 }
 .remove-item-button:hover { color: #ff8080; }
 
-/* --- Footer Modal --- */
 .modal-footer {
     margin-top: 20px;
     text-align: right;
@@ -282,69 +489,112 @@ h1, h2 {
     width: 100%;
     padding: 12px;
     font-size: 1.1em;
-    font-weight: bold;
-    background-color: #007bff; 
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.modal-footer button:hover {
-    background-color: #0056b3;
 }
 
-/* --- Gaya Form Opsi Produk (Modal Baru) --- */
-.options-form {
+/* --- Modal QRIS, Alert, Validasi --- */
+.confirm-button {
+    background-color: #28a745; 
+    color: white; 
+    border: none; 
+    padding: 12px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 1.1em; 
+    font-weight: bold; 
+    margin-top: 20px; 
+    transition: background-color 0.2s;
+}
+.confirm-button:hover { 
+    background-color: #218838; 
+}
+
+#alert-modal .modal-content { padding-bottom: 30px; }
+#alert-modal h2 { color: #ffc107; margin-bottom: 10px; }
+#alert-modal h3 { color: #00aaff; }
+#alert-ok-button { width: 80%; margin: 0 auto; display: block; background-color: #007bff; animation: none; }
+#alert-ok-button:hover { background-color: #0056b3; transform: none; box-shadow: none; }
+
+#qris-modal .modal-content { padding-bottom: 30px; }
+#qris-modal h2 { color: #ffffff; }
+#qris-modal #qris-amount { color: #00aaff; }
+#qris-image-container { 
+    background: #fff; 
+    padding: 10px; 
+    border-radius: 8px; 
+    margin: 15px auto;
+    width: 250px; /* Lebar QR */
+    height: 250px; /* Tinggi QR */
+}
+#confirm-payment-modal-button { width: 80%; margin: 15px auto 0 auto; display: block; }
+
+#validation-modal .modal-content { padding-bottom: 30px; }
+#validation-modal h2 { color: #ff4d4d; margin-bottom: 10px; }
+#validation-message { color: #e0e0e0; }
+.validation-button { background-color: #007bff; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; margin-top: 15px; transition: background-color 0.2s; width: 50%; margin: 15px auto 0 auto; display: block; animation: none;}
+.validation-button:hover { background-color: #0056b3; transform: none; box-shadow: none; }
+
+/* CSS Tambahan untuk Bundle */
+#bundle-options-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 15px;
+    max-height: 50vh;
+    overflow-y: auto;
+    padding-right: 10px;
 }
-.options-form label {
-    font-weight: bold;
-    margin-bottom: -5px;
-    color: #e0e0e0;
+.bundle-item-group {
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
 }
-.options-form select,
-.options-form input[type="text"] {
-    width: calc(100% - 20px); 
+.bundle-item-group strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: var(--accent-blue);
+}
+.bundle-option {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.bundle-option label {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    text-align: left;
+}
+.bundle-option select,
+.bundle-option input[type="text"] {
+    width: 100%;
     padding: 10px;
     border: 1px solid #555;
     background-color: #333;
     color: #ffffff;
     border-radius: 4px;
     font-size: 1em;
+    box-sizing: border-box;
 }
 
-/* --- Tombol Konfirmasi & Validasi --- */
-.confirm-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    cursor: pointer;
+/* === CSS BARU UNTUK TOAST NOTIFICATION === */
+.toast {
+    position: fixed;
+    bottom: -100px; /* Mulai dari luar layar */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--button-green); /* Hijau sukses */
+    color: var(--text-primary);
+    padding: 16px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 2000; /* Di atas segalanya */
+    font-weight: 600;
     font-size: 1.1em;
-    font-weight: bold;
-    margin-top: 20px;
-    transition: background-color 0.2s;
+    transition: bottom 0.5s ease-in-out; /* Animasi slide */
 }
-.confirm-button:hover { background-color: #218838; }
 
-#alert-modal .modal-content { padding-bottom: 30px; }
-#alert-modal h2 { color: #ffc107; margin-bottom: 10px; } /* Kuning warning */
-#alert-modal h3 { color: #00aaff; } /* Aksen biru */
-#alert-ok-button { width: 80%; margin: 0 auto; display: block; background-color: #007bff; }
-#alert-ok-button:hover { background-color: #0056b3; }
-
-#qris-modal .modal-content { padding-bottom: 30px; }
-#qris-modal h2 { color: #ffffff; }
-#qris-modal #qris-amount { color: #00aaff; }
-#qris-image-container img { background: #fff; padding: 10px; } /* Beri bg putih untuk QRIS */
-#confirm-payment-modal-button { width: 80%; margin: 15px auto 0 auto; display: block; }
-
-#validation-modal .modal-content { padding-bottom: 30px; }
-#validation-modal h2 { color: #ff4d4d; margin-bottom: 10px; }
-#validation-message { color: #e0e0e0; }
-.validation-button { background-color: #007bff; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; margin-top: 15px; transition: background-color 0.2s; width: 50%; margin: 15px auto 0 auto; display: block; }
-.validation-button:hover { background-color: #0056b3; }
+.toast.show {
+    bottom: 30px; /* Posisi akhir saat muncul */
+}
