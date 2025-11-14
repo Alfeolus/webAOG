@@ -40,7 +40,7 @@ function showToast(message) {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    const BACKEND_API_URL = '/api/submit';
+    const BACKEND_API_URL = '/api/submitmerch';
     
     // === Ambil Elemen DOM ===
     const productListEl = document.getElementById('product-list');

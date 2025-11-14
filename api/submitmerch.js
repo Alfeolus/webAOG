@@ -1,5 +1,5 @@
-// File: /api/submit.js
-// Versi ini MEMPERBAIKI Error "Method Not Allowed"
+// File: /api/submit-merch.js
+// Ini adalah BACKEND BARU KHUSUS UNTUK MERCH
 
 // (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
@@ -14,8 +14,10 @@ function crc16(str) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 function generateFinalQrisString(nominal) {
-  const qrisBaseLama = process.env.QRIS_BASE_STRING;
-  if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING tidak ditemukan."); }
+  // AMBIL QRIS MERCH DARI "BRANKAS" VERCEL
+  const qrisBaseLama = process.env.QRIS_BASE_STRING_MERCH; 
+  if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING_MERCH tidak ditemukan."); }
+  
   const nominalStr = String(Math.round(nominal));
   const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
   const qrisBaseTanpaCRC = qrisBaseLama.substring(0, qrisBaseLama.length - 8);
@@ -32,7 +34,6 @@ function generateFinalQrisString(nominal) {
 
 
 export default async function handler(request, response) {
-  // Hanya izinkan metode POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Hanya metode POST yang diizinkan' });
   }
@@ -40,22 +41,22 @@ export default async function handler(request, response) {
   try {
     const data = request.body;
 
-    // Ambil rahasia dari Vercel Environment Variables
-    const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
+    // AMBIL URL SHEET MERCH DARI "BRANKAS" VERCEL
+    const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL_MERCH;
 
     if (!GOOGLE_SCRIPT_URL) {
-        throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
+        throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL_MERCH tidak diatur.");
     }
 
-    // Hitung Total Final di backend
+    // Hitung Total Final
     const kodeUnik = Math.floor(Math.random() * 99) + 1;
     const totalFinal = data.totalAsli + kodeUnik;
     const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // Buat String QRIS Dinamis di backend
+    // Buat QRIS Merch
     const finalQrisString = generateFinalQrisString(totalFinal);
 
-    // Siapkan data untuk Google Sheet (tanpa secret key)
+    // Siapkan data untuk Google Sheet
     const sheetData = {
       nama: data.nama,
       telepon: data.telepon,
@@ -65,28 +66,22 @@ export default async function handler(request, response) {
     };
     
     // =======================================================
-    // === INI PERBAIKANNYA: Menangani Redirect Google ===
+    // === KIRIM KE GOOGLE SHEET (Dengan perbaikan redirect) ===
     // =======================================================
-    
-    // 1. Lakukan panggilan pertama (ini mungkin di-redirect)
     const initialResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        redirect: 'manual' // PENTING: Jangan ikuti redirect otomatis
+        redirect: 'manual' 
     });
 
     let finalResponse = initialResponse;
 
-    // 2. Cek jika Google menyuruh kita pindah (error 302/307)
     if (finalResponse.status === 302 || finalResponse.status === 307 || finalResponse.status === 308) {
-      console.log("Mendeteksi Redirect dari Google, mengikuti secara manual...");
       const redirectUrl = finalResponse.headers.get('location');
-      
-      // 3. Lakukan panggilan KEDUA ke URL baru
       if (redirectUrl) {
         finalResponse = await fetch(redirectUrl, {
-            method: 'POST', // Tetap gunakan POST
+            method: 'POST', 
             body: JSON.stringify(sheetData),
             headers: { "Content-Type": "text/plain;charset=utf-8" },
         });
@@ -95,19 +90,17 @@ export default async function handler(request, response) {
       }
     }
 
-    // 4. Cek apakah panggilan KITA berhasil
     if (!finalResponse.ok) {
       throw new Error(`Google Script GAGAL dihubungi. Status: ${finalResponse.statusText}`);
     }
 
-    // 5. Cek balasan dari Google
     const googleResult = await finalResponse.json();
     if (googleResult.status !== "success") {
       throw new Error(`Google Script ERROR: ${googleResult.message}`);
     }
     // =======================================================
 
-    // KIRIM BALASAN SUKSES KE FRONTEND (app.js)
+    // KIRIM BALASAN SUKSES KE FRONTEND (pomerch/app.js)
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
@@ -116,8 +109,7 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-    // Jika Vercel error ATAU Google error, kirim error ke frontend
-    console.error("Error di /api/submit:", error.message);
+    console.error("Error di /api/submit-merch:", error.message);
     response.status(500).json({ status: "error", message: error.message });
   }
 }
