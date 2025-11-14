@@ -522,8 +522,8 @@ h2 { margin-top: 0; }
     padding: 10px; 
     border-radius: 8px; 
     margin: 15px auto;
-    width: 250px; /* Lebar QR */
-    height: 250px; /* Tinggi QR */
+    width: 250px; 
+    height: 250px; 
 }
 #confirm-payment-modal-button { width: 80%; margin: 15px auto 0 auto; display: block; }
 
