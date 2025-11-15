@@ -1,5 +1,5 @@
 // File: /api/submit.js
-// Versi ini menggunakan "FIRE AND FORGET" (Tembak dan Lupakan)
+// Versi ini MENUNGGU balasan dari Google Sheet
 
 // (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
@@ -42,6 +42,7 @@ export default async function handler(request, response) {
 
     // Ambil rahasia dari Vercel Environment Variables
     const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
+    // const MY_SECRET_KEY = process.env.MY_SECRET_KEY; // <-- Kita hapus ini
 
     if (!GOOGLE_SCRIPT_URL) {
         throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL tidak diatur.");
@@ -55,31 +56,60 @@ export default async function handler(request, response) {
     // Buat String QRIS Dinamis di backend
     const finalQrisString = generateFinalQrisString(totalFinal);
 
-    // Siapkan data untuk Google Sheet (tanpa secret key)
+    // Siapkan data untuk Google Sheet
     const sheetData = {
       nama: data.nama,
       telepon: data.telepon,
       kelas: data.kelas,
       itemsString: data.itemsString,
       totalFinal: totalFinal
+      // secretKey: MY_SECRET_KEY // <-- Kita hapus ini
     };
     
     // =======================================================
-    // === INI SOLUSINYA: "FIRE AND FORGET" ===
-    // (Panggilan ini terjadi di server, jadi 'mode: cors' TIDAK DIPERLUKAN)
+    // === INI PERBAIKANNYA: Menangani Redirect Google ===
     // =======================================================
-    // Kita "tembak" data ke Google dan tidak menunggu balasan
-    fetch(GOOGLE_SCRIPT_URL, {
+    
+    // 1. Lakukan panggilan pertama (ini mungkin di-redirect)
+    const initialResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(sheetData),
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-    }).catch(err => {
-        // Jika gagal, kita tidak peduli, tapi kita catat di log Vercel
-        console.error("Latar Belakang: Gagal mengirim ke Google Sheet:", err.message);
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        redirect: 'manual' // PENTING: Jangan ikuti redirect otomatis
     });
+
+    let finalResponse = initialResponse;
+
+    // 2. Cek jika Google menyuruh kita pindah (error 302/307)
+    if (finalResponse.status === 302 || finalResponse.status === 307 || finalResponse.status === 308) {
+      console.log("Mendeteksi Redirect dari Google, mengikuti secara manual...");
+      const redirectUrl = finalResponse.headers.get('location');
+      
+      // 3. Lakukan panggilan KEDUA ke URL baru
+      if (redirectUrl) {
+        finalResponse = await fetch(redirectUrl, {
+            method: 'POST', // Tetap gunakan POST
+            body: JSON.stringify(sheetData),
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+        });
+      } else {
+        throw new Error("Google mengirim redirect tapi tanpa URL lokasi.");
+      }
+    }
+
+    // 4. Cek apakah panggilan KITA berhasil
+    if (!finalResponse.ok) {
+      throw new Error(`Google Script GAGAL dihubungi. Status: ${finalResponse.statusText}`);
+    }
+
+    // 5. Cek balasan dari Google
+    const googleResult = await finalResponse.json();
+    if (googleResult.status !== "success") {
+      throw new Error(`Google Script ERROR: ${googleResult.message}`);
+    }
     // =======================================================
 
-    // KIRIM BALASAN SUKSES KE FRONTEND (app.js) - TANPA MENUNGGU GOOGLE
+    // KIRIM BALASAN SUKSES KE FRONTEND (app.js)
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
@@ -88,7 +118,7 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-    // Ini hanya akan error jika QRIS_BASE_STRING Anda salah
+    // Jika Vercel error ATAU Google error, kirim error ke frontend
     console.error("Error di /api/submit:", error.message);
     response.status(500).json({ status: "error", message: error.message });
   }
