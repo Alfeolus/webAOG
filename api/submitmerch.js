@@ -1,5 +1,6 @@
 // File: /api/submit-merch.js
-// Versi ini MENGHAPUS logika redirect 'manual' yang salah
+// Versi ini "Percaya Saja" (Fire and Forget)
+// Kita tidak lagi mem-parsing JSON balasan dari Google
 
 // (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
@@ -63,43 +64,34 @@ export default async function handler(request, response) {
     };
     
     // =======================================================
-    // === KIRIM KE GOOGLE SHEET (VERSI SEDERHANA) ===
+    // === KIRIM KE GOOGLE SHEET (VERSI "PERCAYA SAJA") ===
     // =======================================================
     const finalResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        // KITA HAPUS SEMUA LOGIKA 'redirect: manual'
         // Biarkan 'fetch' menangani redirect secara otomatis
     });
 
+    // === LOGIKA BARU DI SINI ===
+    // Kita tahu data MASUK. 
+    // Kita tidak peduli lagi apa isi responsnya (HTML atau JSON),
+    // selama status HTTP-nya OK (200).
+
     if (!finalResponse.ok) {
-        // Jika respons tidak OK (misal 404, 500 dari Google), baca teks errornya
+        // Jika GAGAL (4xx, 5xx), baru kita baca errornya.
         const errorText = await finalResponse.text();
         console.error("Google Script response (not ok):", errorText);
         throw new Error(`Google Script GAGAL dihubungi. Status: ${finalResponse.status}. Response: ${errorText.substring(0, 100)}...`);
     }
 
-    // Respons OK (200), tapi kita baca sebagai Teks dulu untuk memastikan itu JSON
-    const responseText = await finalResponse.text();
-    let googleResult;
-
-    try {
-        // Coba parse teks sebagai JSON
-        googleResult = JSON.parse(responseText);
-    } catch (jsonError) {
-        // Jika GAGAL, berarti kita dapat HTML (halaman login, dll)
-        console.error("Gagal parse JSON dari Google. Menerima (mungkin HTML):", responseText);
-        // Ini adalah error yang Anda lihat sebelumnya.
-        throw new Error(`Google Script mengembalikan teks yang bukan JSON. Kemungkinan ini adalah halaman login/izin. Response: ${responseText.substring(0, 200)}...`);
-    }
-
-    if (googleResult.status !== "success") {
-      throw new Error(`Google Script ERROR: ${googleResult.message}`);
-    }
+    // Jika finalResponse.ok === true (HTTP 200),
+    // kita anggap SUKSES, meskipun bodynya adalah HTML "Success"
+    // Kita tidak akan 'JSON.parse()' lagi.
     // =======================================================
 
-    // KIRIM BALASAN SUKSES KE FRONTEND (pomerch/app.js)
+
+    // LANGSUNG KIRIM SUKSES KE FRONTEND
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
