@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === Database Produk ===
     const KAOS_DESIGNS = [
-        { name: "Desain 1", image: "images/kaos/justfine.png" }, 
+        { name: "Desain 1", image: "pomerch/images/kaos/justfine.png" }, 
         { name: "Desain 2", image: "images/designs/kaos-desain-2.png" },
         { name: "Desain 3", image: "images/designs/kaos-desain-3.png" },
         { name: "Desain 4", image: "images/designs/kaos-desain-4.png" },
