@@ -1,5 +1,5 @@
 // File: /api/submit-merch.js
-// Versi ini DENGAN PERBAIKAN SYNTAX ERROR
+// Versi ini MENGHAPUS logika redirect 'manual' yang salah
 
 // (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
@@ -53,55 +53,45 @@ export default async function handler(request, response) {
     // Buat QRIS Merch
     const finalQrisString = generateFinalQrisString(totalFinal);
 
-    // Siapkan data untuk Google Sheet (SUDAH DIPERBAIKI)
+    // Siapkan data untuk Google Sheet
     const sheetData = {
       nama: data.nama,
       telepon: data.telepon,
       kelas: data.kelas,
       itemsString: data.itemsString,
       totalFinal: totalFinal
-    }; // <-- Perbaikan ada di sini
+    };
     
     // =======================================================
-    // === KIRIM KE GOOGLE SHEET (Dengan perbaikan redirect) ===
+    // === KIRIM KE GOOGLE SHEET (VERSI SEDERHANA) ===
     // =======================================================
-    const initialResponse = await fetch(GOOGLE_SCRIPT_URL, {
+    const finalResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        redirect: 'manual' 
+        // KITA HAPUS SEMUA LOGIKA 'redirect: manual'
+        // Biarkan 'fetch' menangani redirect secara otomatis
     });
 
-    let finalResponse = initialResponse;
-
-    if (finalResponse.status === 302 || finalResponse.status === 307 || finalResponse.status === 308) {
-      const redirectUrl = finalResponse.headers.get('location');
-      if (redirectUrl) {
-        finalResponse = await fetch(redirectUrl, {
-            method: 'POST', 
-            body: JSON.stringify(sheetData),
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-        });
-      } else {
-        throw new Error("Google mengirim redirect tapi tanpa URL lokasi.");
-      }
-    }
-
-    // === PERBAIKAN ERROR HANDLING DIMULAI DI SINI ===
     if (!finalResponse.ok) {
+        // Jika respons tidak OK (misal 404, 500 dari Google), baca teks errornya
         const errorText = await finalResponse.text();
         console.error("Google Script response (not ok):", errorText);
         throw new Error(`Google Script GAGAL dihubungi. Status: ${finalResponse.status}. Response: ${errorText.substring(0, 100)}...`);
     }
 
+    // Respons OK (200), tapi kita baca sebagai Teks dulu untuk memastikan itu JSON
     const responseText = await finalResponse.text();
     let googleResult;
 
     try {
+        // Coba parse teks sebagai JSON
         googleResult = JSON.parse(responseText);
     } catch (jsonError) {
+        // Jika GAGAL, berarti kita dapat HTML (halaman login, dll)
         console.error("Gagal parse JSON dari Google. Menerima (mungkin HTML):", responseText);
-        throw new Error(`Google Script mengembalikan teks yang bukan JSON. Kemungkinan ini adalah halaman login/izin. Pastikan 'Who has access' adalah 'Anyone'. Response: ${responseText.substring(0, 200)}...`);
+        // Ini adalah error yang Anda lihat sebelumnya.
+        throw new Error(`Google Script mengembalikan teks yang bukan JSON. Kemungkinan ini adalah halaman login/izin. Response: ${responseText.substring(0, 200)}...`);
     }
 
     if (googleResult.status !== "success") {
@@ -118,6 +108,7 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
+    // Tangkap semua error internal dan kirim respons 500 yang rapi
     console.error("Error di /api/submit-merch:", error.message);
     response.status(500).json({ status: "error", message: error.message });
   }
