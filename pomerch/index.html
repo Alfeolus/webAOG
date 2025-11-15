@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PO Merch - Ark of Grace</title>
-    <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <link rel="stylesheet" href="/pomerch/style.css?v=6"> 
+    <!-- (AOS dihapus, sesuai permintaan Anda sebelumnya) -->
+    
+    <link rel="stylesheet" href="style.css?v=9"> 
     <link rel="icon" href="images/logo.png" type="image/png">
 </head>
 <body>
@@ -25,7 +25,7 @@
         <h2>List Merchandise</h2>
         <div id="product-list">
             
-            <div class="product-card" data-product="Kaos" data-aos="fade-up">
+            <div class="product-card" data-product="Kaos">
                 <img src="images/kaos-preview.png" alt="Kaos">
                 <div class="product-info">
                     <h3>Kaos</h3>
@@ -34,16 +34,18 @@
                 </div>
             </div>
 
-            <div class="product-card" data-product="Jersey" data-aos="fade-up" data-aos-delay="100">
-                <img src="images/jersey-preview.png" alt="Jersey">
+            <!-- === PERUBAHAN DI SINI === -->
+            <div class="product-card" data-product="Dryfit">
+                <img src="images/dryfit-preview.png" alt="Dryfit">
                 <div class="product-info">
-                    <h3>Jersey</h3>
+                    <h3>Dryfit</h3>
                     <div class="price">Rp 95.000</div>
                     <button class="action-button">Pilih Desain</button>
                 </div>
             </div>
+            <!-- === AKHIR PERUBAHAN === -->
 
-            <div class="product-card" data-product="Stiker" data-aos="fade-up" data-aos-delay="200">
+            <div class="product-card" data-product="Stiker">
                 <img src="images/stiker-preview.png" alt="Stiker Pack">
                 <div class="product-info">
                     <h3>Sticker</h3>
@@ -52,7 +54,7 @@
                 </div>
             </div>
 
-            <div class="product-card" data-product="Keychain" data-aos="fade-up" data-aos-delay="300">
+            <div class="product-card" data-product="Keychain">
                 <img src="images/keychain-preview.png" alt="Keychain">
                 <div class="product-info">
                     <h3>Keychain Akrilik</h3>
@@ -61,7 +63,7 @@
                 </div>
             </div>
 
-            <div class="product-card" data-product="Bundle of Blessings" data-aos="fade-up" data-aos-delay="50">
+            <div class="product-card" data-product="Bundle of Blessings">
                 <img src="images/bundleofblessings.png" alt="Bundle of Blessings">
                 <div class="product-info">
                     <h3>Bundle of Blessings</h3>
@@ -70,7 +72,7 @@
                 </div>
             </div>
             
-            <div class="product-card" data-product="Santa’s Safe Haven" data-aos="fade-up" data-aos-delay="150">
+            <div class="product-card" data-product="Santa’s Safe Haven">
                 <img src="images/bundle-santa.png" alt="Santa’s Safe Haven">
                 <div class="product-info">
                     <h3>Santa’s Safe Haven</h3>
@@ -79,7 +81,7 @@
                 </div>
             </div>
 
-            <div class="product-card" data-product="A December to Remember" data-aos="fade-up" data-aos-delay="250">
+            <div class="product-card" data-product="A December to Remember">
                 <img src="images/bundle-december.png" alt="A December to Remember">
                 <div class="product-info">
                     <h3>A December to Remember</h3>
@@ -88,8 +90,8 @@
                 </div>
             </div>
 
-            <div class="product-card" data-product="Mistletoe Mavericks" data-aos="fade-up" data-aos-delay="350">
-                <img src="images/mistletoemaverick.png" alt="Mistletoe Mavericks">
+            <div class="product-card" data-product="Mistletoe Mavericks">
+                <img src="images/bundle-mistletoe.png" alt="Mistletoe Mavericks">
                 <div class="product-info">
                     <h3>Mistletoe Mavericks</h3>
                     <div class="price">Rp 245.000</div>
@@ -98,7 +100,7 @@
             </div>
 
         </div>
-    </div>  
+    </div>
     
     <div id="multi-step-modal" class="modal-overlay">
          <div class="modal-content">
@@ -143,10 +145,10 @@
             <div id="modal-cart-items"></div>
             <div class="modal-footer">
                 <h3>Total: <span id="modal-cart-total">Rp 0</span></h3>
-                <input type="text" id="customer-name" placeholder="Nama Pemesan" required>
-                <input type="text" id="customer-phone" placeholder="No. Telepon / ID Line" required>
+                <input type="text" id="customer-name" placeholder="Nama Kamu" required>
+                <input type="text" id="customer-phone" placeholder="No. Telepon Kamu" required>
                 <select id="customer-class" required>
-                    <option value="" disabled selected>— Pilih Kelas Anda —</option>
+                    <option value="" disabled selected>— Pilih Kelas Kamu —</option>
                     <option value="PPTI 20">PPTI 20</option>
                     <option value="PPTI 21">PPTI 21</option>
                     <option value="PPTI 22">PPTI 22</option>
@@ -158,6 +160,13 @@
                     <option value="PPBP 9">PPBP 9</option>
                     <option value="PPBP 10">PPBP 10</option>
                 </select>
+                
+                <div class="referral-wrapper">
+                    <input type="text" id="customer-referral" placeholder="Kode Referral (Opsional)">
+                    <button id="apply-referral-btn">Apply</button>
+                </div>
+                <p id="referral-status"></p> 
+
                 <button id="checkout-button" class="action-button">Proses Pesanan</button>
             </div>
         </div>
@@ -198,8 +207,10 @@
     </div>
     
     <div id="toast-notification" class="toast"></div>
+
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="/pomerch/app.js?v=6"></script> 
+    <!-- Script AOS Dihapus -->
+    <script src="app.js?v=9"></script> <!-- Versi naik -->
 </body>
-</html> 
+</html>
