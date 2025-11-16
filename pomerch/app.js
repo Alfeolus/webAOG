@@ -1,18 +1,7 @@
+// File: pomerch/app.js
+// Versi ini menambahkan AUTOCOMPLETE untuk Referral
 
-function renderQrCode(qrisString) {
-  const qrContainer = document.getElementById("qris-image-container");
-  qrContainer.innerHTML = "";
-  if (!qrisString) {
-    console.error("String QRIS kosong, tidak bisa menggambar.");
-    qrContainer.innerHTML = "<p>Error: Gagal memuat QRIS.</p>";
-    return;
-  }
-  new QRious({
-    element: qrContainer.appendChild(document.createElement("canvas")),
-    value: qrisString,
-    size: 250, padding: 10, background: 'white', foreground: 'black'
-  });
-}
+// (Fungsi renderQrCode DIHAPUS sesuai permintaan)
 
 let toastTimer; 
 function showToast(message) {
@@ -60,9 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerPhoneInput = document.getElementById('customer-phone');
     const customerClassInput = document.getElementById('customer-class');
     
+    // === ELEMEN REFERRAL BARU ===
     const customerReferralInput = document.getElementById('customer-referral');
-    const applyReferralButton = document.getElementById('apply-referral-btn');
-    const referralStatus = document.getElementById('referral-status');
+    const referralSuggestions = document.getElementById('referral-suggestions');
     
     const checkoutButton = document.getElementById('checkout-button');
     const alertModal = document.getElementById('alert-modal');
@@ -89,7 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
         bundleOptions: [] 
     };
     
-    let validReferralCode = "TIDAK ADA"; 
+    // === DAFTAR KODE REFERRAL ===
+    const REFERRAL_CODES = [
+        "Lion", "Peacock", "Camel", "Owl", 
+        "Elephant", "Dove", "Ox", "Deer"
+    ];
 
     // === Database Produk ===
     const KAOS_DESIGNS = [
@@ -138,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Kaos": { basePrice: 97000, type: 'satuan', designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
         "Dryfit": { basePrice: 95000, type: 'satuan', designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES },
         "Stiker": { basePrice: 5000, type: 'satuan', models: STIKER_MODELS },
-        "Keychain": { basePrice: 45000, type: 'satuan', models: KEYCHAIN_MODELS },
+        "Keychain": { basePrice: 8000, type: 'satuan', models: KEYCHAIN_MODELS },
         "Bundle of Blessings": {
             basePrice: 285000, type: 'bundle',
             items: [
@@ -173,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // (Fungsi createDropdown, goToModalStep, resetModal tetap sama)
     function createDropdown(id, label, options) {
         const isObjectArray = typeof options[0] === 'object';
         let optionsHtml = `<option value="" disabled selected>Pilih ${label}</option>`;
@@ -207,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
         bundleOptionsContainer.innerHTML = '';
     }
 
-    // (Fungsi openModalForProduct tetap sama)
     function openModalForProduct(productName) {
         resetModal();
         const productData = productDatabase[productName];
@@ -221,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (productData.type === 'satuan') {
             if (productData.designs) {
-                // KAOS / DRYFIT
                 step1Title.innerText = `Pilih Desain ${productName}`;
                 designGridContainer.innerHTML = ''; 
                 productData.designs.forEach(design => {
@@ -253,7 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 goToModalStep(1); 
                 
             } else if (productData.models) {
-                // STIKER / KEYCHAIN
                 modelOptionsContainer.style.display = 'block';
                 step2Title.innerText = `Pilih Model ${productName}`;
                 modelSelector.innerHTML = '';
@@ -282,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 goToModalStep(2); 
             }
         } else if (productData.type === 'bundle') {
-            // BUNDLE
             bundleOptionsContainer.style.display = 'block';
             step2Title.innerText = `Pilih Opsi ${productName}`;
             bundleOptionsContainer.innerHTML = ''; 
@@ -315,7 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             goToModalStep(2); 
 
-            // --- SEKARANG TAMBAHKAN LISTENER ---
             productData.items.forEach((item, index) => {
                 const itemGroupId = `bundle-item-${index}`;
                 const designDropdown = document.getElementById(`${itemGroupId}-design`);
@@ -355,7 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
         multiStepModal.style.display = 'flex';
     }
     
-    // (Fungsi selectDesign, selectSize, selectModel tetap sama)
     function selectDesign(element, designName) {
         document.querySelectorAll('.design-item.selected').forEach(el => el.classList.remove('selected'));
         element.classList.add('selected');
@@ -373,7 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSelection.size = modelName; 
     }
 
-    // (Listener .product-card, modal, dll. tetap sama)
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', () => {
             const productName = card.dataset.product;
@@ -386,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === multiStepModal) multiStepModal.style.display = 'none';
     });
     
-    // (Fungsi addToCartButton, cartIconButton, renderCart, dll. tetap sama)
     addToCartButton.addEventListener('click', () => {
         const productData = productDatabase[currentSelection.product];
         let finalPrice = currentSelection.basePrice;
@@ -446,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
             image_url: imgPath
         });
         renderCart();
-        showToast(`${currentSelection.product} berhasil ditambahkan!`); 
+        showToast(`${currentSelection.product} ditambahkan!`); 
         multiStepModal.style.display = 'none'; 
     });
 
@@ -490,12 +474,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
         modalCartItemsEl.querySelectorAll('.remove-item-button').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.id)));
         
+        // --- Reset Autocomplete saat keranjang dibuka ---
         customerReferralInput.value = '';
-        referralStatus.innerText = '';
-        referralStatus.className = '';
-        validReferralCode = "TIDAK ADA";
-        customerReferralInput.disabled = false;
-        applyReferralButton.disabled = false;
+        referralSuggestions.innerHTML = '';
+        referralSuggestions.style.display = 'none';
     }
     
     function updateQuantity(id, newQuantity) {
@@ -508,32 +490,46 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCart();
     }
     
-    applyReferralButton.addEventListener('click', () => {
-        const referralCodeRaw = customerReferralInput.value.trim();
-        const validCodes = ["lion", "peacock", "camel", "owl", "elephant", "dove", "ox", "deer"];
+    // ==========================================================
+    // === LOGIKA BARU UNTUK AUTOCOMPLETE REFERRAL ===
+    // ==========================================================
+    customerReferralInput.addEventListener('input', () => {
+        const inputText = customerReferralInput.value.toLowerCase();
+        referralSuggestions.innerHTML = '';
         
-        referralStatus.className = ''; 
-
-        if (referralCodeRaw.length === 0) {
-            referralStatus.innerText = "";
-            validReferralCode = "TIDAK ADA";
+        if (inputText.length === 0) {
+            referralSuggestions.style.display = 'none';
             return;
         }
 
-        const foundCode = validCodes.find(code => code.toLowerCase() === referralCodeRaw.toLowerCase());
-        
-        if (foundCode) {
-            validReferralCode = foundCode.charAt(0).toUpperCase() + foundCode.slice(1); 
-            referralStatus.innerText = `Kode "${validReferralCode}" berhasil diterapkan!`;
-            referralStatus.className = 'success';
-            customerReferralInput.disabled = true; 
-            applyReferralButton.disabled = true; 
+        const filteredCodes = REFERRAL_CODES.filter(code => 
+            code.toLowerCase().startsWith(inputText)
+        );
+
+        if (filteredCodes.length > 0) {
+            filteredCodes.forEach(code => {
+                const suggestionDiv = document.createElement('div');
+                suggestionDiv.innerText = code;
+                suggestionDiv.addEventListener('click', () => {
+                    customerReferralInput.value = code;
+                    referralSuggestions.innerHTML = '';
+                    referralSuggestions.style.display = 'none';
+                });
+                referralSuggestions.appendChild(suggestionDiv);
+            });
+            referralSuggestions.style.display = 'block';
         } else {
-            validReferralCode = "TIDAK ADA";
-            referralStatus.innerText = "Kode referral tidak valid.";
-            referralStatus.className = 'error';
+            referralSuggestions.style.display = 'none';
         }
     });
+
+    // Sembunyikan saran jika klik di luar
+    document.addEventListener('click', (e) => {
+        if (e.target !== customerReferralInput) {
+            referralSuggestions.style.display = 'none';
+        }
+    });
+    // ==========================================================
 
 
     checkoutButton.addEventListener('click', async () => { 
@@ -542,17 +538,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const customerPhone = customerPhoneInput.value.trim();
             const customerClass = customerClassInput.value;
             
-            // ==========================================================
-            // === VALIDASI BARU DITAMBAHKAN DI SINI ===
-            // ==========================================================
-            const phoneRegex = /^[0-9]{8,15}$/; // Hanya angka, 8-15 digit
+            // === LOGIKA REFERRAL BARU ===
+            const referralCodeRaw = customerReferralInput.value.trim();
+            let validReferralCode = "TIDAK ADA"; // Default jika kosong
+
+            // Cek apakah inputan ada di daftar, case-insensitive
+            const foundCode = REFERRAL_CODES.find(code => code.toLowerCase() === referralCodeRaw.toLowerCase());
+
+            if (referralCodeRaw.length > 0) {
+                if (foundCode) {
+                    validReferralCode = foundCode; // Gunakan nama yang benar (misal: "Lion")
+                } else {
+                    // Jika diisi tapi salah
+                    throw new Error("Kode Referral tidak valid. (Coba: Lion, Peacock, dll.)");
+                }
+            }
+            // === AKHIR LOGIKA REFERRAL ===
+
+            const phoneRegex = /^[0-9]{8,15}$/; 
             let errorMessage = "";
 
             if (cart.length === 0) { 
                 errorMessage = 'Keranjang kamu masih kosong.'; 
             } else if (!customerName || customerName.length < 3) { 
                 errorMessage = 'Nama Pemesan harus diisi (minimal 3 huruf).'; 
-            } else if (!customerPhone || !phoneRegex.test(customerPhone.replace(/\D/g,''))) { // Menghapus non-angka
+            } else if (!customerPhone || !phoneRegex.test(customerPhone.replace(/\D/g,''))) { 
                 errorMessage = 'Mohon masukkan nomor telepon yang valid (hanya angka, 8-15 digit).'; 
             } else if (!customerClass) { 
                 errorMessage = 'Tolong pilih Kelas Anda.'; 
@@ -581,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 kelas: customerClass,
                 itemsString: itemsString,
                 totalAsli: totalAsli,
-                referralCode: validReferralCode 
+                referralCode: validReferralCode // <-- KIRIM KODE YANG SUDAH DIVALIDASI
             };
             
             const response = await fetch(BACKEND_API_URL, { 
@@ -616,7 +626,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemsString: itemsString
             };
             
-            renderQrCode(data.qrisString); 
+            // Panggil fungsi renderQrCode (jika Anda membutuhkannya nanti)
+            // renderQrCode(data.qrisString); 
             
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
@@ -659,16 +670,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
-        if (currentOrderData) {
-            qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
-            qrisOrderIdEl.textContent = currentOrderData.orderId;
-            qrisModal.style.display = 'flex';
-        }
+        
+        // Logika untuk menampilkan QRIS dihapus karena permintaan "tanpa canvas"
+        // if (currentOrderData) {
+        //     qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
+        //     qrisOrderIdEl.textContent = currentOrderData.orderId;
+        //     qrisModal.style.display = 'flex';
+        // }
+
+        // Sebagai gantinya, kita bisa langsung ke halaman sukses (jika Anda mau)
+        // atau biarkan user menutup modal.
+        // Untuk saat ini, kita biarkan saja, tombol OK hanya menutup alert.
+
         checkoutButton.disabled = false;
         checkoutButton.textContent = 'Proses Pesanan';
     });
-    closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
-    qrisModal.addEventListener('click', (e) => { if (e.target === qrisModal) qrisModal.style.display = 'none'; });
+    
+    // (Listener modal QRIS dihapus)
+    // closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
+    // qrisModal.addEventListener('click', (e) => { if (e.target === qrisModal) qrisModal.style.display = 'none'; });
+    
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (e) => { if (e.target === validationModal) validationModal.style.display = 'none'; });

@@ -5,24 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PO Merch - Ark of Grace</title>
     
-    <!-- (AOS dihapus, sesuai permintaan Anda sebelumnya) -->
-    
-    <link rel="stylesheet" href="pomerch/style.css?v=9"> 
-    <link rel="icon" href="pomerch/images/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css?v=10"> 
+    <link rel="icon" href="../images/logo.png" type="image/png">
 </head>
 <body>
     
     <div class="container">
         
         <div class="header-bar">
-            <img src="pomerch/images/logo.png" alt="Logo Merch" class="header-logo">
+            <img src="../images/logo.png" alt="Logo Merch" class="header-logo">
             <h1>PO Merch AOG</h1>
             <button id="cart-icon-button" class="action-button">
                 🛒 Keranjang (<span id="cart-count">0</span>)
             </button>
         </div>
         
-        <h2>List Merchandise</h2>
+        <h2>Pre-Order Merchandise</h2>
         <div id="product-list">
             
             <div class="product-card" data-product="Kaos">
@@ -34,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- === PERUBAHAN DI SINI === -->
             <div class="product-card" data-product="Dryfit">
                 <img src="images/dryfit-preview.png" alt="Dryfit">
                 <div class="product-info">
@@ -43,7 +40,6 @@
                     <button class="action-button">Pilih Desain</button>
                 </div>
             </div>
-            <!-- === AKHIR PERUBAHAN === -->
 
             <div class="product-card" data-product="Stiker">
                 <img src="images/stiker-preview.png" alt="Stiker Pack">
@@ -64,7 +60,7 @@
             </div>
 
             <div class="product-card" data-product="Bundle of Blessings">
-                <img src="pomerch/images/bundleofblessings.png" alt="Bundle of Blessings">
+                <img src="images/bundle-blessings.png" alt="Bundle of Blessings">
                 <div class="product-info">
                     <h3>Bundle of Blessings</h3>
                     <div class="price">Rp 285.000</div>
@@ -116,7 +112,7 @@
             </div>
             
             <div class="modal-step" data-step="2">
-                <h3 id="step-2-title">Pilih Size</h3>
+                <h3 id="step-2-title">Pilih Ukuran & Opsi</h3>
                 
                 <div class="options-container" id="size-options-container">
                     <strong>Ukuran:</strong>
@@ -145,10 +141,10 @@
             <div id="modal-cart-items"></div>
             <div class="modal-footer">
                 <h3>Total: <span id="modal-cart-total">Rp 0</span></h3>
-                <input type="text" id="customer-name" placeholder="Nama Kamu" required>
-                <input type="text" id="customer-phone" placeholder="No. Telepon Kamu" required>
+                <input type="text" id="customer-name" placeholder="Nama Pemesan" required>
+                <input type="text" id="customer-phone" placeholder="No. Telepon / ID Line" required>
                 <select id="customer-class" required>
-                    <option value="" disabled selected>— Pilih Kelas Kamu —</option>
+                    <option value="" disabled selected>— Pilih Kelas Anda —</option>
                     <option value="PPTI 20">PPTI 20</option>
                     <option value="PPTI 21">PPTI 21</option>
                     <option value="PPTI 22">PPTI 22</option>
@@ -161,12 +157,10 @@
                     <option value="PPBP 10">PPBP 10</option>
                 </select>
                 
-                <div class="referral-wrapper">
-                    <input type="text" id="customer-referral" placeholder="Kode Referral (Opsional)">
-                    <button id="apply-referral-btn">Apply</button>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="customer-referral" placeholder="Kode Referral (Opsional)" autocomplete="off">
+                    <div id="referral-suggestions" class="suggestions-list"></div>
                 </div>
-                <p id="referral-status"></p> 
-
                 <button id="checkout-button" class="action-button">Proses Pesanan</button>
             </div>
         </div>
@@ -175,10 +169,10 @@
     <div id="alert-modal" class="modal-overlay"> 
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h2>Penting!</h2>
-            <p style="margin: 20px 0;">Pastiin kamu transfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
+            <p style="margin: 20px 0;">Pastikan Anda mentransfer **jumlah yang sama persis** dengan yang tertera di layar berikutnya.</p>
             <p>Jumlah yang harus dibayar:</p>
             <h3 id="alert-amount" style="color: #00aaff; font-size: 1.8em; margin: 5px 0 20px 0;">Rp 0</h3>
-            <button id="alert-ok-button" class="confirm-button">OK, Siap!!</button>
+            <button id="alert-ok-button" class="confirm-button">OK, Saya Mengerti</button>
         </div>
     </div>
 
@@ -186,14 +180,14 @@
         <div class="modal-content" style="max-width: 450px; text-align: center;">
              <button id="close-qris-modal-button" class="close-modal-button">&times;</button>
              <h2>Lakukan Pembayaran</h2>
-             <p>Silahkan lakukan pembayaran sebesar:</p>
+             <p>Silakan lakukan pembayaran manual sebesar:</p>
              <h2 id="qris-amount" style="color: #00aaff; font-size: 2.5em; margin: 10px 0;">Rp 0</h2>
-             <p>Order ID Kamu: <b id="qris-order-id"></b></p>
-             <p>Scan QRIS di bawah ini:</p>
+             <p>Order ID Anda: <b id="qris-order-id"></b></p>
+             <p>Pindai QRIS di bawah ini:</p>
              <div id="qris-image-container">
              </div>
-             <button id="confirm-payment-modal-button" class="action-button">Sudah Bayar!!</button>
-             <p style="margin-top: 10px; font-size: 0.9em; color: #888;">(Tolong klik diatas kalau sudah bayar yaa)</p>
+             <button id="confirm-payment-modal-button" class="action-button">Saya Sudah Bayar</button>
+             <p style="margin-top: 10px; font-size: 0.9em; color: #888;">(Pesanan akan diproses setelah pembayaran diverifikasi)</p>
         </div>
     </div>
 
@@ -210,7 +204,6 @@
 
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <!-- Script AOS Dihapus -->
-    <script src="pomerch/app.js?v=9"></script> <!-- Versi naik -->
+    <script src="app.js?v=10"></script> 
 </body>
 </html>
