@@ -540,7 +540,7 @@ h2 { margin-top: 0; }
 }
 
 #qris-image-container canvas {
-    display: block; /* Menghapus jarak aneh di bawah canvas (default inline) */
+    display: flex; /* Menghapus jarak aneh di bawah canvas (default inline) */
     max-width: 100%;
     height: auto; /* Menjaga aspek rasio persegi */
     border-radius: 4px; /* Sedikit radius di QR code itu sendiri (opsional) */
