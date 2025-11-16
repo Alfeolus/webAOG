@@ -1,5 +1,36 @@
 // File: /api/submitmerch.js
-// (FungSI crc16 dan generateFinalQrisString Anda tetap di atas)
+// INI VERSI LENGKAP - SALIN SEMUANYA
+
+// (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
+function crc16(str) {
+  let crc = 0xffff;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc &= 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function generateFinalQrisString(nominal) {
+  const qrisBaseLama = process.env.QRIS_BASE_STRING_MERCH; 
+  if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING_MERCH tidak ditemukan."); }
+  const nominalStr = String(Math.round(nominal));
+  const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
+  const qrisBaseTanpaCRC = qrisBaseLama.substring(0, qrisBaseLama.length - 8);
+  const titikSisip = "5802ID";
+  const indexSisip = qrisBaseTanpaCRC.indexOf(titikSisip);
+  if (indexSisip === -1) { throw new Error("Kesalahan Server: String qrisBase tidak valid"); }
+  const part1 = qrisBaseTanpaCRC.substring(0, indexSisip);
+  const part2 = qrisBaseTanpaCRC.substring(indexSisip);
+  let qrisNoCRC = part1 + amountTag + part2 + "6304";
+  const crc = crc16(qrisNoCRC);
+  return qrisNoCRC + crc;
+}
+// --- AKHIR FUNGSI ---
+
 
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
@@ -14,7 +45,7 @@ export default async function handler(request, response) {
         throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL_MERCH tidak diatur.");
     }
 
-    // --- Validasi (Ini bisa Anda tambahkan lagi jika perlu) ---
+    // --- Validasi ---
     const { nama, telepon, kelas, itemsString, totalAsli, referralCode } = data;
     if (!nama || !telepon || !itemsString) {
       throw new Error("Mohon lengkapi semua data yang wajib diisi.");
@@ -25,34 +56,36 @@ export default async function handler(request, response) {
     const totalFinal = totalAsli + kodeUnik;
     const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    const finalQrisString = generateFinalQrisString(totalFinal);
+    // BARIS INI YANG TADI ERROR:
+    const finalQrisString = generateFinalQrisString(totalFinal); // Sekarang fungsinya ada di atas
 
     const sheetData = {
       nama: nama,
       telepon: telepon,
       kelas: kelas,
       itemsString: itemsString,
-      totalFinal: totalFinal,
+  t     totalFinal: totalFinal,
       referralCode: referralCode
     };
     
     // =======================================================
-    // === KIRIM KE GOOGLE SHEET (VERSI SEDERHANA & BENAR) ===
+  N // === KIRIM KE GOOGLE SHEET (VERSI SEDERHANA & BENAR) ===
     // =======================================================
     const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        redirect: 'manual' // PENTING: Jangan ikuti redirect
+        redirect: 'manual' 
     });
 
     // Jika deployment salah, Google kirim 302. 
     // 'redirect: manual' membuat .ok menjadi 'false' jika status bukan 2xx.
-    if (!googleResponse.ok) {
+  	if (!googleResponse.ok) {
+  		// Ini akan memberi kita error yang lebih jelas jika deployment GScript masih salah
       throw new Error(`Google Script GAGAL merespons. Status: ${googleResponse.status}. Cek Deployment 'Who has access', HARUS 'Anyone'.`);
     }
 
-    // Jika lolos, berarti status 200 OK dan kita HARUSNYA dapat JSON
+  	// Jika lolos, berarti status 200 OK dan kita HARUSNYA dapat JSON
     const googleResult = await googleResponse.json(); 
 
     if (googleResult.status !== "success") {
