@@ -1,5 +1,6 @@
-// File: /api/submitmerch.js
-// INI VERSI LENGKAP - SALIN SEMUANYA
+// File: /api/submit-merch.js
+// Versi ini "Percaya Saja" (Fire and Forget)
+// Kita tidak lagi mem-parsing JSON balasan dari Google
 
 // (Fungsi crc16 dan generateFinalQrisString Anda tetap sama di atas)
 function crc16(str) {
@@ -13,10 +14,10 @@ function crc16(str) {
   }
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
-
 function generateFinalQrisString(nominal) {
   const qrisBaseLama = process.env.QRIS_BASE_STRING_MERCH; 
   if (!qrisBaseLama) { throw new Error("Kesalahan Server: QRIS_BASE_STRING_MERCH tidak ditemukan."); }
+  
   const nominalStr = String(Math.round(nominal));
   const amountTag = "54" + String(nominalStr.length).padStart(2, "0") + nominalStr;
   const qrisBaseTanpaCRC = qrisBaseLama.substring(0, qrisBaseLama.length - 8);
@@ -39,61 +40,59 @@ export default async function handler(request, response) {
 
   try {
     const data = request.body;
-    const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL_MERCH; 
+    const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL_MERCH;
 
     if (!GOOGLE_SCRIPT_URL) {
         throw new Error("Kesalahan Server: GOOGLE_SCRIPT_URL_MERCH tidak diatur.");
     }
 
-    // --- Validasi ---
-    const { nama, telepon, kelas, itemsString, totalAsli, referralCode } = data;
-    if (!nama || !telepon || !itemsString) {
-      throw new Error("Mohon lengkapi semua data yang wajib diisi.");
-    }
-    // --- Akhir Validasi ---
-
+    // Hitung Total Final
     const kodeUnik = Math.floor(Math.random() * 99) + 1;
-    const totalFinal = totalAsli + kodeUnik;
+    const totalFinal = data.totalAsli + kodeUnik;
     const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // BARIS INI YANG TADI ERROR:
-    const finalQrisString = generateFinalQrisString(totalFinal); // Sekarang fungsinya ada di atas
+    // Buat QRIS Merch
+    const finalQrisString = generateFinalQrisString(totalFinal);
 
+    // Siapkan data untuk Google Sheet
     const sheetData = {
-      nama: nama,
-      telepon: telepon,
-      kelas: kelas,
-      itemsString: itemsString,
-  t     totalFinal: totalFinal,
-      referralCode: referralCode
+      nama: data.nama,
+      telepon: data.telepon,
+      kelas: data.kelas,
+      itemsString: data.itemsString,
+      totalFinal: totalFinal,
+      referralCode: referralCode
     };
     
     // =======================================================
-  N // === KIRIM KE GOOGLE SHEET (VERSI SEDERHANA & BENAR) ===
+    // === KIRIM KE GOOGLE SHEET (VERSI "PERCAYA SAJA") ===
     // =======================================================
-    const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
+    const finalResponse = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(sheetData),
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        redirect: 'manual' 
+        // Biarkan 'fetch' menangani redirect secara otomatis
     });
 
-    // Jika deployment salah, Google kirim 302. 
-    // 'redirect: manual' membuat .ok menjadi 'false' jika status bukan 2xx.
-  	if (!googleResponse.ok) {
-  		// Ini akan memberi kita error yang lebih jelas jika deployment GScript masih salah
-      throw new Error(`Google Script GAGAL merespons. Status: ${googleResponse.status}. Cek Deployment 'Who has access', HARUS 'Anyone'.`);
+    // === LOGIKA BARU DI SINI ===
+    // Kita tahu data MASUK. 
+    // Kita tidak peduli lagi apa isi responsnya (HTML atau JSON),
+    // selama status HTTP-nya OK (200).
+
+    if (!finalResponse.ok) {
+        // Jika GAGAL (4xx, 5xx), baru kita baca errornya.
+        const errorText = await finalResponse.text();
+        console.error("Google Script response (not ok):", errorText);
+        throw new Error(Google Script GAGAL dihubungi. Status: ${finalResponse.status}. Response: ${errorText.substring(0, 100)}...);
     }
 
-  	// Jika lolos, berarti status 200 OK dan kita HARUSNYA dapat JSON
-    const googleResult = await googleResponse.json(); 
-
-    if (googleResult.status !== "success") {
-      throw new Error(`Google Script ERROR: ${googleResult.message}`);
-    }
+    // Jika finalResponse.ok === true (HTTP 200),
+    // kita anggap SUKSES, meskipun bodynya adalah HTML "Success"
+    // Kita tidak akan 'JSON.parse()' lagi.
     // =======================================================
 
-    // KIRIM BALASAN SUKSES KE FRONTEND
+
+    // LANGSUNG KIRIM SUKSES KE FRONTEND
     response.status(200).json({
       status: "success", 
       orderId: orderId, 
@@ -102,7 +101,7 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-    // Error akan ditangkap di sini, termasuk error 'Unexpected token <'
+    // Tangkap semua error internal dan kirim respons 500 yang rapi
     console.error("Error di /api/submit-merch:", error.message);
     response.status(500).json({ status: "error", message: error.message });
   }
