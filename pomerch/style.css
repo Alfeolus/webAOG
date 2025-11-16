@@ -1,6 +1,6 @@
 /* File: pomerch/style.css */
 /* Versi Desain: AOS + Glassmorphism + Tombol Selalu Terlihat */
-/* UPDATE TERBARU: PERBAIKAN QRIS SIMETRIS */
+/* UPDATE TERBARU: PERBAIKAN QRIS SIMETRIS & TENGAH */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
@@ -17,13 +17,17 @@
     --font-family-primary: 'Poppins', sans-serif;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: var(--font-family-primary);
     margin: 0;
     padding: 20px;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    overflow-x: hidden; /* Mencegah bug AOS */
+    overflow-x: hidden;
 }
 
 .container {
@@ -73,7 +77,6 @@ h2 { margin-top: 0; }
     animation: none;
 }
 
-
 /* --- Kartu Produk Interaktif (Tombol Selalu Terlihat) --- */
 #product-list {
     display: grid;
@@ -105,7 +108,7 @@ h2 { margin-top: 0; }
     transition: transform 0.3s ease;
 }
 .product-card:hover img {
-    transform: scale(1.05); /* Efek zoom pada gambar */
+    transform: scale(1.05);
 }
 .product-info {
     padding: 15px;
@@ -126,11 +129,9 @@ h2 { margin-top: 0; }
     margin-bottom: 15px;
 }
 .product-card button {
-    /* Tombol selalu terlihat */
     opacity: 1; 
     transform: translateY(0); 
 }
-
 
 /* --- Header & Tombol Keranjang --- */
 .header-bar {
@@ -173,11 +174,11 @@ h2 { margin-top: 0; }
     white-space: nowrap;
     flex-shrink: 0;
     width: auto; 
-    animation: none; /* Batalkan animasi gradien */
+    animation: none;
 }
 #cart-icon-button:hover {
     background-color: #444;
-    transform: none; /* Batalkan hover action-button */
+    transform: none;
     box-shadow: none;
 }
 
@@ -200,7 +201,6 @@ h2 { margin-top: 0; }
 .modal-content {
     background-color: rgba(30, 30, 30, 0.75); 
     border: 1px solid rgba(255, 255, 255, 0.1); 
-    
     color: var(--text-primary);
     margin: auto;
     padding: 25px;
@@ -380,7 +380,6 @@ h2 { margin-top: 0; }
     font-size: 1em; 
 }
 
-
 /* --- Gaya Modal Keranjang --- */
 #modal-cart-items {
     max-height: 50vh; 
@@ -519,31 +518,37 @@ h2 { margin-top: 0; }
 #qris-modal h2 { color: #ffffff; }
 #qris-modal #qris-amount { color: #00aaff; }
 
-/* === PERBAIKAN CSS QRIS SIMETRIS === */
+/* === PERBAIKAN QRIS SIMETRIS & TENGAH === */
 #qris-image-container { 
     background: #ffffff; 
-    padding: 15px; 
+    padding: 20px;
     border-radius: 12px; 
     margin: 20px auto;
     
-    /* Gunakan fit-content agar container mengikuti ukuran QR Code + Padding */
-    width: fit-content; 
-    max-width: 100%; /* Mencegah overflow di layar kecil */
+    /* FIX: Ukuran tetap untuk container */
+    width: 260px;
+    height: 260px;
     
-    box-sizing: border-box; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Efek timbul agar elegan */
-    
-    /* Flexbox untuk memastikan canvas benar-benar di tengah */
+    /* FIX: Flexbox untuk pusatkan sempurna */
     display: flex;
     justify-content: center;
     align-items: center;
+    
+    box-sizing: border-box; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 #qris-image-container canvas {
-    display: flex; /* Menghapus jarak aneh di bawah canvas (default inline) */
-    max-width: 100%;
-    height: auto; /* Menjaga aspek rasio persegi */
-    border-radius: 4px; /* Sedikit radius di QR code itu sendiri (opsional) */
+    /* FIX: Pastikan canvas di tengah dan ukuran konsisten */
+    display: block !important;
+    width: 220px !important;
+    height: 220px !important;
+    border-radius: 4px;
+    
+    /* FIX: Reset properti yang mengganggu */
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
 }
 
 #confirm-payment-modal-button { width: 80%; margin: 15px auto 0 auto; display: block; }
@@ -698,27 +703,6 @@ h2 { margin-top: 0; }
     25% { transform: translateX(-5px); }
     50% { transform: translateX(5px); }
     75% { transform: translateX(-5px); }
-}
-
-/* === CSS UNTUK TOAST NOTIFICATION (Dari sebelumnya) === */
-.toast {
-    position: fixed;
-    bottom: -100px; 
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--button-green); 
-    color: var(--text-primary);
-    padding: 16px 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 2000; 
-    font-weight: 600;
-    font-size: 1.1em;
-    transition: bottom 0.5s ease-in-out; 
-}
-
-.toast.show {
-    bottom: 30px; 
 }
 
 /* === CSS BARU UNTUK MODEL STIKER & KEYCHAIN (Grid Gambar) === */
@@ -932,4 +916,81 @@ h2 { margin-top: 0; }
 .suggestions-list div:hover {
     background-color: var(--button-primary); /* Warna highlight saat di-hover */
     color: white;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+    
+    #product-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .header-bar {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .header-bar h1 {
+        text-align: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .design-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .model-selector {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    /* FIX: QRIS Responsive */
+    #qris-image-container {
+        width: 240px;
+        height: 240px;
+        padding: 15px;
+    }
+    
+    #qris-image-container canvas {
+        width: 200px !important;
+        height: 200px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #product-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-card {
+        max-width: 100%;
+    }
+    
+    .modal-content {
+        padding: 15px;
+    }
+    
+    /* FIX: QRIS Mobile */
+    #qris-image-container {
+        width: 220px;
+        height: 220px;
+        padding: 10px;
+    }
+    
+    #qris-image-container canvas {
+        width: 190px !important;
+        height: 190px !important;
+    }
 }
