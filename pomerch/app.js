@@ -1,5 +1,5 @@
 // File: pomerch/app.js
-// VERSI DEBUGGING DENGAN CONSOLE.LOG
+// VERSI FINAL DENGAN PERBAIKAN TIMING RENDER
 
 let toastTimer; 
 function showToast(message) {
@@ -19,9 +19,8 @@ function showToast(message) {
  * HARUS dipanggil HANYA KETIKA container-nya terlihat.
  */
 function renderQrCode(qrisString) {
-    // ▼▼▼ LOG C: Apa yang diterima oleh fungsi render? ▼▼▼
+    // Log ini bisa Anda hapus nanti jika sudah sukses
     console.log("FUNGSI RENDERQRCODE MENERIMA:", qrisString);
-    // ▲▲▲
 
     const container = document.getElementById('qris-image-container');
     container.innerHTML = ''; // Kosongkan container dulu
@@ -707,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================
-    // === PERBAIKAN 2: RENDER QRIS HANYA SAAT TOMBOL OK DI-KLIK ===
+    // === PERBAIKAN 2: BALIK URUTAN RENDER DAN TAMPILKAN ===
     // ==========================================================
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
@@ -716,15 +715,14 @@ document.addEventListener('DOMContentLoaded', () => {
             qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
             qrisOrderIdEl.textContent = currentOrderData.orderId;
             
-            // ▼▼▼ LOG B: Apa yang akan dirender? ▼▼▼
+            // Log ini bisa Anda hapus nanti jika sudah sukses
             console.log("AKAN MERENDER QRIS DENGAN STRING:", currentOrderData.qrisString);
-            // ▲▲▲
 
-            // 1. Panggil fungsi render di sini, menggunakan data yang sudah disimpan
-            renderQrCode(currentOrderData.qrisString); 
-            
-            // 2. BARU Tampilkan modalnya SETELAH di-render
+            // 1. TAMPILKAN MODALNYA DULU
             qrisModal.style.display = 'flex';
+            
+            // 2. BARU PANGGIL FUNGSI RENDER (saat modal sudah terlihat)
+            renderQrCode(currentOrderData.qrisString); 
          }
 
         checkoutButton.disabled = false;
