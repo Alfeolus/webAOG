@@ -1,5 +1,6 @@
 /* File: pomerch/style.css */
 /* Versi Desain: AOS + Glassmorphism + Tombol Selalu Terlihat */
+/* UPDATE TERBARU: PERBAIKAN QRIS SIMETRIS */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
@@ -517,24 +518,34 @@ h2 { margin-top: 0; }
 #qris-modal .modal-content { padding-bottom: 30px; }
 #qris-modal h2 { color: #ffffff; }
 #qris-modal #qris-amount { color: #00aaff; }
-/* DENGAN KODE INI */
+
+/* === PERBAIKAN CSS QRIS SIMETRIS === */
 #qris-image-container { 
-    background: #fff; 
-    padding: 10px; 
-    border-radius: 8px; 
-    margin: 15px auto;
-    width: 250px;
-    height: 250px;
+    background: #ffffff; 
+    padding: 15px; 
+    border-radius: 12px; 
+    margin: 20px auto;
+    
+    /* Gunakan fit-content agar container mengikuti ukuran QR Code + Padding */
+    width: fit-content; 
+    max-width: 100%; /* Mencegah overflow di layar kecil */
     
     box-sizing: border-box; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Efek timbul agar elegan */
+    
+    /* Flexbox untuk memastikan canvas benar-benar di tengah */
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 #qris-image-container canvas {
+    display: block; /* Menghapus jarak aneh di bawah canvas (default inline) */
     max-width: 100%;
-    max-height: 100%;
+    height: auto; /* Menjaga aspek rasio persegi */
+    border-radius: 4px; /* Sedikit radius di QR code itu sendiri (opsional) */
 }
+
 #confirm-payment-modal-button { width: 80%; margin: 15px auto 0 auto; display: block; }
 
 #validation-modal .modal-content { padding-bottom: 30px; }

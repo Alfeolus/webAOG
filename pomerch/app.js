@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
             image_url: imgPath
         });
         renderCart();
-        showToast(`${currentSelection.product} ditambahkan!`); 
+        showToast(`${currentSelection.product} berhasil ditambahkan!`); 
         multiStepModal.style.display = 'none'; 
     });
 
