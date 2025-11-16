@@ -258,7 +258,6 @@
 
             .social-link:hover {
                 background-color: var(--button-hover); 
-                transform: translateY(-3px); /* Sedikit lebih terangkat */
                 box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4); /* Glow di tombol */
             }
         </style>
@@ -303,10 +302,10 @@
         </div>
 
         <script>
-            // --- (PENTING!) GANTI TANGGAL INI ---
-            const targetDate = new Date("Nov 17, 2025 00:00:00").getTime();
+
+            const targetDate = new Date("Nov 17, 2025 09:00:00").getTime();
             
-            // Ambil elemen
+
             const daysEl = document.getElementById('days');
             const hoursEl = document.getElementById('hours');
             const minutesEl = document.getElementById('minutes');
