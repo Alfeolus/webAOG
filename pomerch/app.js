@@ -1,5 +1,5 @@
 // File: pomerch/app.js
-// VERSI FINAL LENGKAP DENGAN PERBAIKAN TIMING QRIS
+// VERSI DEBUGGING DENGAN CONSOLE.LOG
 
 let toastTimer; 
 function showToast(message) {
@@ -19,6 +19,10 @@ function showToast(message) {
  * HARUS dipanggil HANYA KETIKA container-nya terlihat.
  */
 function renderQrCode(qrisString) {
+    // ▼▼▼ LOG C: Apa yang diterima oleh fungsi render? ▼▼▼
+    console.log("FUNGSI RENDERQRCODE MENERIMA:", qrisString);
+    // ▲▲▲
+
     const container = document.getElementById('qris-image-container');
     container.innerHTML = ''; // Kosongkan container dulu
 
@@ -403,9 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let optionsSummary = ""; 
         let validationError = false;
         if (currentSelection.type === 'satuan') {
-            // Validasi:
-            // 1. Jika produk punya 'designs' (Kaos/Dryfit), 'design' DAN 'size' harus dipilih
-            // 2. Jika produk tidak punya 'designs' (Stiker/Keychain), HANYA 'size' (yang diisi oleh model) harus dipilih
             if ((productData.designs && !currentSelection.design) || !currentSelection.size) {
                 validationError = true;
             }
@@ -637,6 +638,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json(); 
 
+            // ▼▼▼ LOG A: Apa yang dikirim oleh backend? ▼▼▼
+            console.log("DATA DARI BACKEND:", data);
+            // ▲▲▲
+
             if (data.status !== "success") {
                 throw new Error(data.message);
             }
@@ -711,6 +716,10 @@ document.addEventListener('DOMContentLoaded', () => {
             qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
             qrisOrderIdEl.textContent = currentOrderData.orderId;
             
+            // ▼▼▼ LOG B: Apa yang akan dirender? ▼▼▼
+            console.log("AKAN MERENDER QRIS DENGAN STRING:", currentOrderData.qrisString);
+            // ▲▲▲
+
             // 1. Panggil fungsi render di sini, menggunakan data yang sudah disimpan
             renderQrCode(currentOrderData.qrisString); 
             
