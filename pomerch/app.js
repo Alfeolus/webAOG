@@ -625,9 +625,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 customerName: customerName,
                 itemsString: itemsString
             };
-            
-            // Panggil fungsi renderQrCode (jika Anda membutuhkannya nanti)
-            // renderQrCode(data.qrisString); 
+    
+            renderQrCode(data.qrisString); 
             
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
@@ -671,12 +670,12 @@ document.addEventListener('DOMContentLoaded', () => {
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         
-        // Logika untuk menampilkan QRIS dihapus karena permintaan "tanpa canvas"
-        // if (currentOrderData) {
-        //     qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
-        //     qrisOrderIdEl.textContent = currentOrderData.orderId;
-        //     qrisModal.style.display = 'flex';
-        // }
+
+         if (currentOrderData) {
+             qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
+            qrisOrderIdEl.textContent = currentOrderData.orderId;
+             qrisModal.style.display = 'flex';
+         }
 
         // Sebagai gantinya, kita bisa langsung ke halaman sukses (jika Anda mau)
         // atau biarkan user menutup modal.
@@ -686,14 +685,13 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutButton.textContent = 'Proses Pesanan';
     });
     
-    // (Listener modal QRIS dihapus)
-    // closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
-    // qrisModal.addEventListener('click', (e) => { if (e.target === qrisModal) qrisModal.style.display = 'none'; });
+    closeQrisModalButton.addEventListener('click', () => { qrisModal.style.display = 'none'; });
+    qrisModal.addEventListener('click', (e) => { if (e.target === qrisModal) qrisModal.style.display = 'none'; });
     
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (e) => { if (e.target === validationModal) validationModal.style.display = 'none'; });
 
-    // (AOS.init() dihapus)
+    AOS.init() 
 
 });
