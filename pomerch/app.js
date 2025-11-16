@@ -1,5 +1,5 @@
 // File: pomerch/app.js
-// VERSI LENGKAP YANG SUDAH DIPERBAIKI
+// VERSI FINAL LENGKAP DENGAN PERBAIKAN QRIS
 
 let toastTimer; 
 function showToast(message) {
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ==========================================================
-    // === LOGIKA BARU UNTUK AUTOCOMPLETE REFERRAL ===
+    // === LOGIKA AUTOCOMPLETE REFERRAL ===
     // ==========================================================
     customerReferralInput.addEventListener('input', () => {
         const inputText = customerReferralInput.value.toLowerCase();
@@ -563,18 +563,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const customerPhone = customerPhoneInput.value.trim();
             const customerClass = customerClassInput.value;
             
-            // === LOGIKA REFERRAL BARU ===
+            // === LOGIKA REFERRAL ===
             const referralCodeRaw = customerReferralInput.value.trim();
             let validReferralCode = "TIDAK ADA"; // Default jika kosong
 
-            // Cek apakah inputan ada di daftar, case-insensitive
             const foundCode = REFERRAL_CODES.find(code => code.toLowerCase() === referralCodeRaw.toLowerCase());
 
             if (referralCodeRaw.length > 0) {
                 if (foundCode) {
-                    validReferralCode = foundCode; // Gunakan nama yang benar (misal: "Lion")
+                    validReferralCode = foundCode;
                 } else {
-                    // Jika diisi tapi salah
                     throw new Error("Kode Referral tidak valid. (Coba: Lion, Peacock, dll.)");
                 }
             }
@@ -616,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 kelas: customerClass,
                 itemsString: itemsString,
                 totalAsli: totalAsli,
-                referralCode: validReferralCode // <-- KIRIM KODE YANG SUDAH DIVALIDASI
+                referralCode: validReferralCode 
             };
             
             const response = await fetch(BACKEND_API_URL, { 
@@ -655,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 qrisString: data.qrisString // <-- qrisString SUDAH DISIMPAN DI SINI
             };
             
-            // PANGGILAN renderQrCode DI SINI DIHAPUS, KARENA DIPINDAH KE ALERT OK
+            // Panggilan renderQrCode(data.qrisString); DIHAPUS DARI SINI
             
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
@@ -709,6 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Panggil fungsi render di sini, menggunakan data yang sudah disimpan
             renderQrCode(currentOrderData.qrisString); 
             
+            // BARU TAMPILKAN MODALNYA
             qrisModal.style.display = 'flex';
          }
 
