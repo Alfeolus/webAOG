@@ -1,7 +1,5 @@
 // File: pomerch/app.js
-// Versi ini menambahkan AUTOCOMPLETE untuk Referral
-
-// (Fungsi renderQrCode DIHAPUS sesuai permintaan)
+// VERSI LENGKAP YANG SUDAH DIPERBAIKI
 
 let toastTimer; 
 function showToast(message) {
@@ -14,6 +12,33 @@ function showToast(message) {
     toastTimer = setTimeout(() => {
         toast.classList.remove('show');
     }, 3000); 
+}
+
+// ==========================================================
+// === 1. FUNGSI RENDERQRCODE YANG HILANG, SUDAH DITAMBAHKAN ===
+// ==========================================================
+function renderQrCode(qrisString) {
+    const container = document.getElementById('qris-image-container');
+    container.innerHTML = ''; // Kosongkan container dulu
+
+    if (!qrisString) {
+        container.innerHTML = '<p>Error: Gagal memuat QRIS.</p>';
+        return;
+    }
+    
+    try {
+        // Gunakan library QRious untuk menggambar QR code
+        new QRious({
+            element: container,
+            value: qrisString,
+            size: 230, // Sesuaikan dengan ukuran container
+            padding: 10,
+            level: 'M' // Tingkat koreksi error
+        });
+    } catch (e) {
+        console.error("Gagal membuat QRIS:", e);
+        container.innerHTML = '<p>Error: QRIS tidak valid.</p>';
+    }
 }
 
 
@@ -382,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (currentSelection.design) optionsSummary += `${currentSelection.design}, `;
             optionsSummary += currentSelection.size;
-            if (currentSelection.size.includes("Lengan Panjang")) {
+            if (currentSelection.size && currentSelection.size.includes("Lengan Panjang")) {
                 finalPrice += 10000;
             }
         } else if (currentSelection.type === 'bundle') {
@@ -619,14 +644,18 @@ document.addEventListener('DOMContentLoaded', () => {
             customerClassInput.value = '';
             customerReferralInput.value = '';
 
+            // ==========================================================
+            // === 2. SIMPAN QRIS STRING KE CURRENTORDERDATA ===
+            // ==========================================================
             currentOrderData = { 
                 orderId: data.orderId, 
                 finalAmount: data.finalAmount,
                 customerName: customerName,
-                itemsString: itemsString
+                itemsString: itemsString,
+                qrisString: data.qrisString // <-- qrisString SUDAH DISIMPAN DI SINI
             };
-    
-            renderQrCode(data.qrisString); 
+            
+            // PANGGILAN renderQrCode DI SINI DIHAPUS, KARENA DIPINDAH KE ALERT OK
             
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
@@ -670,16 +699,18 @@ document.addEventListener('DOMContentLoaded', () => {
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
         
-
+        // ==========================================================
+        // === 3. RENDER QRIS SAAT TOMBOL OK DI-KLIK ===
+        // ==========================================================
          if (currentOrderData) {
-             qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
+            qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
             qrisOrderIdEl.textContent = currentOrderData.orderId;
-             qrisModal.style.display = 'flex';
+            
+            // Panggil fungsi render di sini, menggunakan data yang sudah disimpan
+            renderQrCode(currentOrderData.qrisString); 
+            
+            qrisModal.style.display = 'flex';
          }
-
-        // Sebagai gantinya, kita bisa langsung ke halaman sukses (jika Anda mau)
-        // atau biarkan user menutup modal.
-        // Untuk saat ini, kita biarkan saja, tombol OK hanya menutup alert.
 
         checkoutButton.disabled = false;
         checkoutButton.textContent = 'Proses Pesanan';
@@ -692,6 +723,9 @@ document.addEventListener('DOMContentLoaded', () => {
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (e) => { if (e.target === validationModal) validationModal.style.display = 'none'; });
 
-    AOS.init() 
+    // ==========================================================
+    // === 4. AOS.INIT() DIHAPUS UNTUK MENGHINDARI ERROR ===
+    // ==========================================================
+    // AOS.init() 
 
 });
