@@ -1,5 +1,5 @@
 // File: pomerch/app.js
-// VERSI FINAL DENGAN PERBAIKAN TIMING RENDER
+// VERSI FINAL: FIX TIMING RENDER QRIS
 
 let toastTimer; 
 function showToast(message) {
@@ -16,32 +16,34 @@ function showToast(message) {
 
 /**
  * Fungsi ini menggambar QR code di dalam container.
- * HARUS dipanggil HANYA KETIKA container-nya terlihat.
+ * PENTING: Container harus TERLIHAT (display != none) sebelum fungsi ini dipanggil
+ * agar library QRious bisa menghitung ukuran canvas dengan benar.
  */
 function renderQrCode(qrisString) {
-    // Log ini bisa Anda hapus nanti jika sudah sukses
-    console.log("FUNGSI RENDERQRCODE MENERIMA:", qrisString);
-
     const container = document.getElementById('qris-image-container');
-    container.innerHTML = ''; // Kosongkan container dulu
+    container.innerHTML = ''; // Bersihkan container lama
 
     if (!qrisString) {
-        container.innerHTML = '<p>Error: Gagal memuat QRIS.</p>';
+        container.innerHTML = '<p>Error: Data QRIS tidak ditemukan.</p>';
         return;
     }
     
     try {
-        // Gunakan library QRious untuk menggambar QR code
+        // Buat elemen canvas baru
+        const canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+
+        // Render QR Code ke canvas tersebut
         new QRious({
-            element: container,
+            element: canvas,
             value: qrisString,
-            size: 230, // Sesuaikan dengan ukuran container
+            size: 230, 
             padding: 10,
-            level: 'M' // Tingkat koreksi error
+            level: 'M' 
         });
     } catch (e) {
         console.error("Gagal membuat QRIS:", e);
-        container.innerHTML = '<p>Error: QRIS tidak valid.</p>';
+        container.innerHTML = '<p>Error: Gagal membuat gambar QRIS.</p>';
     }
 }
 
@@ -385,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectModel(element, modelName) {
         document.querySelectorAll('#model-selector .selected').forEach(el => el.classList.remove('selected'));
         element.classList.add('selected');
-        currentSelection.size = modelName; // Menggunakan .size untuk validasi, sesuai kode asli
+        currentSelection.size = modelName; 
     }
 
     document.querySelectorAll('.product-card').forEach(card => {
@@ -521,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ==========================================================
-    // === LOGIKA BARU UNTUK AUTOCOMPLETE REFERRAL ===
+    // === LOGIKA AUTOCOMPLETE REFERRAL ===
     // ==========================================================
     customerReferralInput.addEventListener('input', () => {
         const inputText = customerReferralInput.value.toLowerCase();
@@ -577,9 +579,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (referralCodeRaw.length > 0) {
                 if (foundCode) {
-                    validReferralCode = foundCode; // Gunakan nama yang benar (misal: "Lion")
+                    validReferralCode = foundCode; 
                 } else {
-                    // Jika diisi tapi salah
                     throw new Error("Kode Referral tidak valid. (Coba: Lion, Peacock, dll.)");
                 }
             }
@@ -621,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 kelas: customerClass,
                 itemsString: itemsString,
                 totalAsli: totalAsli,
-                referralCode: validReferralCode // <-- KIRIM KODE YANG SUDAH DIVALIDASI
+                referralCode: validReferralCode 
             };
             
             const response = await fetch(BACKEND_API_URL, { 
@@ -636,10 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json(); 
-
-            // ▼▼▼ LOG A: Apa yang dikirim oleh backend? ▼▼▼
-            console.log("DATA DARI BACKEND:", data);
-            // ▲▲▲
+            console.log("DATA DARI BACKEND:", data); 
 
             if (data.status !== "success") {
                 throw new Error(data.message);
@@ -654,17 +652,15 @@ document.addEventListener('DOMContentLoaded', () => {
             customerReferralInput.value = '';
 
             // ==========================================================
-            // === PERBAIKAN 1: SIMPAN QRIS STRING, JANGAN RENDER DULU ===
+            // SIMPAN DATA QRIS, JANGAN RENDER DULU!
             // ==========================================================
             currentOrderData = { 
                 orderId: data.orderId, 
                 finalAmount: data.finalAmount,
                 customerName: customerName,
                 itemsString: itemsString,
-                qrisString: data.qrisString // <-- SIMPAN qrisString DI SINI
+                qrisString: data.qrisString 
             };
-            
-            // Panggilan renderQrCode(data.qrisString); DIHAPUS DARI SINI
             
             alertAmountEl.textContent = formatRupiah(data.finalAmount);
             alertModal.style.display = 'flex';
@@ -706,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================
-    // === PERBAIKAN 2: BALIK URUTAN RENDER DAN TAMPILKAN ===
+    // === LISTENER TOMBOL OK PADA ALERT MODAL ===
     // ==========================================================
     alertOkButton.addEventListener('click', () => {
         alertModal.style.display = 'none';
@@ -715,13 +711,10 @@ document.addEventListener('DOMContentLoaded', () => {
             qrisAmountEl.textContent = formatRupiah(currentOrderData.finalAmount);
             qrisOrderIdEl.textContent = currentOrderData.orderId;
             
-            // Log ini bisa Anda hapus nanti jika sudah sukses
-            console.log("AKAN MERENDER QRIS DENGAN STRING:", currentOrderData.qrisString);
-
-            // 1. TAMPILKAN MODALNYA DULU
+            // 1. TAMPILKAN MODAL DULU (AGAR TIDAK DISPLAY: NONE)
             qrisModal.style.display = 'flex';
             
-            // 2. BARU PANGGIL FUNGSI RENDER (saat modal sudah terlihat)
+            // 2. BARU GAMBAR QRIS-NYA
             renderQrCode(currentOrderData.qrisString); 
          }
 
@@ -735,7 +728,5 @@ document.addEventListener('DOMContentLoaded', () => {
     closeValidationModalButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationOkButton.addEventListener('click', () => { validationModal.style.display = 'none'; });
     validationModal.addEventListener('click', (e) => { if (e.target === validationModal) validationModal.style.display = 'none'; });
-
-    // AOS.init() DIHAPUS untuk mencegah error 'AOS is not defined'
-
+    
 });
