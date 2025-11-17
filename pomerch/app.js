@@ -135,11 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const DRYFIT_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
     const STIKER_MODELS = [
-        { name: "Model A", image: "images/designs/stiker-1.png" },
-        { name: "Model B", image: "images/designs/stiker-2.png" },
-        { name: "Model C", image: "images/designs/stiker-3.png" },
-        { name: "Model D", image: "images/designs/stiker-4.png" },
-        { name: "Model E", image: "images/designs/stiker-5.png" }
+        { name: "Model A", image: "pomerch/images/stiker/snoopy.png" },
+        { name: "Model B", image: "pomerch/images/stiker/font.png" },
+        { name: "Model C", image: "pomerch/images/stiker/maskot.png" },
+        { name: "Model D", image: "pomerch/images/kaos/labels.png" },
+        { name: "Model E", image: "pomerch/images/designs/f1.png" }
     ];
     
     const KEYCHAIN_MODELS = [
@@ -584,11 +584,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cart.length === 0) { 
                 errorMessage = 'Keranjang kamu masih kosong.'; 
             } else if (!customerName || customerName.length < 3) { 
-                errorMessage = 'Nama Pemesan harus diisi (minimal 3 huruf).'; 
+                errorMessage = 'Nama harus diisi (minimal 3 huruf).'; 
             } else if (!customerPhone || !phoneRegex.test(customerPhone.replace(/\D/g,''))) { 
-                errorMessage = 'Mohon masukkan nomor telepon yang valid (hanya angka, 8-15 digit).'; 
+                errorMessage = 'Masukkan nomor telepon yang valid (hanya angka, 8-15 digit).'; 
             } else if (!customerClass) { 
-                errorMessage = 'Tolong pilih Kelas Anda.'; 
+                errorMessage = 'Tolong pilih Kelas Kamu.'; 
             }
             
             if (errorMessage) { 

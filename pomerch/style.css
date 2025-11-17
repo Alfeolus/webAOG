@@ -540,6 +540,8 @@ h2 { margin-top: 0; }
     width: 220px !important;
     height: 220px !important;
     border-radius: 4px;
+    object-fit: contain;
+    max-width: 100%;
     
     /* FIX: Reset properti yang mengganggu */
     margin: 0 !important;
@@ -962,7 +964,7 @@ h2 { margin-top: 0; }
     #qris-image-container canvas {
         width: 200px !important;
         /*height: 200px !important; */
-        height: auto !important;
+        height: 200px !important;
     }
 }
 
@@ -989,6 +991,6 @@ h2 { margin-top: 0; }
     #qris-image-container canvas {
         width: 190px !important;
         /*height: 190px !important;*/
-        height: auto !important;
+        height: 190px !important;
     }
 }
