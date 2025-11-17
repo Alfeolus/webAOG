@@ -993,3 +993,13 @@ h2 { margin-top: 0; }
         height: 190px !important;
     }
 }
+
+.size-chart {
+    width: 100%; 
+    max-width: 450px; 
+    height: auto;
+    margin: 10px auto 20px; 
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: none; 
+}

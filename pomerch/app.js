@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeValidationModalButton = document.getElementById('close-validation-modal-button');
     const validationMessageEl = document.getElementById('validation-message');
     const validationOkButton = document.getElementById('validation-ok-button');
+    const sizeChartImage = document.getElementById('size-chart-image');
 
     let cart = [];
     let currentOrderData = null; 
@@ -217,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sizeSelector.innerHTML = '';
         modelSelector.innerHTML = '';
         bundleOptionsContainer.innerHTML = '';
+        if (sizeChartImage) sizeChartImage.style.display = 'none';
     }
 
     function openModalForProduct(productName) {
@@ -226,6 +228,13 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSelection.product = productName;
         currentSelection.basePrice = productData.basePrice;
         currentSelection.type = productData.type;
+        if (productName === "Kaos") {
+            sizeChartImage.src = "pomerch/images/kaos/sizechart-kaos.png";
+            sizeChartImage.style.display = 'block';
+        } else if (productName === "Dryfit") {
+            sizeChartImage.src = "pomerch/images/dryfit/sizechart-dryfit.png";
+            sizeChartImage.style.display = 'block';
+        }
         sizeOptionsContainer.style.display = 'none';
         modelOptionsContainer.style.display = 'none';
         bundleOptionsContainer.style.display = 'none';
