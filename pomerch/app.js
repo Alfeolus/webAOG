@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const itemRow = document.createElement('div');
             itemRow.className = 'cart-item-row';
-            itemRow.innerHTML = `div class="cart-item-info"><b>${item.name}</b><span>${formatRupiah(item.price)}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.id}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.id}"><button class="quantity-up" data-id="${item.id}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.id}">&times;</button>`;
+            itemRow.innerHTML = `<div class="cart-item-info"><b>${item.name}</b><span>${formatRupiah(item.price)}</span>${detailsHtml}</div><div class="quantity-controls"><button class="quantity-down" data-id="${item.id}">-</button><input type="number" value="${item.quantity}" min="1" data-id="${item.id}"><button class="quantity-up" data-id="${item.id}">+</button></div><span class="item-subtotal"><b>${formatRupiah(item.price * item.quantity)}</b></span><button class="remove-item-button" data-id="${item.id}">&times;</button>`;
             modalCartItemsEl.appendChild(itemRow);
             total += item.price * item.quantity;
         });
