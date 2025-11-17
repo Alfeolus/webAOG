@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Reality Club", image: "pomerch/images/kaos/Reality Club.jpg" },
         { name: "Mclaren", image: "pomerch/images/kaos/mclarens.png" },
         { name: "LOVE", image: "pomerch/images/kaos/LOVE.png" },
-        { name: "LN (Blue)", image: "pomerch/images/kaos/LN.jpg" },
+        { name: "LN (Blue)", image: "pomerch/images/kaos/LN.png" },
         { name: "Lany", image: "pomerch/images/kaos/LANY.jpg" },
         { name: "Lala Lost You", image: "pomerch/images/kaos/lala.png" },
         { name: "Galatians Club", image: "pomerch/images/kaos/Galatians club.png" },
