@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Sail Past the Storms", image: "pomerch/images/kaos/sail past the storms.png" },
         { name: "Sail on Moonlit Night", image: "pomerch/images/kaos/moonlit night.png" },
         { name: "Reality Club", image: "pomerch/images/kaos/Reality Club.png" },
-        { name: "Mclaren", image: "pomerch/images/kaos/mclaren.png" },
+        { name: "Mclaren", image: "pomerch/images/kaos/mclarens.png" },
         { name: "LOVE", image: "pomerch/images/kaos/LOVE.png" },
         { name: "LN (Blue)", image: "pomerch/images/kaos/LN.png" },
         { name: "Lany", image: "pomerch/images/kaos/LANY.png" },
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Ferrari (White)", image: "pomerch/images/kaos/Ferrari White.png" },
         { name: "Ferrari (Black)", image: "pomerch/images/kaos/Ferrari Black.png" },
         { name: "Charis Xapic", image: "pomerch/images/kaos/Charis Xapic.png" },
-        { name: "Capybara", image: "pomerch/images/Capybara.png" }
+        { name: "Capybara", image: "pomerch/images/kaos/Capybara.png" }
     ];
     const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
