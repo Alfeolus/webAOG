@@ -515,28 +515,21 @@ h2 { margin-top: 0; }
 #qris-modal #qris-amount { color: #00aaff; }
 
 /* === PERBAIKAN QRIS SIMETRIS & TENGAH === */
-#qris-image-container { 
-    background: #ffffff; 
-    padding: 20px;
-    border-radius: 12px; 
-    margin: 20px auto;
-    
-    /* FIX: Ukuran tetap untuk container */
-    width: 260px;
-    height: 260px;
-    
-    /* FIX: Flexbox untuk pusatkan sempurna */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    box-sizing: border-box; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
+    #qris-image-container { 
+        background: #ffffff; 
+        padding: 20px;
+        border-radius: 12px; 
+        margin: 20px auto;
+        width: 260px;
+        height: 260px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box; 
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
 
 #qris-image-container canvas {
-    width: 220px !important;
-    height: 220px !important;
     border-radius: 4px;
 }
 
