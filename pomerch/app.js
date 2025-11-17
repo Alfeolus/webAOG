@@ -107,13 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const KAOS_DESIGNS = [
         { name: "You're doing just fine", image: "pomerch/images/kaos/justfine.png" }, 
-        { name: "Sail Past the Storms", image: "pomerch/images/kaos/sail past the storms.png" },
+        { name: "Sail Past the Storms", image: "pomerch/images/kaos/Sail past the storms.jpg" },
         { name: "Sail on Moonlit Night", image: "pomerch/images/kaos/moonlit night.png" },
-        { name: "Reality Club", image: "pomerch/images/kaos/Reality Club.png" },
+        { name: "Reality Club", image: "pomerch/images/kaos/Reality Club.jpg" },
         { name: "Mclaren", image: "pomerch/images/kaos/mclarens.png" },
         { name: "LOVE", image: "pomerch/images/kaos/LOVE.png" },
-        { name: "LN (Blue)", image: "pomerch/images/kaos/LN.png" },
-        { name: "Lany", image: "pomerch/images/kaos/LANY.png" },
+        { name: "LN (Blue)", image: "pomerch/images/kaos/LN.jpg" },
+        { name: "Lany", image: "pomerch/images/kaos/LANY.jpg" },
         { name: "Lala Lost You", image: "pomerch/images/kaos/lala.png" },
         { name: "Galatians Club", image: "pomerch/images/kaos/Galatians club.png" },
         { name: "Ferrari (White)", image: "pomerch/images/kaos/Ferrari White.png" },
@@ -124,11 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
     const DRYFIT_DESIGNS = [
-        { name: "DBL #1", image: "pomerch/images/dryfit/dbl1.png" },
-        { name: "DBL #2", image: "pomerch/images/dryfit/dbl2.png" },
-        { name: "I Am Saved", image: "pomerch/images/dryfit/I am Saved.png" },
+        { name: "DBL #1", image: "pomerch/images/dryfit/DBL 1.jpg" },
+        { name: "DBL #2", image: "pomerch/images/dryfit/dbl 2.jpg" },
+        { name: "I Am Saved", image: "pomerch/images/dryfit/I am saved.jpg" },
         { name: "Moonlit Night", image: "pomerch/images/dryfit/Moonlit Night.png" },
-        { name: "Sodapop", image: "pomerch/images/dryfit/sodapop.png" },
+        { name: "Sodapop", image: "pomerch/images/dryfit/sodapop.jpg" },
     ];
     const DRYFIT_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
