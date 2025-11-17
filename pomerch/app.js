@@ -138,8 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Model A", image: "pomerch/images/stiker/snoopy.png" },
         { name: "Model B", image: "pomerch/images/stiker/font.png" },
         { name: "Model C", image: "pomerch/images/stiker/maskot.png" },
-        { name: "Model D", image: "pomerch/images/kaos/labels.png" },
-        { name: "Model E", image: "pomerch/images/designs/f1.png" }
+        { name: "Model D", image: "pomerch/images/stiker/labels.png" },
+        { name: "Model E", image: "pomerch/images/stiker/f1.png" }
     ];
     
     const KEYCHAIN_MODELS = [
@@ -303,10 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 let itemHtml = `<div class="bundle-item-group" id="${itemGroupId}"><strong>${item.name}</strong>`;
                 
                 let placeholderImg = "images/placeholder-design.png"; 
-                if (item.type === 'Stiker') placeholderImg = "images/stiker/stiker-preview.png";
-                if (item.type === 'Keychain') placeholderImg = "images/keychain/keychain-preview.png";
-                if (item.type === 'Dryfit') placeholderImg = "images/dryfit-preview.png";
-                if (item.type === 'Kaos') placeholderImg = "images/kaos-preview.png";
+                if (item.type === 'Stiker') placeholderImg = "pomerch/images/stiker/stiker-preview.png";
+                if (item.type === 'Keychain') placeholderImg = "pomerch/images/keychain/keychain-preview.png";
+                if (item.type === 'Dryfit') placeholderImg = "pomerch/images/dryfit-preview.png";
+                if (item.type === 'Kaos') placeholderImg = "pomerch/images/kaos-preview.png";
                 
                 itemHtml += `<img src="${placeholderImg}" class="bundle-item-preview" id="preview-${itemGroupId}">`;
 

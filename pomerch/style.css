@@ -98,7 +98,7 @@ h2 { margin-top: 0; }
 .product-card img {
     width: 100%;
     height: 180px; 
-    object-fit: cover; 
+    object-fit: contain; 
     display: block;
     border-bottom: 1px solid var(--border-color);
     transition: transform 0.3s ease;
@@ -735,7 +735,7 @@ h2 { margin-top: 0; }
 .model-item img {
     width: 100%;
     height: 100px; /* Samakan tinggi gambar model */
-    object-fit: cover; /* atau 'contain' jika perlu */
+    object-fit: contain; /* atau 'contain' jika perlu */
     display: block;
     border-radius: 3px;
 }
@@ -858,11 +858,10 @@ h2 { margin-top: 0; }
     bottom: 30px; 
 }
 
-/* === CSS BARU UNTUK PREVIEW GAMBAR BUNDLE === */
 .bundle-item-preview {
     width: 100px;
     height: 100px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 5px;
     margin: 10px auto 15px; /* Posisikan di tengah */
     display: block;
