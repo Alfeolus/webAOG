@@ -143,11 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     
     const KEYCHAIN_MODELS = [
-        { name: "Model A", image: "images/designs/keychain-1.png" },
-        { name: "Model B", image: "images/designs/keychain-2.png" },
-        { name: "Model C", image: "images/designs/keychain-3.png" },
-        { name: "Model D", image: "images/designs/keychain-4.png" },
-        { name: "Model E", image: "images/designs/keychain-5.png" }
+        { name: "Wee", image: "pomerch/images/keychain/wee.png" },
+        { name: "Snowglobe", image: "pomerch/images/keychain/snowglobe.png" },
+        { name: "GWS", image: "pomerch/images/keychain/GWS.png" },
+        { name: "Couple 1", image: "pomerch/images/keychain/couple edition 1.png" },
+        { name: "Couple 2", image: "pomerch/images/keychain/couple edition 2.png" }
     ]; 
 
     const productDatabase = {
