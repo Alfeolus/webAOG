@@ -127,8 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
     const DRYFIT_DESIGNS = [
-        { name: "DBL #1", image: "pomerch/images/dryfit/basketball #1.png" },
-        { name: "DBL #2", image: "pomerch/images/dryfit/basketball #2.png" },
+        { name: "DBL #1", image: "pomerch/images/dryfit/dbl1.png" },
+        { name: "DBL #2", image: "pomerch/images/dryfit/dbl2.png" },
         { name: "I Am Saved", image: "pomerch/images/dryfit/I am Saved.png" },
         { name: "Moonlit Night", image: "pomerch/images/dryfit/Moonlit Night.png" },
         { name: "Sodapop", image: "pomerch/images/dryfit/sodapop.png" },
