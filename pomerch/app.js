@@ -98,8 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'satuan',
         design: null,
         size: null, 
-        bundleOptions: [],
-        image_url : null 
+        bundleOptions: [] 
     };
     
     // === DAFTAR KODE REFERRAL ===
@@ -216,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     function resetModal() {
-        currentSelection = { product: null, basePrice: 0, type: 'satuan', design: null, size: null, bundleOptions: [], image_url : null };
+        currentSelection = { product: null, basePrice: 0, type: 'satuan', design: null, size: null, bundleOptions: [] };
         designGridContainer.innerHTML = '';
         sizeSelector.innerHTML = '';
         modelSelector.innerHTML = '';
@@ -228,8 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productData = productDatabase[productName];
         if (!productData) return;
         currentSelection.product = productName;
-        currentSelection.image_url = imgSrc;
-        currentSelection.basePrice = productData.basePrice; 
+        currentSelection.basePrice = productData.basePrice;
         currentSelection.type = productData.type;
         sizeOptionsContainer.style.display = 'none';
         modelOptionsContainer.style.display = 'none';
@@ -387,8 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', () => {
             const productName = card.dataset.product;
-            const productImgSrc = card.querySelector('img').getAttribute('src');
-            openModalForProduct(productName, productImgSrc);
+            openModalForProduct(productName);
         });
     });
     closeModalButton.addEventListener('click', () => multiStepModal.style.display = 'none');
@@ -439,7 +436,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const uniqueCartId = Date.now().toString();
-    
+        let imgName = currentSelection.product.toLowerCase().split(' ')[0];
+        if (currentSelection.type === 'bundle') {
+            imgName = imgName.replace('’', ''); 
+        }
+        const imgPath = `images/${imgName}-preview.png`;
+
         cart.push({
             id: uniqueCartId,
             name: currentSelection.product,
@@ -449,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 size: optionsSummary, 
                 notes: " " 
             },
-            image_url: currentSelection.image_url
+            image_url: imgPath
         });
         renderCart();
         showToast(`${currentSelection.product} berhasil ditambahkan!`); 
