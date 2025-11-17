@@ -43,8 +43,6 @@ function renderQrCode(qrisString) {
 document.addEventListener('DOMContentLoaded', () => {
     
     const BACKEND_API_URL = '/api/submitmerch';
-    
-    // === Ambil Elemen DOM ===
     const productListEl = document.getElementById('product-list');
     const multiStepModal = document.getElementById('multi-step-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -101,28 +99,26 @@ document.addEventListener('DOMContentLoaded', () => {
         bundleOptions: [] 
     };
     
-    // === DAFTAR KODE REFERRAL ===
     const REFERRAL_CODES = [
         "Lion", "Peacock", "Camel", "Owl", 
         "Elephant", "Dove", "Ox", "Deer"
     ];
 
-    // === Database Produk ===
     const KAOS_DESIGNS = [
-        { name: "Desain 1", image: "pomerch/images/kaos/justfine.png" }, 
-        { name: "Desain 2", image: "images/designs/kaos-desain-2.png" },
-        { name: "Desain 3", image: "images/designs/kaos-desain-3.png" },
-        { name: "Desain 4", image: "images/designs/kaos-desain-4.png" },
-        { name: "Desain 5", image: "images/designs/kaos-desain-5.png" },
-        { name: "Desain 6", image: "images/designs/kaos-desain-6.png" },
-        { name: "Desain 7", image: "images/designs/kaos-desain-7.png" },
-        { name: "Desain 8", image: "images/designs/kaos-desain-8.png" },
-        { name: "Desain 9", image: "images/designs/kaos-desain-9.png" },
-        { name: "Desain 10", image: "images/designs/kaos-desain-10.png" },
-        { name: "Desain 11", image: "images/designs/kaos-desain-11.png" },
-        { name: "Desain 12", image: "images/designs/kaos-desain-12.png" },
-        { name: "Desain 13", image: "images/designs/kaos-desain-13.png" },
-        { name: "Desain 14", image: "images/designs/kaos-desain-14.png" }
+        { name: "You're doing just fine", image: "pomerch/images/kaos/justfine.png" }, 
+        { name: "Sail Past the Storms", image: "pomerch/images/kaos/sail past the storms.png" },
+        { name: "Sail on Moonlit Night", image: "pomerch/images/designs/sail on moonlit night.png" },
+        { name: "Reality Club", image: "pomerch/images/kaos/Reality Club.png" },
+        { name: "Mclaren", image: "pomerch/images/kaos/Mclaren.png" },
+        { name: "LOVE", image: "images/designs/kaos-desain-6.png" },
+        { name: "LN (Blue)", image: "images/designs/kaos-desain-7.png" },
+        { name: "Lany", image: "images/designs/kaos-desain-8.png" },
+        { name: "Lala Lost You", image: "images/designs/kaos-desain-9.png" },
+        { name: "Galatians Club", image: "images/designs/kaos-desain-10.png" },
+        { name: "Ferrari (White)", image: "images/designs/kaos-desain-11.png" },
+        { name: "Ferrari (Black)", image: "images/designs/kaos-desain-12.png" },
+        { name: "Charis Xapic", image: "images/designs/kaos-desain-13.png" },
+        { name: "Capybara", image: "images/designs/kaos-desain-14.png" }
     ];
     const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
