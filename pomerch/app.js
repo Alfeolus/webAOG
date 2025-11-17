@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Charis Xapic", image: "pomerch/images/kaos/Charis Xapic.png" },
         { name: "Capybara", image: "pomerch/images/kaos/Capybara.png" }
     ];
-    const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
+    const KAOS_SIZES = ["S", "M", "L", "XL", "XXL [+5K]"]; 
     
     const DRYFIT_DESIGNS = [
         { name: "DBL #1", image: "pomerch/images/dryfit/DBL 1.jpg" },
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Moonlit Night", image: "pomerch/images/dryfit/Moonlit Night.png" },
         { name: "Sodapop", image: "pomerch/images/dryfit/sodapop.jpg" },
     ];
-    const DRYFIT_SIZES = ["S", "M", "L", "XL", "XXL"]; 
+    const DRYFIT_SIZES = ["S", "M", "L", "XL", "XXL [+5K]"]; 
     
     const STIKER_MODELS = [
         { name: "Snoopy", image: "pomerch/images/stiker/snoopy.png" },
@@ -415,6 +415,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentSelection.size && currentSelection.size.includes("Lengan Panjang")) {
                 finalPrice += 10000;
             }
+            if ((currentSelection.product === 'Kaos' || currentSelection.product === 'Dryfit') && currentSelection.size === 'XXL') {
+                finalPrice += 5000;
+            }
         } else if (currentSelection.type === 'bundle') {
             currentSelection.bundleOptions = []; 
             let bundleOptionsStrings = [];
@@ -433,6 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 bundleOptionsStrings.push(itemSummary);
                 if (size && size.includes("Lengan Panjang")) {
                     finalPrice += 10000;
+                }
+                if ((item.type === 'Kaos' || item.type === 'Dryfit') && size === 'XXL') {
+                    finalPrice += 5000;
                 }
             });
             optionsSummary = bundleOptionsStrings.join(' | ');
