@@ -1,5 +1,4 @@
-// File: pomerch/app.js
-// VERSI FINAL: FIX TIMING RENDER QRIS
+
 
 let toastTimer; 
 function showToast(message) {
@@ -14,30 +13,23 @@ function showToast(message) {
     }, 3000); 
 }
 
-/**
- * Fungsi ini menggambar QR code di dalam container.
- * PENTING: Container harus TERLIHAT (display != none) sebelum fungsi ini dipanggil
- * agar library QRious bisa menghitung ukuran canvas dengan benar.
- */
 function renderQrCode(qrisString) {
     const container = document.getElementById('qris-image-container');
-    container.innerHTML = ''; // Bersihkan container lama
-
+    container.innerHTML = ''; 
     if (!qrisString) {
         container.innerHTML = '<p>Error: Data QRIS tidak ditemukan.</p>';
         return;
     }
     
     try {
-        // Buat elemen canvas baru
+
         const canvas = document.createElement('canvas');
         container.appendChild(canvas);
 
-        // Render QR Code ke canvas tersebut
         new QRious({
             element: canvas,
             value: qrisString,
-            size: 230, 
+            size: 220, 
             padding: 10,
             level: 'M' 
         });
@@ -159,12 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
     ]; 
 
     const productDatabase = {
-        "Kaos": { basePrice: 97000, type: 'satuan', designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
-        "Dryfit": { basePrice: 95000, type: 'satuan', designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES },
+        "Kaos": { basePrice: 95000, type: 'satuan', designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
+        "Dryfit": { basePrice: 93000, type: 'satuan', designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES },
         "Stiker": { basePrice: 5000, type: 'satuan', models: STIKER_MODELS },
         "Keychain": { basePrice: 8000, type: 'satuan', models: KEYCHAIN_MODELS },
         "Bundle of Blessings": {
-            basePrice: 285000, type: 'bundle',
+            basePrice: 276000, type: 'bundle',
             items: [
                 { name: "Kaos I", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
                 { name: "Kaos II", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
@@ -172,14 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         "Santa’s Safe Haven": {
-            basePrice: 170000, type: 'bundle',
+            basePrice: 182000, type: 'bundle',
             items: [
                 { name: "Kaos", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
                 { name: "Dryfit", type: "Dryfit", designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES }
             ]
         },
         "A December to Remember": {
-            basePrice: 185000, type: 'bundle',
+            basePrice: 195000, type: 'bundle',
             items: [
                 { name: "Kaos", type: "Kaos", designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
                 { name: "Dryfit", type: "Dryfit", designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES },
@@ -188,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         "Mistletoe Mavericks": {
-            basePrice: 245000, type: 'bundle',
+            basePrice: 270000, type: 'bundle',
             items: [
                 { name: "Dryfit I", type: "Dryfit", designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES }, 
                 { name: "Dryfit II", type: "Dryfit", designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES }, 
@@ -218,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.innerText = `Pilih Desain ${currentSelection.product}`;
             backModalButton.style.display = 'none';
         } else {
-            modalTitle.innerText = 'Pilih Opsi';
+            modalTitle.innerText = '';
             backModalButton.style.display = (currentSelection.type === 'satuan' && productDatabase[currentSelection.product].designs) ? 'block' : 'none';
         }
     }
@@ -258,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 sizeOptionsContainer.style.display = 'block';
-                step2Title.innerText = "Pilih Ukuran & Opsi";
+                step2Title.innerText = "Pilih Size";
                 sizeSelector.innerHTML = '';
                 productData.sizes.forEach(size => {
                     const btn = document.createElement('button');
@@ -311,8 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let itemHtml = `<div class="bundle-item-group" id="${itemGroupId}"><strong>${item.name}</strong>`;
                 
                 let placeholderImg = "images/placeholder-design.png"; 
-                if (item.type === 'Stiker') placeholderImg = "images/stiker-preview.png";
-                if (item.type === 'Keychain') placeholderImg = "images/keychain-preview.png";
+                if (item.type === 'Stiker') placeholderImg = "images/stiker/stiker-preview.png";
+                if (item.type === 'Keychain') placeholderImg = "images/keychain/keychain-preview.png";
                 if (item.type === 'Dryfit') placeholderImg = "images/dryfit-preview.png";
                 if (item.type === 'Kaos') placeholderImg = "images/kaos-preview.png";
                 
