@@ -107,18 +107,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const KAOS_DESIGNS = [
         { name: "You're doing just fine", image: "pomerch/images/kaos/justfine.png" }, 
         { name: "Sail Past the Storms", image: "pomerch/images/kaos/sail past the storms.png" },
-        { name: "Sail on Moonlit Night", image: "pomerch/images/designs/sail on moonlit night.png" },
+        { name: "Sail on Moonlit Night", image: "pomerch/images/kaos/moonlit night.png" },
         { name: "Reality Club", image: "pomerch/images/kaos/Reality Club.png" },
-        { name: "Mclaren", image: "pomerch/images/kaos/Mclaren.png" },
-        { name: "LOVE", image: "images/designs/kaos-desain-6.png" },
-        { name: "LN (Blue)", image: "images/designs/kaos-desain-7.png" },
-        { name: "Lany", image: "images/designs/kaos-desain-8.png" },
-        { name: "Lala Lost You", image: "images/designs/kaos-desain-9.png" },
-        { name: "Galatians Club", image: "images/designs/kaos-desain-10.png" },
-        { name: "Ferrari (White)", image: "images/designs/kaos-desain-11.png" },
-        { name: "Ferrari (Black)", image: "images/designs/kaos-desain-12.png" },
-        { name: "Charis Xapic", image: "images/designs/kaos-desain-13.png" },
-        { name: "Capybara", image: "images/designs/kaos-desain-14.png" }
+        { name: "Mclaren", image: "pomerch/images/kaos/mclaren.png" },
+        { name: "LOVE", image: "pomerch/images/kaos/LOVE.png" },
+        { name: "LN (Blue)", image: "pomerch/images/kaos/LN.png" },
+        { name: "Lany", image: "pomerch/images/kaos/LANY.png" },
+        { name: "Lala Lost You", image: "pomerch/images/kaos/lala.png" },
+        { name: "Galatians Club", image: "pomerch/images/kaos/Galatians club.png" },
+        { name: "Ferrari (White)", image: "pomerch/images/kaos/Ferrari White.png" },
+        { name: "Ferrari (Black)", image: "pomerch/images/kaos/Ferrari Black.png" },
+        { name: "Charis Xapic", image: "pomerch/images/kaos/Charis Xapic.png" },
+        { name: "Capybara", image: "pomerch/images/Capybara.png" }
     ];
     const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
