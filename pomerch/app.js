@@ -127,19 +127,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const KAOS_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
     const DRYFIT_DESIGNS = [
-        { name: "Desain 1", image: "images/designs/dryfit-desain-1.png" },
-        { name: "Desain 2", image: "images/designs/dryfit-desain-2.png" },
-        { name: "Desain 3", image: "images/designs/dryfit-desain-3.png" },
-        { name: "Desain 4", image: "images/designs/dryfit-desain-4.png" }
+        { name: "DBL #1", image: "pomerch/images/dryfit/basketball #1.png" },
+        { name: "DBL #2", image: "pomerch/images/dryfit/basketball #2.png" },
+        { name: "I Am Saved", image: "pomerch/images/dryfit/I am Saved.png" },
+        { name: "Moonlit Night", image: "pomerch/images/dryfit/Moonlit Night.png" },
+        { name: "Sodapop", image: "pomerch/images/dryfit/sodapop.png" },
     ];
     const DRYFIT_SIZES = ["S", "M", "L", "XL", "XXL"]; 
     
     const STIKER_MODELS = [
-        { name: "Model A", image: "pomerch/images/stiker/snoopy.png" },
-        { name: "Model B", image: "pomerch/images/stiker/font.png" },
-        { name: "Model C", image: "pomerch/images/stiker/maskot.png" },
-        { name: "Model D", image: "pomerch/images/stiker/labels.png" },
-        { name: "Model E", image: "pomerch/images/stiker/f1.png" }
+        { name: "Snoopy", image: "pomerch/images/stiker/snoopy.png" },
+        { name: "Poster Font", image: "pomerch/images/stiker/font.png" },
+        { name: "Maskot AOG", image: "pomerch/images/stiker/maskot.png" },
+        { name: "Labels", image: "pomerch/images/stiker/labels.png" },
+        { name: "F1", image: "pomerch/images/stiker/f1.png" }
     ];
     
     const KEYCHAIN_MODELS = [
