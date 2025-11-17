@@ -535,18 +535,9 @@ h2 { margin-top: 0; }
 }
 
 #qris-image-container canvas {
-    /* FIX: Pastikan canvas di tengah dan ukuran konsisten */
-    display: block !important;
     width: 220px !important;
     height: 220px !important;
     border-radius: 4px;
-    object-fit: contain;
-    max-width: 100%;
-    
-    /* FIX: Reset properti yang mengganggu */
-    margin: 0 !important;
-    padding: 0 !important;
-    float: none !important;
 }
 
 #confirm-payment-modal-button { width: 80%; margin: 15px auto 0 auto; display: block; }
