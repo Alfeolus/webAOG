@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const productDatabase = {
         "Kaos": { basePrice: 95000, type: 'satuan', designs: KAOS_DESIGNS, sizes: KAOS_SIZES },
-        "Dryfit": { basePrice: 93000, type: 'satuan', designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES },
+        "Dryfit": { basePrice: 92000, type: 'satuan', designs: DRYFIT_DESIGNS, sizes: DRYFIT_SIZES },
         "Stiker": { basePrice: 5000, type: 'satuan', models: STIKER_MODELS },
         "Keychain": { basePrice: 8000, type: 'satuan', models: KEYCHAIN_MODELS },
         "Bundle of Blessings": {
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentSelection.size && currentSelection.size.includes("Lengan Panjang")) {
                 finalPrice += 10000;
             }
-            if ((currentSelection.product === 'Kaos' || currentSelection.product === 'Dryfit') && currentSelection.size === 'XXL') {
+            if ((currentSelection.product === 'Kaos' || currentSelection.product === 'Dryfit') && currentSelection.size === 'XXL [+5K]') {
                 finalPrice += 5000;
             }
         } else if (currentSelection.type === 'bundle') {
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (size && size.includes("Lengan Panjang")) {
                     finalPrice += 10000;
                 }
-                if ((item.type === 'Kaos' || item.type === 'Dryfit') && size === 'XXL') {
+                if ((item.type === 'Kaos' || item.type === 'Dryfit') && size === 'XXL [+5K]') {
                     finalPrice += 5000;
                 }
             });
