@@ -43,6 +43,31 @@ function renderQrCode(qrisString) {
 document.addEventListener('DOMContentLoaded', () => {
     
     const BACKEND_API_URL = '/api/submitmerch';
+    const targetDate = new Date("Nov 30, 2025 23:59:59").getTime();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+        if (distance < 0) {
+            clearInterval(timerInterval);
+            window.location.href = 'pomerch/closepo.html'; 
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const elDays = document.getElementById("days");
+        if(elDays) {
+            document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+            document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+        }
+    }
+    const timerInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
     const productListEl = document.getElementById('product-list');
     const multiStepModal = document.getElementById('multi-step-modal');
     const modalTitle = document.getElementById('modal-title');
