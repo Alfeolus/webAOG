@@ -43,7 +43,7 @@ function renderQrCode(qrisString) {
 document.addEventListener('DOMContentLoaded', () => {
     
     const BACKEND_API_URL = '/api/submitmerch';
-    const targetDate = new Date("Nov 30, 2025 23:59:59").getTime();
+    const targetDate = new Date("Nov 30, 2025 17:00:00").getTime();
 
     function updateCountdown() {
         const now = new Date().getTime();
