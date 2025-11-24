@@ -70,17 +70,15 @@
             
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center items horizontal */
+            align-items: center;
             justify-content: center;
         }
         lottie-player {
-            /* Ukuran diperbesar dari 200px ke 280px */
             width: 280px;
             height: 280px;
             margin-bottom: 15px;
-            /* Margin negatif diperbesar agar 'keluar' dari kotak lebih banyak */
             margin-top: -50px; 
-            filter: drop-shadow(0 0 25px rgba(255,255,255,0.15)); /* Glow sedikit diperkuat */
+            filter: drop-shadow(0 0 25px rgba(255,255,255,0.15)); 
         }
 
         h1 { 
@@ -178,15 +176,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* === RESPONSIVE MOBILE === */
         @media screen and (max-width: 600px) {
             .container {
-                /* Padding di HP disesuaikan */
                 padding: 40px 20px 30px 20px;
                 width: 92%;
             }
-            
-            /* Ukuran Santa di HP diperbesar juga (dari 150px ke 200px) */
             lottie-player {
                 width: 200px;
                 height: 200px;
@@ -202,9 +196,7 @@
             .btn { font-size: 0.9em; padding: 12px; }
         }
 
-        /* Fix untuk layar landscape/pendek */
         @media screen and (max-height: 700px) {
-            /* Ukuran Santa di layar pendek diperbesar (dari 120px ke 160px) */
             lottie-player { width: 160px; height: 160px; margin-bottom: 5px; margin-top: -30px; }
             .container { padding: 30px 20px 20px 20px; }
             h1 { font-size: 1.5em; margin-bottom: 5px; }
@@ -218,7 +210,7 @@
     <div class="container fade-in">
         
         <lottie-player 
-            src="images/santa.json" 
+            src="pomerch/images/santa.json" 
             background="transparent" 
             speed="1" 
             loop 
@@ -252,7 +244,6 @@
     </div>
 
     <script>
-        // === SCRIPT SALJU ===
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
