@@ -10,7 +10,6 @@
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 
     <style>
-        /* === RESET & GLOBAL === */
         * { box-sizing: border-box; }
 
         :root {
@@ -40,7 +39,6 @@
             position: relative;
         }
 
-        /* === EFEK SALJU === */
         .snowflake {
             position: absolute;
             top: -10px;
@@ -55,7 +53,6 @@
             100% { transform: translateY(110vh) translateX(20px); opacity: 0.3; }
         }
 
-        /* === CONTAINER UTAMA === */
         .container {
             position: relative;
             z-index: 10; 
@@ -74,32 +71,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden; /* Memotong kelebihan zoom */
+            overflow: hidden; 
         }
-
-        /* === SANTA FULL WIDTH (ZOOM HACK) === */
         dotlottie-player {
-            /* HACK: Lebarkan jadi 130% untuk membuang space kosong di file animasi */
             width: 130%; 
-            /* Tarik kembali ke tengah (-15% kiri, -15% kanan = pas di tengah) */
             margin-left: -15%; 
             
             height: auto; 
             margin-bottom: 0;
             display: block;
-            
-            /* Geser ke atas sedikit biar tidak ada celah di border radius atas */
             margin-top: -10px;
         }
-
-        /* === WRAPPER KHUSUS TEKS === */
         .text-wrapper {
             width: 100%;
             padding: 5px 30px 40px 30px; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Pastikan teks ada di atas layer canvas jika terjadi overlap */
             position: relative;
             z-index: 20;
         }
@@ -199,8 +187,6 @@
             from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* === RESPONSIVE MOBILE === */
         @media screen and (max-width: 600px) {
             .container {
                 width: 90%;
@@ -216,7 +202,6 @@
         }
 
         @media screen and (max-height: 750px) {
-            /* Sedikit penyesuaian untuk layar pendek */
             dotlottie-player { width: 100%; margin-left: 0; margin-bottom: 0; margin-top: 0; }
             .text-wrapper { padding: 10px 20px 20px 20px; }
         }
