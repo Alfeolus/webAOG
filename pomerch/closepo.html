@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PO Merch Close!!</title>
+    <title>PO Merch Ditutup - Ark of Grace</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script> 
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 
     <style>
+        /* === RESET & GLOBAL === */
         * { box-sizing: border-box; }
 
         :root {
@@ -33,11 +34,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             width: 100vw;
             overflow: hidden; 
             position: relative;
         }
+
+        /* === EFEK SALJU === */
         .snowflake {
             position: absolute;
             top: -10px;
@@ -52,13 +55,13 @@
             100% { transform: translateY(110vh) translateX(20px); opacity: 0.3; }
         }
 
-        /* === CONTAINER === */
+        /* === CONTAINER UTAMA === */
         .container {
             position: relative;
             z-index: 10; 
             width: 90%;
-            max-width: 500px;
-            padding: 50px 30px 40px 30px; 
+            max-width: 450px; 
+            padding: 0; 
             
             background: var(--bg-glass);
             backdrop-filter: blur(16px); 
@@ -71,20 +74,41 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            overflow: hidden; /* Memotong kelebihan zoom */
         }
-        lottie-player {
-            width: 280px;
-            height: 280px;
-            margin-bottom: 15px;
-            margin-top: -50px; 
-            filter: drop-shadow(0 0 25px rgba(255,255,255,0.15)); 
+
+        /* === SANTA FULL WIDTH (ZOOM HACK) === */
+        dotlottie-player {
+            /* HACK: Lebarkan jadi 130% untuk membuang space kosong di file animasi */
+            width: 130%; 
+            /* Tarik kembali ke tengah (-15% kiri, -15% kanan = pas di tengah) */
+            margin-left: -15%; 
+            
+            height: auto; 
+            margin-bottom: 0;
+            display: block;
+            
+            /* Geser ke atas sedikit biar tidak ada celah di border radius atas */
+            margin-top: -10px;
+        }
+
+        /* === WRAPPER KHUSUS TEKS === */
+        .text-wrapper {
+            width: 100%;
+            padding: 5px 30px 40px 30px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Pastikan teks ada di atas layer canvas jika terjadi overlap */
+            position: relative;
+            z-index: 20;
         }
 
         h1 { 
             font-size: 2.2em;
             font-weight: 900;
             margin-bottom: 10px;
+            margin-top: 0;
             line-height: 1.2;
             color: var(--accent-red);
             text-transform: uppercase;
@@ -176,32 +200,25 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* === RESPONSIVE MOBILE === */
         @media screen and (max-width: 600px) {
             .container {
-                padding: 40px 20px 30px 20px;
-                width: 92%;
+                width: 90%;
             }
-            lottie-player {
-                width: 200px;
-                height: 200px;
-                margin-top: -40px;
+            .text-wrapper {
+                padding: 5px 20px 30px 20px;
             }
             
             h1 { font-size: 1.8em; }
-            
             .info-box { font-size: 0.8em; }
-            
             .message { font-size: 0.9em; }
-            
             .btn { font-size: 0.9em; padding: 12px; }
         }
 
-        @media screen and (max-height: 700px) {
-            lottie-player { width: 160px; height: 160px; margin-bottom: 5px; margin-top: -30px; }
-            .container { padding: 30px 20px 20px 20px; }
-            h1 { font-size: 1.5em; margin-bottom: 5px; }
-            .message { margin-bottom: 10px; }
-            .divider { margin: 10px 0; }
+        @media screen and (max-height: 750px) {
+            /* Sedikit penyesuaian untuk layar pendek */
+            dotlottie-player { width: 100%; margin-left: 0; margin-bottom: 0; margin-top: 0; }
+            .text-wrapper { padding: 10px 20px 20px 20px; }
         }
     </style>
 </head>
@@ -209,36 +226,38 @@
 
     <div class="container fade-in">
         
-        <lottie-player 
-            src="pomerch/images/santa.json" 
+        <dotlottie-player 
+            src="https://lottie.host/fe3d3a62-1223-40ec-b7a8-3b83eb9fdabe/B9EW0st4CQ.lottie" 
             background="transparent" 
             speed="1" 
             loop 
             autoplay>
-        </lottie-player>
+        </dotlottie-player>
         
-        <h1>PO Close!!</h1>
-        
-        <div class="info-box">
-            PO Merch Ark Of Grace Udah close!!
-        </div>
-        
-        <p class="message">
-            Pesanan kalian sedang dalam tahap <span class="highlight">Proses</span> yaa!!    
-        </p>
-
-        <div class="divider"></div>
-
-        <p class="message" style="font-size: 0.9em; opacity: 0.8;">
-            See you di acara Ark Of Grace
-        </p>
-
-        <div class="button-group">
-            <a href="https://instagram.com/natal.pptippbp" class="btn btn-primary" target="_blank">
-                Pantau terus Instagram Kita
-            </a>
+        <div class="text-wrapper">
             
+            <h1>PO Close!!</h1>
             
+            <div class="info-box">
+                PO Merch Ark Of Grace Udah close!!
+            </div>
+            
+            <p class="message">
+                Pesanan kalian sedang dalam tahap <span class="highlight">Proses </span>yaa!!
+            </p>
+
+            <div class="divider"></div>
+
+            <p class="message" style="font-size: 0.9em; opacity: 0.8;">
+                See You di Acara Ark Of Grace!!
+            </p>
+
+            <div class="button-group">
+                <a href="https://instagram.com/natal.pptippbp" class="btn btn-primary" target="_blank">
+                    Pantau Terus instagram AOG
+                </a>
+            </div>
+
         </div>
 
     </div>
@@ -247,25 +266,16 @@
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
-            
             const size = Math.random() * 3 + 2 + 'px';
             snowflake.style.width = size;
             snowflake.style.height = size;
-            
             snowflake.style.left = Math.random() * 100 + 'vw';
-            
             const duration = Math.random() * 7 + 2 + 's';
             snowflake.style.animation = `fall ${duration} linear infinite`;
-            
             snowflake.style.opacity = Math.random() * 0.5 + 0.3;
-
             document.body.appendChild(snowflake);
-
-            setTimeout(() => {
-                snowflake.remove();
-            }, parseFloat(duration) * 1000);
+            setTimeout(() => { snowflake.remove(); }, parseFloat(duration) * 1000);
         }
-
         setInterval(createSnowflake, 50); 
     </script>
 
