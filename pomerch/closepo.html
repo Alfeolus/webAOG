@@ -2,64 +2,281 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PO Ditutup - Ark of Grace</title>
-    <link rel="stylesheet" href="pomerch/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PO Merch Close!!</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script> 
+
     <style>
-        /* Override style khusus halaman ini */
-        body {
+        * { box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a0a; 
+            --bg-glass: rgba(30, 30, 30, 0.65); 
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --accent-blue: #00aaff;
+            --accent-red: #ff3333; 
+            --border-glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            text-align: center; 
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            background: radial-gradient(circle at 50% 0%, #1a2a3a 0%, #0a0a0a 100%);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            text-align: center;
+            width: 100vw;
+            overflow: hidden; 
+            position: relative;
         }
-        .closed-container {
-            background: #1e1e1e;
-            padding: 40px;
-            border-radius: 15px;
-            border: 1px solid #333;
-            max-width: 500px;
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            background-color: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0); opacity: 1; }
+            100% { transform: translateY(110vh) translateX(20px); opacity: 0.3; }
+        }
+
+        /* === CONTAINER === */
+        .container {
+            position: relative;
+            z-index: 10; 
             width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 500px;
+            padding: 50px 30px 40px 30px; 
+            
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            
+            border-radius: 20px; 
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6); 
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center items horizontal */
+            justify-content: center;
         }
-        h1 { color: #ff4d4d; margin-bottom: 10px; }
-        p { color: #aaa; margin-bottom: 30px; line-height: 1.6; }
-        .btn-contact {
-            background-color: #25D366; /* Warna WA */
-            color: white;
+        lottie-player {
+            /* Ukuran diperbesar dari 200px ke 280px */
+            width: 280px;
+            height: 280px;
+            margin-bottom: 15px;
+            /* Margin negatif diperbesar agar 'keluar' dari kotak lebih banyak */
+            margin-top: -50px; 
+            filter: drop-shadow(0 0 25px rgba(255,255,255,0.15)); /* Glow sedikit diperkuat */
+        }
+
+        h1 { 
+            font-size: 2.2em;
+            font-weight: 900;
+            margin-bottom: 10px;
+            line-height: 1.2;
+            color: var(--accent-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 51, 51, 0.4);
+        }
+
+        .message {
+            font-size: 1em;
+            color: var(--text-secondary); 
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .highlight {
+            color: var(--text-primary);
+            font-weight: 700;
+            text-decoration: underline decoration-color(var(--accent-blue)) 3px;
+            text-underline-offset: 4px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .info-box {
+            background: rgba(0, 170, 255, 0.1);
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #66c2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .info-box::before {
+            content: '❄️'; font-size: 1.2em;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 14px 20px;
             text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-weight: bold;
-            display: inline-block;
-            transition: transform 0.2s;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
         }
-        .btn-contact:hover { transform: scale(1.05); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+        }
+
+        .fade-in {
+            animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === RESPONSIVE MOBILE === */
+        @media screen and (max-width: 600px) {
+            .container {
+                /* Padding di HP disesuaikan */
+                padding: 40px 20px 30px 20px;
+                width: 92%;
+            }
+            
+            /* Ukuran Santa di HP diperbesar juga (dari 150px ke 200px) */
+            lottie-player {
+                width: 200px;
+                height: 200px;
+                margin-top: -40px;
+            }
+            
+            h1 { font-size: 1.8em; }
+            
+            .info-box { font-size: 0.8em; }
+            
+            .message { font-size: 0.9em; }
+            
+            .btn { font-size: 0.9em; padding: 12px; }
+        }
+
+        /* Fix untuk layar landscape/pendek */
+        @media screen and (max-height: 700px) {
+            /* Ukuran Santa di layar pendek diperbesar (dari 120px ke 160px) */
+            lottie-player { width: 160px; height: 160px; margin-bottom: 5px; margin-top: -30px; }
+            .container { padding: 30px 20px 20px 20px; }
+            h1 { font-size: 1.5em; margin-bottom: 5px; }
+            .message { margin-bottom: 10px; }
+            .divider { margin: 10px 0; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="closed-container">
-        <img src="pomerch/images/logo.png" alt="Logo" style="height: 80px; margin-bottom: 20px;">
+    <div class="container fade-in">
         
-        <h1>PO SUDAH DITUTUP</h1>
+        <lottie-player 
+            src="images/santa.json" 
+            background="transparent" 
+            speed="1" 
+            loop 
+            autoplay>
+        </lottie-player>
         
-        <p>
-            Terima kasih atas antusiasme teman-teman!<br>
-            Masa Pre-Order untuk merchandise Ark of Grace<br>
-            sudah berakhir pada <b>30 November 2025</b>.
-        </p>
+        <h1>PO Close!!</h1>
         
-        <p>
-            Sudah pesan tapi belum bayar? <br>
-            Atau butuh bantuan terkait pesanan kamu?
+        <div class="info-box">
+            PO Merch Ark Of Grace Udah close!!
+        </div>
+        
+        <p class="message">
+            Pesanan kalian sedang dalam tahap <span class="highlight">Proses</span> yaa!!    
         </p>
 
-        <a href="https://wa.me/62895711117788" class="btn-contact">
-            Hubungi Admin (WhatsApp)
-        </a>
+        <div class="divider"></div>
+
+        <p class="message" style="font-size: 0.9em; opacity: 0.8;">
+            See you di acara Ark Of Grace
+        </p>
+
+        <div class="button-group">
+            <a href="https://instagram.com/natal.pptippbp" class="btn btn-primary" target="_blank">
+                Pantau terus Instagram Kita
+            </a>
+            
+            
+        </div>
+
     </div>
+
+    <script>
+        // === SCRIPT SALJU ===
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            
+            const size = Math.random() * 3 + 2 + 'px';
+            snowflake.style.width = size;
+            snowflake.style.height = size;
+            
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            
+            const duration = Math.random() * 7 + 2 + 's';
+            snowflake.style.animation = `fall ${duration} linear infinite`;
+            
+            snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+
+            document.body.appendChild(snowflake);
+
+            setTimeout(() => {
+                snowflake.remove();
+            }, parseFloat(duration) * 1000);
+        }
+
+        setInterval(createSnowflake, 50); 
+    </script>
 
 </body>
 </html>
